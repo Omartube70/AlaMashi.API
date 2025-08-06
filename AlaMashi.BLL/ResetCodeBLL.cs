@@ -84,6 +84,7 @@ namespace AlaMashi.BLL
                     }
                     return this.UserID != -1;
 
+
                 case enMode.Update:
 
                     return _UpdateResetCode();
