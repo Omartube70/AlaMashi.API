@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AlaMashi.BLL;
 using Microsoft.IdentityModel.Tokens;
 
 public class JwtService
@@ -15,7 +16,7 @@ public class JwtService
         _issuer = issuer;
     }
 
-    public string GenerateToken(int userId, string username, int permissions, int expireMinutes = 60)
+    public string GenerateToken(int userId, string username, UserBLL.enPermissions permissions, int expireMinutes = 60)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_secretKey);

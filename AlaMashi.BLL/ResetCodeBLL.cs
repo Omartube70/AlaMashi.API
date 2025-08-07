@@ -115,11 +115,11 @@ namespace AlaMashi.BLL
                 return  ResetCodes;
             }
 
-            public static List< ResetCodeBLL> GetAllResetCodes()
+         public static List< ResetCodeBLL> GetAllResetCodes()
             {
                 return ConvertDataTableToResetCodeList( ResetCodeDAL.GetAllResetCodes());
             }
-        }
+    }
 }
 
 

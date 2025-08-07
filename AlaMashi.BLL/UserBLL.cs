@@ -15,15 +15,16 @@ namespace AlaMashi.BLL
         public enum enMode { AddNew = 0, Update = 1 };
         public enMode Mode = enMode.AddNew;
 
+        public enum enPermissions { User = 1 , Admin = -1 }
+        public enPermissions Permissions;
 
         public int UserID { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+
+        public string Password { get; set; }
         public string PasswordHash { get; set; }
-        public int Permissions { get; set; }
-
-
 
 
         public UserBLL()
@@ -33,11 +34,12 @@ namespace AlaMashi.BLL
             this.Email = "";
             this.Phone = "";
             this.PasswordHash = "";
-            this.Permissions = 0;
+            this.Password = "";
+            this.Permissions = enPermissions.User;
             Mode = enMode.AddNew;
         }
 
-        private UserBLL(int UserID, string UserName, string Email, string Phone, string PasswordHash , int Permissions)
+        private UserBLL(int UserID, string UserName, string Email, string Phone, string PasswordHash , enPermissions Permissions)
         {
             this.UserID = UserID;
             this.UserName = UserName;
@@ -62,33 +64,32 @@ namespace AlaMashi.BLL
         {
             //call DataAccess Layer 
 
-            PasswordHash = HashPassword(this.PasswordHash);
+            this.PasswordHash = HashPassword(this.Password);
 
-            this.UserID = UserDAL.AddNewUser(this.UserName, this.Email, this.Phone, this.PasswordHash , this.Permissions);
+            // قم بمسح كلمة المرور من الذاكرة بعد استخدامها
+            this.Password = "";
+
+            this.UserID = UserDAL.AddNewUser(this.UserName, this.Email, this.Phone, this.PasswordHash , ((int)this.Permissions));
 
             return (this.UserID != -1);
         }
 
         private bool _UpdateUser()
         {
-            // نجيب الهاش القديم من الداتابيز
-            string existingPasswordHash = "";
-            string dbEmail = "", dbPhone = "" , dbUserName = "";
-            int Permissions = 0;
-            UserDAL.GetUserInfoByID(this.UserID, ref dbUserName, ref dbEmail, ref dbPhone, ref existingPasswordHash, ref Permissions);
-
-            // لو الباسورد اتغير (يعني المستخدم كتب واحد جديد) → نشفره من جديد
-            if (!BCrypt.Net.BCrypt.Verify(this.PasswordHash, existingPasswordHash) & this.PasswordHash != existingPasswordHash)
+            // إذا كان المستخدم قد أدخل كلمة مرور جديدة، قم بتشفيرها
+            if (!string.IsNullOrEmpty(this.Password))
             {
-                this.PasswordHash = HashPassword(this.PasswordHash);
+                this.PasswordHash = HashPassword(this.Password);
+                // قم بمسح كلمة المرور من الذاكرة بعد استخدامها
+                this.Password = "";
             }
             else
             {
-                // لو نفس الباسورد القديم، خليه زي ما هو
-                this.PasswordHash = existingPasswordHash;
+                // إذا لم يدخل كلمة مرور جديدة، استخدم الهاش القديم من قاعدة البيانات
+                this.PasswordHash = GetPassowrdHashFromDB(this.UserID);
             }
 
-            return UserDAL.UpdateUser(this.UserID, this.UserName, this.Email, this.Phone, this.PasswordHash, this.Permissions);
+            return UserDAL.UpdateUser(this.UserID, this.UserName, this.Email, this.Phone, this.PasswordHash, ((int)this.Permissions));
         }
 
         public static UserBLL FindByUserID(int UserID)
@@ -100,21 +101,7 @@ namespace AlaMashi.BLL
             if (UserDAL.GetUserInfoByID(UserID, ref UserName, ref Email, ref Phone, ref PasswordHash , ref Permissions))
 
                 return new UserBLL(UserID, UserName,
-                           Email, Phone, PasswordHash , Permissions);
-            else
-                return null;
-        }
-
-        public static UserBLL FindByUserUserName(string UserName)
-        {
-             string Email = "", PasswordHash = "" , Phone = "";
-             int Permissions = 0;
-             int UserID = -1;    
-
-            if (UserDAL.GetUserInfoByUserName(UserName , ref UserID, ref Email, ref Phone, ref PasswordHash , ref Permissions))
-
-                return new UserBLL(UserID, UserName,
-                           Email, Phone, PasswordHash , Permissions);
+                           Email, Phone, PasswordHash , ((enPermissions)Permissions));
             else
                 return null;
         }
@@ -128,22 +115,63 @@ namespace AlaMashi.BLL
             if (UserDAL.GetUserInfoByEmail(Email, ref UserID , ref UserName, ref Phone, ref PasswordHash, ref Permissions))
 
                 return new UserBLL(UserID, UserName,
-                           Email, Phone, PasswordHash, Permissions);
+                           Email, Phone, PasswordHash, ((enPermissions)Permissions));
             else
                 return null;
         }
 
+        public static string GetPassowrdHashFromDB(int UserID)
+        {
+            string existingPasswordHash = "";
+            string dbEmail = "", dbPhone = "", dbUserName = "";
+            int dbPermissions = 0;
+            UserDAL.GetUserInfoByID(UserID, ref dbUserName, ref dbEmail, ref dbPhone, ref existingPasswordHash, ref dbPermissions);
+
+            return existingPasswordHash;
+        }
+
         public bool Save()
         {
-            if (string.IsNullOrEmpty(this.UserName) || string.IsNullOrEmpty(this.Email) || string.IsNullOrEmpty(this.Phone) || string.IsNullOrEmpty(this.PasswordHash))
+            if (isUserExist(this.UserID))
+                this.Mode = enMode.Update;
+
+            // التحقق من الحقول الأساسية
+            if (string.IsNullOrEmpty(this.UserName) || string.IsNullOrEmpty(this.Email) || string.IsNullOrEmpty(this.Phone))
             {
-                return false; // Validation failed, return false
+                throw new ArgumentException("All fields are required.");
             }
 
-            if (isUserExist(this.UserID))
+            // 1. التحقق من صحة صيغة البريد الإلكتروني
+            if (!ValidationHelper.IsEmailValid(this.Email))
             {
-                this.Mode = enMode.Update;
+                throw new ArgumentException("Invalid email format.");
             }
+
+            // 2. التحقق من وجود البريد الإلكتروني في قاعدة البيانات (فقط عند الإضافة)
+            if (Mode == enMode.AddNew && IsEmailExists(this.Email))
+            {
+                throw new ArgumentException("Email already exists.");
+            }
+
+
+            // التحقق من صحة صيغة رقم الهاتف
+            if (!ValidationHelper.IsPhoneValid(this.Phone))
+            {
+                throw new ArgumentException("Invalid phone number format.");
+            }
+
+            // التحقق من صحة كلمة المرور فقط في حالتي:
+            // 1. إضافة مستخدم جديد (حيث يجب إدخال كلمة مرور)
+            // 2. تحديث مستخدم وكلمة المرور ليست فارغة (يعني المستخدم يريد تغييرها)
+            if (Mode == enMode.AddNew || !string.IsNullOrEmpty(this.Password))
+            {
+                // استدعاء دالة التحقق من كلاس Validator
+                if (!ValidationHelper.IsPasswordValid(this.Password))
+                {
+                    throw new ArgumentException("Password does not meet the requirements.");
+                }
+            }
+
 
             switch (Mode)
             {
@@ -151,13 +179,12 @@ namespace AlaMashi.BLL
                     if (_AddNewUser())
                     {
                         Mode = enMode.Update;
-                    }      
+                    }
                     return this.UserID != -1;
 
                 case enMode.Update:
-
+                    // هنا ستستمر في التحديث، و_UpdateUser() ستتعامل مع كلمة المرور
                     return _UpdateUser();
-
             }
 
             return false;
@@ -176,7 +203,7 @@ namespace AlaMashi.BLL
                     Email = row["Email"].ToString(),
                     Phone = row["Phone"].ToString(),
                     PasswordHash = row["PasswordHash"].ToString(),
-                    Permissions = Convert.ToInt32(row["Permissions"])
+                    Permissions = ((enPermissions)Convert.ToInt32(row["Permissions"]))
                 };
 
                 Users.Add(user);
@@ -200,36 +227,15 @@ namespace AlaMashi.BLL
             return UserDAL.DeleteUser(this.UserID);
         }
 
-
         public static bool isUserExist(int UserID)
         {
             return UserDAL.IsUserExist(UserID);
         }
 
-
-        public static UserBLL GetUserByCredentials(string UserName, string Password)
+        public static bool IsEmailExists(string Email)
         {
-            int UserID = -1;
-            string Email = "" , Phone = "" , PasswordHash = "";
-            int Permissions = 0;
-
-
-
-            if (UserDAL.GetUserInfoByUserName(UserName, ref UserID, ref Email, ref Phone, ref PasswordHash, ref Permissions))
-            {
-                if(VerifyPassword(Password, PasswordHash))
-                {
-                    return new UserBLL(UserID, UserName, Email, Phone, PasswordHash, Permissions);
-                }
-            }
-                return null;
+            return UserDAL.IsEmailExists(Email);
         }
-
-        public static bool IsUserNameExists(string UserName)
-        {
-            return UserDAL.IsUserNameExists(UserName);
-        }
-
     }
 }
 
