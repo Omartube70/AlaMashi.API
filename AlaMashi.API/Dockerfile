@@ -7,7 +7,8 @@ WORKDIR /src
 COPY ["AlaMashi.API/AlaMashi.API.csproj", "AlaMashi.API/"]
 COPY ["AlaMashi.BLL/AlaMashi.BLL.csproj", "AlaMashi.BLL/"]
 COPY ["AlaMashi.DAL/AlaMashi.DAL.csproj", "AlaMashi.DAL/"]
-COPY ["AlaMashi.sln", "."]
+COPY ["../AlaMashi.sln", "."]
+
 
 # اعمل restore للـ dependencies للمشاريع كلها
 RUN dotnet restore "AlaMashi.sln"
