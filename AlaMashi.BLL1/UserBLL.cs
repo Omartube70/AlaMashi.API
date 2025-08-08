@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using BCrypt.Net;
 using AlaMashi.DAL;
-
+//new
 namespace AlaMashi.BLL
 {
     public class UserBLL
     {
+
         public enum enMode { AddNew = 0, Update = 1 };
         public enMode Mode = enMode.AddNew;
+
 
         public enum enPermissions { User = 1 , Admin = -1 }
         public enPermissions Permissions;

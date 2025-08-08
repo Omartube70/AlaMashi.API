@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using Microsoft.SqlServer.Server;
 using System.Data;
-
+// new
 namespace AlaMashi.DAL
 {
     public class UserDAL
     {
+        [Obsolete]
         public static bool GetUserInfoByID(int UserID, ref string UserName,
              ref string Email, ref string Phone, ref string PasswordHash, ref int Permissions)
         {
