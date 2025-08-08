@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AlaMashi.DAL1\AlaMashi.DAL.csproj" />
+    <ProjectReference Include="..\AlaMashi.DAL\AlaMashi.DAL.csproj" />
   </ItemGroup>
 
 </Project>
