@@ -63,13 +63,10 @@
     <Compile Include="ValidationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AlaMashi.DAL\AlaMashi.DAL.csproj">
-      <Project>{93ba0c56-cce3-42ca-bffb-da9df9b99a98}</Project>
-      <Name>AlaMashi.DAL</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\AlaMashi.DAL\AlaMashi.DAL.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
