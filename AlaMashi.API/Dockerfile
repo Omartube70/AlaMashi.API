@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# انسخ كل الكود من الـ repository دفعة واحدة
+# انسخ كل ملفات المشروع
 COPY . .
 
 # اعمل restore لكل الـ dependencies في الـ solution بالكامل
