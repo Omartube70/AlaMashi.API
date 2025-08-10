@@ -35,11 +35,9 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // تهيئة مسار طلبات HTTP
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
