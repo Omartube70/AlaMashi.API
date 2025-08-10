@@ -55,7 +55,7 @@ public class UsersController : ControllerBase
 
     // --- CRUD Operations ---
 
-    [HttpGet]
+    [HttpGet("All")]
     public ActionResult<IEnumerable<ResponseUserDto>> GetAllUsers()
     {
         var users = UserBLL.GetAllUsers(_userDAL);
@@ -99,7 +99,7 @@ public class UsersController : ControllerBase
         return Ok(userDto);
     }
 
-    [HttpPost]
+    [HttpPost("Create")]
     public IActionResult CreateUser([FromBody] CreateUserDto userDto)
     {
         if (!ModelState.IsValid)
