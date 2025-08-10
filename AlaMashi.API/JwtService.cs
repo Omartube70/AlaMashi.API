@@ -4,16 +4,18 @@ using System.Security.Claims;
 using System.Text;
 using AlaMashi.BLL;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration; // إضافة هذه المكتبة
 
 public class JwtService
 {
     private readonly string _secretKey;
     private readonly string _issuer;
 
-    public JwtService(string secretKey, string issuer)
+    // استخدام IConfiguration مباشرة في الـ constructor
+    public JwtService(IConfiguration configuration)
     {
-        _secretKey = secretKey;
-        _issuer = issuer;
+        _secretKey = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is not configured.");
+        _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer is not configured.");
     }
 
     public string GenerateToken(int userId, string username, UserBLL.enPermissions permissions, int expireMinutes = 60)
@@ -26,8 +28,8 @@ public class JwtService
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim("UserID", userId.ToString()),
-                new Claim("Username", username),
-                new Claim("Permissions", permissions.ToString())
+                new Claim(ClaimTypes.Name, username), // استخدام ClaimTypes.Name أفضل للتعريف
+                new Claim("Permissions", ((int)permissions).ToString()) // إضافة القيمة الرقمية
             }),
             Expires = DateTime.UtcNow.AddMinutes(expireMinutes),
             Issuer = _issuer,
@@ -50,7 +52,7 @@ public class JwtService
         {
             ValidateIssuer = true,
             ValidIssuer = _issuer,
-            ValidateAudience = false,
+            ValidateAudience = false, // يمكن تغييرها إلى true إذا كان لديك جمهور محدد
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateLifetime = true,
@@ -61,8 +63,10 @@ public class JwtService
         {
             return tokenHandler.ValidateToken(token, validationParameters, out _);
         }
-        catch
+        catch (Exception ex)
         {
+            // TODO: تسجيل الخطأ هنا (log the exception)
+            Console.WriteLine($"Token validation failed: {ex.Message}");
             return null;
         }
     }

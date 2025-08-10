@@ -1,60 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
 using BCrypt.Net;
-using AlaMashi.DAL;
-//new
+using AlaMashi.DAL; // افترض أن هذا هو الـ Namespace الصحيح
+
 namespace AlaMashi.BLL
 {
     public class UserBLL
     {
+        private readonly UserDAL _userDAL;
 
+        public enum enPermissions { User = 1, Admin = -1 }
         public enum enMode { AddNew = 0, Update = 1 };
-        public enMode Mode = enMode.AddNew;
 
-
-        public enum enPermissions { User = 1 , Admin = -1 }
-        public enPermissions Permissions;
-
-        public int UserID { get; set; }
+        public int UserID { get; private set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+        public string Password { get; set; } // يتم تعيينها مؤقتاً للتشفير فقط
+        public string PasswordHash { get; private set; }
+        public enPermissions Permissions { get; set; }
+        public enMode Mode { get; private set; }
 
-        public string Password { get; set; }
-        public string PasswordHash { get; set; }
+        public bool IsUserExist => UserID != -1;
 
-
-        public UserBLL()
+        public UserBLL(UserDAL userDAL)
         {
-            this.UserID = -1;
-            this.UserName = "";
-            this.Email = "";
-            this.Phone = "";
-            this.PasswordHash = "";
-            this.Password = "";
-            this.Permissions = enPermissions.User;
+            _userDAL = userDAL ?? throw new ArgumentNullException(nameof(userDAL));
+
+            UserID = -1;
+            UserName = "";
+            Email = "";
+            Phone = "";
+            PasswordHash = "";
+            Permissions = enPermissions.User;
             Mode = enMode.AddNew;
         }
 
-        private UserBLL(int UserID, string UserName, string Email, string Phone, string PasswordHash , enPermissions Permissions)
+        // private constructor for existing users
+        private UserBLL(UserDAL userDAL, UserData userData)
         {
-            this.UserID = UserID;
-            this.UserName = UserName;
-            this.Email = Email;
-            this.Phone = Phone;
-            this.PasswordHash = PasswordHash;
-            this.Permissions = Permissions;
+            _userDAL = userDAL;
+            UserID = userData.UserID;
+            UserName = userData.UserName;
+            Email = userData.Email;
+            Phone = userData.Phone;
+            PasswordHash = userData.PasswordHash;
+            Permissions = (enPermissions)userData.Permissions;
             Mode = enMode.Update;
-        }
-
-        public static bool VerifyPassword(string plainPassword, string hashedPassword)
-        {
-            return BCrypt.Net.BCrypt.Verify(plainPassword, hashedPassword);
         }
 
         public static string HashPassword(string password)
@@ -62,182 +55,119 @@ namespace AlaMashi.BLL
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
-        private bool _AddNewUser()
+        public static bool VerifyPassword(string plainPassword, string hashedPassword)
         {
-            //call DataAccess Layer 
-
-            this.PasswordHash = HashPassword(this.Password);
-
-            // قم بمسح كلمة المرور من الذاكرة بعد استخدامها
-            this.Password = "";
-
-            this.UserID = UserDAL.AddNewUser(this.UserName, this.Email, this.Phone, this.PasswordHash , ((int)this.Permissions));
-
-            return (this.UserID != -1);
+            return BCrypt.Net.BCrypt.Verify(plainPassword, hashedPassword);
         }
 
-        private bool _UpdateUser()
+        public static UserBLL FindByUserID(UserDAL userDAL, int userID)
         {
-            // إذا كان المستخدم قد أدخل كلمة مرور جديدة، قم بتشفيرها
-            if (!string.IsNullOrEmpty(this.Password))
+            UserData userData = userDAL.GetUserInfoByID(userID);
+            if (userData != null)
             {
-                this.PasswordHash = HashPassword(this.Password);
-                // قم بمسح كلمة المرور من الذاكرة بعد استخدامها
-                this.Password = "";
+                return new UserBLL(userDAL, userData);
             }
-            else
+            return null;
+        }
+
+        public static UserBLL GetUserByEmail(UserDAL userDAL, string email)
+        {
+            UserData userData = userDAL.GetUserInfoByEmail(email);
+            if (userData != null)
             {
-                // إذا لم يدخل كلمة مرور جديدة، استخدم الهاش القديم من قاعدة البيانات
-                this.PasswordHash = GetPassowrdHashFromDB(this.UserID);
+                return new UserBLL(userDAL, userData);
             }
-
-            return UserDAL.UpdateUser(this.UserID, this.UserName, this.Email, this.Phone, this.PasswordHash, ((int)this.Permissions));
-        }
-
-        public static UserBLL FindByUserID(int UserID)
-        {
-            string UserName = "" ,Email = "", PasswordHash = "" , Phone = "";
-            int Permissions = 0;
-
-
-            if (UserDAL.GetUserInfoByID(UserID, ref UserName, ref Email, ref Phone, ref PasswordHash , ref Permissions))
-
-                return new UserBLL(UserID, UserName,
-                           Email, Phone, PasswordHash , ((enPermissions)Permissions));
-            else
-                return null;
-        }
-
-        public static UserBLL GetUserByEmail(string Email)
-        {
-            string UserName = "", PasswordHash = "", Phone = "";
-            int Permissions = 0;
-            int UserID = -1;
-
-            if (UserDAL.GetUserInfoByEmail(Email, ref UserID , ref UserName, ref Phone, ref PasswordHash, ref Permissions))
-
-                return new UserBLL(UserID, UserName,
-                           Email, Phone, PasswordHash, ((enPermissions)Permissions));
-            else
-                return null;
-        }
-
-        public static string GetPassowrdHashFromDB(int UserID)
-        {
-            string existingPasswordHash = "";
-            string dbEmail = "", dbPhone = "", dbUserName = "";
-            int dbPermissions = 0;
-            UserDAL.GetUserInfoByID(UserID, ref dbUserName, ref dbEmail, ref dbPhone, ref existingPasswordHash, ref dbPermissions);
-
-            return existingPasswordHash;
+            return null;
         }
 
         public bool Save()
         {
-            if (isUserExist(this.UserID))
-                this.Mode = enMode.Update;
-
-            // التحقق من الحقول الأساسية
-            if (string.IsNullOrEmpty(this.UserName) || string.IsNullOrEmpty(this.Email) || string.IsNullOrEmpty(this.Phone))
+            // Validation (كما هي، لكن مع بعض التحسينات الطفيفة)
+            if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Phone))
             {
-                throw new ArgumentException("All fields are required.");
+                throw new ArgumentException("All required fields must be filled.");
             }
 
-            // 1. التحقق من صحة صيغة البريد الإلكتروني
-            if (!ValidationHelper.IsEmailValid(this.Email))
+            if (!ValidationHelper.IsEmailValid(Email))
             {
                 throw new ArgumentException("Invalid email format.");
             }
-
-            // 2. التحقق من وجود البريد الإلكتروني في قاعدة البيانات (فقط عند الإضافة)
-            if (Mode == enMode.AddNew && IsEmailExists(this.Email))
-            {
-                throw new ArgumentException("Email already exists.");
-            }
-
-
-            // التحقق من صحة صيغة رقم الهاتف
-            if (!ValidationHelper.IsPhoneValid(this.Phone))
+            if (!ValidationHelper.IsPhoneValid(Phone))
             {
                 throw new ArgumentException("Invalid phone number format.");
             }
 
-            // التحقق من صحة كلمة المرور فقط في حالتي:
-            // 1. إضافة مستخدم جديد (حيث يجب إدخال كلمة مرور)
-            // 2. تحديث مستخدم وكلمة المرور ليست فارغة (يعني المستخدم يريد تغييرها)
-            if (Mode == enMode.AddNew || !string.IsNullOrEmpty(this.Password))
+            if (Mode == enMode.AddNew || !string.IsNullOrEmpty(Password))
             {
-                // استدعاء دالة التحقق من كلاس Validator
-                if (!ValidationHelper.IsPasswordValid(this.Password))
+                if (!ValidationHelper.IsPasswordValid(Password))
                 {
                     throw new ArgumentException("Password does not meet the requirements.");
                 }
             }
 
-
-            switch (Mode)
+            if (Mode == enMode.AddNew)
             {
-                case enMode.AddNew:
-                    if (_AddNewUser())
-                    {
-                        Mode = enMode.Update;
-                    }
-                    return this.UserID != -1;
+                if (_userDAL.IsEmailExists(Email))
+                {
+                    throw new ArgumentException("Email already exists.");
+                }
 
-                case enMode.Update:
-                    // هنا ستستمر في التحديث، و_UpdateUser() ستتعامل مع كلمة المرور
-                    return _UpdateUser();
+                PasswordHash = HashPassword(Password);
+                int newUserID = _userDAL.AddNewUser(UserName, Email, Phone, PasswordHash, (int)Permissions);
+
+                if (newUserID != -1)
+                {
+                    UserID = newUserID;
+                    Mode = enMode.Update;
+                    return true;
+                }
+
+                return false;
             }
+            else // Mode == enMode.Update
+            {
+                if (!string.IsNullOrEmpty(Password))
+                {
+                    PasswordHash = HashPassword(Password);
+                }
 
-            return false;
+                return _userDAL.UpdateUser(UserID, UserName, Email, Phone, PasswordHash, (int)Permissions);
+            }
         }
 
-        public static List<UserBLL> ConvertDataTableToUserList(DataTable dt)
+        public bool Delete()
         {
-            List<UserBLL> Users = new List<UserBLL>();
+            return _userDAL.DeleteUser(this.UserID);
+        }
+
+        public static bool DeleteUser(UserDAL userDAL, int userID)
+        {
+            return userDAL.DeleteUser(userID);
+        }
+
+        public static List<UserBLL> GetAllUsers(UserDAL userDAL)
+        {
+            List<UserBLL> users = new List<UserBLL>();
+            DataTable dt = userDAL.GetAllUsers();
 
             foreach (DataRow row in dt.Rows)
             {
-                UserBLL user = new UserBLL
+                var userData = new UserData
                 {
                     UserID = Convert.ToInt32(row["UserID"]),
                     UserName = row["UserName"].ToString(),
                     Email = row["Email"].ToString(),
                     Phone = row["Phone"].ToString(),
                     PasswordHash = row["PasswordHash"].ToString(),
-                    Permissions = ((enPermissions)Convert.ToInt32(row["Permissions"]))
+                    Permissions = Convert.ToInt32(row["Permissions"])
                 };
-
-                Users.Add(user);
+                users.Add(new UserBLL(userDAL, userData));
             }
-
-            return Users;
+            return users;
         }
 
-        public static List<UserBLL> GetAllUsers()
-        {
-            return ConvertDataTableToUserList(UserDAL.GetAllUsers());
-        }
-
-        public static bool DeleteUser(int UserID)
-        {
-            return UserDAL.DeleteUser(UserID);
-        }
-
-        public bool DeleteUser()
-        {
-            return UserDAL.DeleteUser(this.UserID);
-        }
-
-        public static bool isUserExist(int UserID)
-        {
-            return UserDAL.IsUserExist(UserID);
-        }
-
-        public static bool IsEmailExists(string Email)
-        {
-            return UserDAL.IsEmailExists(Email);
-        }
+        // Helpers
+        public bool isEmailExists() => _userDAL.IsEmailExists(Email);
+        public static bool isUserExist(UserDAL userDAL, int userID) => userDAL.IsUserExist(userID);
     }
 }
-
