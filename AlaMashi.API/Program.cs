@@ -26,7 +26,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
 // تهيئة مسار طلبات HTTP
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
