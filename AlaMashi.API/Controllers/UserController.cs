@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 // DTOs (Data Transfer Objects)
-// يمكنك وضعها في ملف منفصل أو كلاس منفصل لتنظيم أفضل
 public class CreateUserDto
 {
     public string UserName { get; set; }
@@ -84,7 +83,7 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            return NotFound();
+            throw new KeyNotFoundException($"User with ID {UserID} was not found.");
         }
 
         var userDto = new ResponseUserDto
@@ -102,13 +101,6 @@ public class UsersController : ControllerBase
     [HttpPost("Create")]
     public IActionResult CreateUser([FromBody] CreateUserDto userDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
             var newUserBLL = new UserBLL(_userDAL)
             {
                 UserName = userDto.UserName,
@@ -131,23 +123,17 @@ public class UsersController : ControllerBase
 
                 return CreatedAtAction(nameof(GetUserById), new { UserID = newUserBLL.UserID }, responseDto);
             }
-            return BadRequest("Failed to create user.");
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+                throw new Exception("An error occurred while creating the user.");
     }
 
     [HttpPut("{UserID}")]
     public IActionResult UpdateUser(int UserID, [FromBody] UpdateUserDto userDto)
     {
-        try
-        {
+
             var userToUpdate = UserBLL.FindByUserID(_userDAL, UserID);
             if (userToUpdate == null)
             {
-                return NotFound("User not found.");
+                throw new KeyNotFoundException($"User with ID {UserID} was not found.");
             }
 
             userToUpdate.UserName = userDto.UserName;
@@ -160,12 +146,8 @@ public class UsersController : ControllerBase
             {
                 return Ok("User updated successfully.");
             }
-            return BadRequest("Failed to update user.");
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        throw new Exception("An error occurred while updating the user.");
     }
 
     [HttpDelete("{UserID}")]
@@ -173,15 +155,15 @@ public class UsersController : ControllerBase
     {
         if (!UserBLL.isUserExist(_userDAL, UserID))
         {
-            return NotFound("User not found.");
+            throw new KeyNotFoundException($"User with ID {UserID} was not found.");
         }
 
-        var success = UserBLL.DeleteUser(_userDAL, UserID);
-        if (success)
+        if (UserBLL.DeleteUser(_userDAL, UserID))
         {
-            return Ok("User deleted successfully.");
+            return NoContent();
         }
-        return BadRequest("Could not delete user.");
+
+        throw new Exception("An error occurred while deleting the user.");
     }
 
     // --- Authentication ---
@@ -193,7 +175,7 @@ public class UsersController : ControllerBase
 
         if (user == null || !UserBLL.VerifyPassword(model.Password, user.PasswordHash))
         {
-            return Unauthorized("Invalid email or password.");
+            throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
         var token = _jwtService.GenerateToken(user.UserID, user.UserName, user.Permissions);
