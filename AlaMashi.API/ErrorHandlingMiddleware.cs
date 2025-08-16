@@ -91,7 +91,7 @@ public class ErrorHandlingMiddleware
                 break;
         }
 
-        var response = new { status = "error", message };
+        var response = new { statusCode = (int)statusCode, message };
         var jsonResponse = JsonSerializer.Serialize(response);
 
         context.Response.ContentType = "application/json";
