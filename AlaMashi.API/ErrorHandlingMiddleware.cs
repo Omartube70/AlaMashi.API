@@ -1,4 +1,5 @@
 ﻿using FluentValidation; // ستحتاج إضافة مكتبة FluentValidation للتعامل مع هذا الخطأ
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
@@ -53,9 +54,9 @@ public class ErrorHandlingMiddleware
                 break;
 
             // 401 Unauthorized - عندما يحاول المستخدم الوصول لشيء يتطلب تسجيل الدخول وهو غير مسجل
-            case UnauthorizedAccessException _:
+            case UnauthorizedAccessException unauthorizedAccessException:
                 statusCode = HttpStatusCode.Unauthorized;
-                message = "You are not authenticated to access this resource.";
+                message = unauthorizedAccessException.Message; // <--- يقرأ الرسالة التي أرسلتها من الـ Controller
                 break;
 
             // 403 Forbidden - عندما يكون المستخدم مسجل دخوله ولكن ليس لديه صلاحية للوصول لهذه الجزئية تحديداً
