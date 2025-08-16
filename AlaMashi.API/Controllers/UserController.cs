@@ -1,5 +1,6 @@
 ﻿using AlaMashi.BLL;
 using AlaMashi.DAL; // يجب تضمين DAL لاستخدام UserData
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +56,7 @@ public class UsersController : ControllerBase
     // --- CRUD Operations ---
 
     [HttpGet("All")]
+    [Authorize(Roles = "Admin")]
     public ActionResult<IEnumerable<ResponseUserDto>> GetAllUsers()
     {
         var users = UserBLL.GetAllUsers(_userDAL);
@@ -75,6 +77,7 @@ public class UsersController : ControllerBase
 
         return Ok(usersDto);
     }
+
 
     [HttpGet("{UserID}")]
     public ActionResult<ResponseUserDto> GetUserById(int UserID)
@@ -150,7 +153,9 @@ public class UsersController : ControllerBase
         throw new Exception("An error occurred while updating the user.");
     }
 
+
     [HttpDelete("{UserID}")]
+    [Authorize(Roles = "Admin")]
     public IActionResult DeleteUser(int UserID)
     {
         if (!UserBLL.isUserExist(_userDAL, UserID))

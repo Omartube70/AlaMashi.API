@@ -29,7 +29,7 @@ public class JwtService
             {
                 new Claim("UserID", userId.ToString()),
                 new Claim(ClaimTypes.Name, username), // استخدام ClaimTypes.Name أفضل للتعريف
-                new Claim("Permissions", ((int)permissions).ToString()) // إضافة القيمة الرقمية
+                new Claim(ClaimTypes.Role, permissions.ToString())
             }),
             Expires = DateTime.UtcNow.AddMinutes(expireMinutes),
             Issuer = _issuer,
