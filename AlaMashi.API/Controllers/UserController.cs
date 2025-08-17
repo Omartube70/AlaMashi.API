@@ -1,8 +1,10 @@
 ﻿using AlaMashi.BLL;
 using AlaMashi.DAL;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 
@@ -10,7 +12,10 @@ using System.Security.Claims;
 public class CreateUserDto
 {
     public string UserName { get; set; }
+
+    [EmailAddress]
     public string Email { get; set; }
+
     public string Phone { get; set; }
     public string Password { get; set; }
     public UserBLL.enPermissions Permissions { get; set; }
@@ -18,10 +23,12 @@ public class CreateUserDto
 
 public class UpdateUserDto
 {
-    public string UserName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
-    public string Password { get; set; }
+    public string ?UserName { get; set; }
+
+    [EmailAddress]
+    public string ?Email { get; set; }
+    public string? Phone { get; set; }
+    public string? Password { get; set; }
     public UserBLL.enPermissions Permissions { get; set; }
 }
 
@@ -132,9 +139,9 @@ public class UsersController : ControllerBase
                 throw new Exception("An error occurred while creating the user.");
     }
 
-    [HttpPut("{UserID}")]
+    [HttpPatch("{UserID}")]
     [Authorize]
-    public IActionResult UpdateUser(int UserID, [FromBody] UpdateUserDto userDto)
+    public IActionResult UpdateUser(int UserID, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
     {
         var (userIdFromToken, userRoleFromToken) = GetCurrentUser();
 
@@ -152,11 +159,35 @@ public class UsersController : ControllerBase
                 throw new KeyNotFoundException($"User with ID {UserID} was not found.");
             }
 
-            userToUpdate.UserName = userDto.UserName;
-            userToUpdate.Email = userDto.Email;
-            userToUpdate.Phone = userDto.Phone;
-            userToUpdate.Password = userDto.Password; // سيتم تشفيره في الـ BLL
-            userToUpdate.Permissions = userDto.Permissions;
+        var userToPatchDto = new UpdateUserDto
+        {
+            UserName = userToUpdate.UserName,
+            Email = userToUpdate.Email,
+            Phone = userToUpdate.Phone,
+            Permissions = userToUpdate.Permissions,
+            // لا نضع كلمة المرور هنا
+        };
+
+        patchDoc.ApplyTo(userToPatchDto, this.ModelState);
+        
+
+        if (!TryValidateModel(userToPatchDto))
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        // الخطوة د: نقل القيم المحدثة من الـ DTO إلى الـ Entity الأصلية
+        userToUpdate.UserName = userToPatchDto.UserName;
+        userToUpdate.Email = userToPatchDto.Email;
+        userToUpdate.Phone = userToPatchDto.Phone;
+        userToUpdate.Permissions = userToPatchDto.Permissions;
+
+        // تحديث كلمة المرور فقط إذا تم إرسالها في الطلب
+        if (!string.IsNullOrEmpty(userToPatchDto.Password))
+        {
+            userToUpdate.Password = userToPatchDto.Password; // سيتم تشفيره في الـ BLL
+        }
+
 
         if (userToUpdate.Save())
            {
