@@ -19,7 +19,7 @@ var jwtIssuer = configuration["Jwt:Issuer"] ??
 // --- 2. تسجيل الخدمات (Services) ---
 builder.Services.AddScoped<UserDAL>(provider => new UserDAL(connectionString));
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 
 // إضافة خدمة المصادقة للـ API (تبقى كما هي)
 builder.Services.AddAuthentication(options =>
