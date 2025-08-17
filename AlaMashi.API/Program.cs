@@ -1,38 +1,66 @@
-﻿// باستخدام الإضافات الجديدة
-using AlaMashi.BLL;
+﻿// using statements الضرورية
+using System.Text;
 using AlaMashi.DAL;
-using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
-// 1. قراءة سلسلة الاتصال من متغيرات البيئة أو appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                       throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// --- 1. قراءة الإعدادات والتحقق منها ---
+var connectionString = configuration.GetConnectionString("DefaultConnection") ??
+                     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var jwtKey = configuration["Jwt:Key"] ??
+           throw new InvalidOperationException("JWT Key not found in configuration.");
+var jwtIssuer = configuration["Jwt:Issuer"] ??
+              throw new InvalidOperationException("JWT Issuer not found in configuration.");
 
-// 2. تسجيل الخدمات (Services)
-
-// تسجيل UserDAL كـ خدمة (Service)
+// --- 2. تسجيل الخدمات (Services) ---
 builder.Services.AddScoped<UserDAL>(provider => new UserDAL(connectionString));
-
-// تسجيل JwtService كـ خدمة
 builder.Services.AddScoped<JwtService>();
-
-// إضافة خدمات MVC (Controllers) إلى الحاوية
 builder.Services.AddControllers();
 
-// إضافة خدمات Swagger/OpenAPI
+// إضافة خدمة المصادقة للـ API (تبقى كما هي)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
+
+// ⬇️⬇️⬇️  هذا هو التعديل  ⬇️⬇️⬇️
+// إضافة خدمات Swagger بالشكل الأساسي فقط
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-
-// تهيئة مسار طلبات HTTP
+// --- 3. تهيئة مسار الطلبات (Pipeline) ---
 app.UseMiddleware<ErrorHandlingMiddleware>();
-app.UseSwagger();
-app.UseSwaggerUI();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
+
+// الترتيب الصحيح للمصادقة والصلاحيات (تبقى كما هي)
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
