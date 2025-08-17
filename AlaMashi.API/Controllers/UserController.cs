@@ -56,7 +56,6 @@ public class UsersController : ControllerBase
     // --- CRUD Operations ---
 
     [HttpGet("All")]
-    [Authorize(Roles = "Admin")]
     public ActionResult<IEnumerable<ResponseUserDto>> GetAllUsers()
     {
         var users = UserBLL.GetAllUsers(_userDAL);
@@ -155,7 +154,6 @@ public class UsersController : ControllerBase
 
 
     [HttpDelete("{UserID}")]
-    [Authorize(Roles = "Admin")]
     public IActionResult DeleteUser(int UserID)
     {
         if (!UserBLL.isUserExist(_userDAL, UserID))
