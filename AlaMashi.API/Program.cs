@@ -49,11 +49,10 @@ var app = builder.Build();
 // --- 3. تهيئة مسار الطلبات (Pipeline) ---
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+
 
 app.UseHttpsRedirection();
 
