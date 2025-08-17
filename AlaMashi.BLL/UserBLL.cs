@@ -10,7 +10,7 @@ namespace AlaMashi.BLL
     {
         private readonly UserDAL _userDAL;
 
-        public enum enPermissions { User = 1, Admin = -1 }
+        public enum enPermissions { User = 1, Admin = 2 }
         public enum enMode { AddNew = 0, Update = 1 };
 
         public int UserID { get; private set; }
