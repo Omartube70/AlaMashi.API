@@ -27,7 +27,7 @@ public class JwtService
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim("UserID", userId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(ClaimTypes.Name, username), // استخدام ClaimTypes.Name أفضل للتعريف
                 new Claim(ClaimTypes.Role, permissions.ToString())
             }),

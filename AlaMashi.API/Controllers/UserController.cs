@@ -1,9 +1,10 @@
 ﻿using AlaMashi.BLL;
-using AlaMashi.DAL; // يجب تضمين DAL لاستخدام UserData
+using AlaMashi.DAL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 
 // DTOs (Data Transfer Objects)
 public class CreateUserDto
@@ -61,11 +62,6 @@ public class UsersController : ControllerBase
     {
         var users = UserBLL.GetAllUsers(_userDAL);
 
-        if (users == null || !users.Any())
-        {
-            return NotFound("No users found.");
-        }
-
         var usersDto = users.Select(user => new ResponseUserDto
         {
             UserID = user.UserID,
@@ -80,8 +76,15 @@ public class UsersController : ControllerBase
 
 
     [HttpGet("{UserID}")]
+    [Authorize]
     public ActionResult<ResponseUserDto> GetUserById(int UserID)
     {
+        var (userIdFromToken, userRoleFromToken) = GetCurrentUser();
+        if (UserID != userIdFromToken && userRoleFromToken != "Admin")
+        {
+            return Forbid();
+        }
+
         var user = UserBLL.FindByUserID(_userDAL, UserID);
 
         if (user == null)
@@ -130,11 +133,21 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{UserID}")]
+    [Authorize]
     public IActionResult UpdateUser(int UserID, [FromBody] UpdateUserDto userDto)
     {
+        var (userIdFromToken, userRoleFromToken) = GetCurrentUser();
 
-            var userToUpdate = UserBLL.FindByUserID(_userDAL, UserID);
-            if (userToUpdate == null)
+        // 2. التحقق من الصلاحيات (Authorization)
+        // امنع الطلب فقط إذا كان المستخدم ليس مديراً ويحاول تحديث بيانات مستخدم آخر
+        if (UserID != userIdFromToken && userRoleFromToken != "Admin")
+        {
+            return Forbid(); // يرجع 403 Forbidden
+        }
+
+
+         var userToUpdate = UserBLL.FindByUserID(_userDAL, UserID);
+         if (userToUpdate == null)
             {
                 throw new KeyNotFoundException($"User with ID {UserID} was not found.");
             }
@@ -145,19 +158,29 @@ public class UsersController : ControllerBase
             userToUpdate.Password = userDto.Password; // سيتم تشفيره في الـ BLL
             userToUpdate.Permissions = userDto.Permissions;
 
-            if (userToUpdate.Save())
-            {
-                return Ok("User updated successfully.");
-            }
+        if (userToUpdate.Save())
+           {
+             return NoContent();
+           }
 
         throw new Exception("An error occurred while updating the user.");
     }
 
 
     [HttpDelete("{UserID}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public IActionResult DeleteUser(int UserID)
     {
+        // استخراج البيانات من الـ Token
+        var (userIdFromToken, userRoleFromToken) = GetCurrentUser();
+
+        if (UserID != userIdFromToken && userRoleFromToken != "Admin")
+        {
+            // إذا كان المستخدم ليس مديراً ويحاول حذف مستخدم آخر، امنعه
+            return Forbid(); // يرجع 403 Forbidden
+        }
+
+
         if (!UserBLL.isUserExist(_userDAL, UserID))
         {
             throw new KeyNotFoundException($"User with ID {UserID} was not found.");
@@ -199,5 +222,22 @@ public class UsersController : ControllerBase
             token,
             user = responseDto
         });
+    }
+
+
+    // دالة مساعدة لتجنب تكرار الكود
+    private (int, string) GetCurrentUser()
+    {
+        var userIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+        {
+            // هذا الخطأ سيتم التقاطه بواسطة الـ Middleware كـ 500 Internal Server Error
+            // لأنه خطأ غير متوقع يدل على وجود مشكلة في الـ Token نفسه
+            throw new UnauthorizedAccessException("Invalid Token: UserID is missing or invalid.");
+        }
+
+        return (userId, userRole);
     }
 }
