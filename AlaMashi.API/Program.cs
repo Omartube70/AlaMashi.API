@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using AlaMashi.DAL;
-using AlaMashi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
