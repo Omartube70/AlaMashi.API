@@ -7,7 +7,7 @@
 مرحبًا بك في مشروع **AlaMashi.API**! هذا المشروع عبارة عن واجهة برمجة تطبيقات (API) خلفية (Backend) قوية وآمنة، مصممة بلغة C# باستخدام إطار عمل ASP.NET Core 8.0. تم بناء المشروع على أساس هندسة معمارية نظيفة متعددة الطبقات (3-Tier) لضمان فصل الاهتمامات، سهولة الصيانة، وقابلية التوسع.
 
 <div align="center">
-  <img src="https://devblogs.microsoft.com/dotnet/wp-content/uploads/sites/10/2023/11/Header_image_for_NET_8_Announce_Blog_Post-scaled.jpg" alt=".NET 8.0" width="600"/>
+  <img src="https://www.google.com/imgres?q=%D8%B5%D9%88%D8%B1%D9%87%20.net%208&imgurl=https%3A%2F%2Fdevblogs.microsoft.com%2Fdotnet%2Fwp-content%2Fuploads%2Fsites%2F10%2F2023%2F11%2FBanner.png&imgrefurl=https%3A%2F%2Fdevblogs.microsoft.com%2Fdotnet%2Fannouncing-dotnet-8%2F&docid=Zj5ZFijIwczXLM&tbnid=p2VjSeUvq6SLpM&vet=12ahUKEwi8po6SgJWPAxXJAvsDHWxCG5oQM3oECBkQAA..i&w=1545&h=579&hcb=2&ved=2ahUKEwi8po6SgJWPAxXJAvsDHWxCG5oQM3oECBkQAA"/>
 </div>
 
 ---
