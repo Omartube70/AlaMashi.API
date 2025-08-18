@@ -18,9 +18,9 @@
 
 -   **الرابط الأساسي للـ API:**
     [`https://alamashi-api.onrender.com`](https://alamashi-api.onrender.com)
-
+    
 -   **التوثيق الكامل للـ API:**
-    [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/main/API_Documentation.md)
+    [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/master/API_Documentation.md)
 
 ---
 
