@@ -100,6 +100,12 @@ public class UsersController : ControllerBase
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
     {
+
+        if (ValidationHelper.IsEmailValid(model.Email))
+        {
+            throw new ArgumentException("Invalid Email Format.");
+        }
+
         var user = UserBLL.GetUserByEmail(model.Email);
 
         // لمنع تسريب معلومات المستخدمين، نرسل ردًا عامًا حتى لو لم يتم العثور على المستخدم
