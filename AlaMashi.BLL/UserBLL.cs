@@ -64,7 +64,7 @@ namespace AlaMashi.BLL
                 return new UserBLL(UserID, UserName , Email , Phone , PasswordHash ,(enPermissions)Permissions);
             }
 
-            throw new ArgumentException("User with UserID Not Found");
+            return null;
         }
 
         public static UserBLL GetUserByEmail(string Email)
@@ -79,7 +79,7 @@ namespace AlaMashi.BLL
                 return new UserBLL(UserID, UserName, Email, Phone, PasswordHash, (enPermissions)Permissions);
             }
 
-            throw new ArgumentException("User with Email Not Found");
+            return null;
         }
 
 
