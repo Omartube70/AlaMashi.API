@@ -115,7 +115,7 @@ public class UsersController : ControllerBase
         var resetLink = $"https://your-app.com/reset-password?token={Uri.EscapeDataString(resetToken)}";
 
         // إرسال البريد الإلكتروني
-        await _emailService.SendPasswordResetEmailAsync(model.Email, resetLink);
+        await _emailService.SendPasswordResetEmailAsync(user.UserName,model.Email, resetLink);
 
         return Ok(new { message = "If your email is registered, you will receive a password reset link." });
     }

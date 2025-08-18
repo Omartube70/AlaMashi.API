@@ -15,7 +15,7 @@ public class EmailService
         _env = env; // ## إضافة مهمة
     }
 
-    public async Task SendPasswordResetEmailAsync(string email, string resetLink)
+    public async Task SendPasswordResetEmailAsync(string username, string email, string resetLink)
     {
         // 1. تحديد مسار ملف القالب
         var templatePath = Path.Combine(_env.ContentRootPath, "EmailTemplates", "PasswordReset.html");
@@ -25,6 +25,7 @@ public class EmailService
 
         // 3. استبدال المتغيرات بالقيم الفعلية
         var emailBody = templateText.Replace("{{resetLink}}", resetLink);
+        emailBody = emailBody.Replace("{{username}}", username);
 
         // 4. بناء الرسالة (باقي الكود كما هو)
         var message = new MimeMessage();
