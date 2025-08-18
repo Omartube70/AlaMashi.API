@@ -5,103 +5,116 @@ using System.Collections.Generic;
 
 namespace AlaMashi.DAL
 {
-    // يمكننا إنشاء DTO بسيط (Data Transfer Object) لتمرير البيانات
-    // هذا الكلاس لا يحتوي على أي منطق، فقط خصائص لتخزين البيانات
-    public class UserData
-    {
-        public int UserID { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
-        public string PasswordHash { get; set; }
-        public int Permissions { get; set; }
-    }
-
     public class UserDAL
     {
-        private readonly string _connectionString;
 
-        public UserDAL(string connectionString)
+        public static bool  GetUserInfoByID(int UserID , ref string UserName , ref string Email , ref string Phone , ref string PasswordHash,ref int Persmissions)
         {
-            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-        }
+            string query = "SELECT UserName, Email, Phone, PasswordHash, Permissions FROM Users WHERE UserID = @UserID";
+            bool isFound = false;
 
-        private T ExecuteScalar<T>(string query, SqlParameter[] parameters)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(query, connection))
+            SqlConnection connection = new SqlConnection(Settings.ConnectionString);
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@UserID", UserID);
+
+            try
             {
-                if (parameters != null)
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
                 {
-                    command.Parameters.AddRange(parameters);
+                    // The record was found
+                    isFound = true;
+
+                    UserName = (string)reader["UserName"];
+                    Email = (string)reader["Email"];
+                    Phone = (string)reader["Phone"];
+                    PasswordHash = (string)reader["PasswordHash"];
+                    Persmissions = (int)reader["Permissions"];
                 }
-                try
+                else
                 {
-                    connection.Open();
-                    object result = command.ExecuteScalar();
-                    if (result != null && result != DBNull.Value)
-                    {
-                        return (T)Convert.ChangeType(result, typeof(T));
-                    }
+                    // The record was not found
+                    isFound = false;
                 }
-                catch (Exception ex)
-                {
-                    // TODO: تسجيل الخطأ هنا (استخدم مكتبة logging)
-                    Console.WriteLine($"Error in ExecuteScalar: {ex.Message}");
-                }
-                return default(T);
+
+                reader.Close();
+
+
             }
-        }
-
-        private int ExecuteNonQuery(string query, SqlParameter[] parameters)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(query, connection))
+            catch (Exception ex)
             {
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-                try
-                {
-                    connection.Open();
-                    return command.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    // TODO: تسجيل الخطأ هنا
-                    Console.WriteLine($"Error in ExecuteNonQuery: {ex.Message}");
-                }
-                return 0;
+                isFound = false;
             }
+            finally
+            {
+                connection.Close();
+            }
+
+            return isFound;
         }
 
-        public UserData GetUserInfoByID(int userID)
+        public static bool GetUserInfoByEmail(string Email , ref int UserID, ref string UserName, ref string Phone, ref string PasswordHash,ref int Persmissions)
         {
-            string query = "SELECT UserID, UserName, Email, Phone, PasswordHash, Permissions FROM Users WHERE UserID = @UserID";
-            var parameters = new[] { new SqlParameter("@UserID", SqlDbType.Int) { Value = userID } };
+            string query = "SELECT UserID, UserName, Phone, PasswordHash, Permissions FROM Users WHERE Email = @Email";
+            bool isFound = false;
 
-            return GetUserFromQuery(query, parameters);
+            SqlConnection connection = new SqlConnection(Settings.ConnectionString);
+
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@Email", Email);
+
+            try
+            {
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    // The record was found
+                    isFound = true;
+
+                    UserID = (int)reader["UserID"];
+                    UserName = (string)reader["UserName"];
+                    Phone = (string)reader["Phone"];
+                    PasswordHash = (string)reader["PasswordHash"];
+                    Persmissions = (int)reader["Permissions"];
+                }
+                else
+                {
+                    // The record was not found
+                    isFound = false;
+                }
+
+                reader.Close();
+
+
+            }
+            catch (Exception ex)
+            {
+                isFound = false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return isFound;
         }
 
-        public UserData GetUserInfoByEmail(string email)
+        public static bool GetUserByRefreshToken(string refreshToken, ref int userID, ref string userName, ref string email, ref string phone, ref string passwordHash, ref int permissions, ref DateTime refreshTokenExpiryTime)
         {
-            string query = "SELECT UserID, UserName, Email, Phone, PasswordHash, Permissions FROM Users WHERE Email = @Email";
-            var parameters = new[] { new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email } };
+            string query = "SELECT * FROM Users WHERE RefreshToken = @RefreshToken";
+            bool isFound = false;
 
-            return GetUserFromQuery(query, parameters);
-        }
-
-        private UserData GetUserFromQuery(string query, SqlParameter[] parameters)
-        {
-            UserData userData = null;
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(Settings.ConnectionString))
             using (var command = new SqlCommand(query, connection))
             {
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
+                command.Parameters.AddWithValue("@RefreshToken", refreshToken);
                 try
                 {
                     connection.Open();
@@ -109,28 +122,27 @@ namespace AlaMashi.DAL
                     {
                         if (reader.Read())
                         {
-                            userData = new UserData
-                            {
-                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
-                                UserName = reader.GetString(reader.GetOrdinal("UserName")),
-                                Email = reader.GetString(reader.GetOrdinal("Email")),
-                                Phone = reader.GetString(reader.GetOrdinal("Phone")),
-                                PasswordHash = reader.GetString(reader.GetOrdinal("PasswordHash")),
-                                Permissions = reader.GetInt32(reader.GetOrdinal("Permissions"))
-                            };
+                            isFound = true;
+                            userID = (int)reader["UserID"];
+                            userName = (string)reader["UserName"];
+                            email = (string)reader["Email"];
+                            phone = (string)reader["Phone"];
+                            passwordHash = (string)reader["PasswordHash"];
+                            permissions = (int)reader["Permissions"];
+                            refreshTokenExpiryTime = (DateTime)reader["RefreshTokenExpiryTime"];
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    // TODO: تسجيل الخطأ
-                    Console.WriteLine($"Error in GetUserFromQuery: {ex.Message}");
+                    isFound = false;
+                    // TODO: Log error
                 }
             }
-            return userData;
+            return isFound;
         }
 
-        public int AddNewUser(string userName, string email, string phone, string passwordHash, int permissions)
+        public static int AddNewUser(string userName, string email, string phone, string PasswordHash, int permissions)
         {
             string query = @"
                 INSERT INTO Users (UserName, Email, Phone, PasswordHash, Permissions)
@@ -142,14 +154,14 @@ namespace AlaMashi.DAL
                 new SqlParameter("@UserName", SqlDbType.NVarChar, 50) { Value = userName },
                 new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email },
                 new SqlParameter("@Phone", SqlDbType.NVarChar, 20) { Value = phone },
-                new SqlParameter("@PasswordHash", SqlDbType.NVarChar, 255) { Value = passwordHash },
+                new SqlParameter("@PasswordHash", SqlDbType.NVarChar, 255) { Value = PasswordHash },
                 new SqlParameter("@Permissions", SqlDbType.Int) { Value = permissions }
             };
 
-            return ExecuteScalar<int>(query, parameters);
+            return Execute.ExecuteScalar<int>(query, parameters);
         }
 
-        public bool UpdateUser(int userID, string userName, string email, string phone, string passwordHash, int permissions)
+        public static bool UpdateUser(int userID, string userName, string email, string phone, string PasswordHash, int permissions)
         {
             string query = @"
                 UPDATE Users
@@ -163,27 +175,27 @@ namespace AlaMashi.DAL
                 new SqlParameter("@UserName", SqlDbType.NVarChar, 50) { Value = userName },
                 new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email },
                 new SqlParameter("@Phone", SqlDbType.NVarChar, 20) { Value = phone },
-                new SqlParameter("@PasswordHash", SqlDbType.NVarChar, 255) { Value = passwordHash },
+                new SqlParameter("@PasswordHash", SqlDbType.NVarChar, 255) { Value = PasswordHash },
                 new SqlParameter("@Permissions", SqlDbType.Int) { Value = permissions }
             };
 
-            return ExecuteNonQuery(query, parameters) > 0;
+            return Execute.ExecuteNonQuery(query, parameters) > 0;
         }
 
-        public bool DeleteUser(int userID)
+        public static bool DeleteUser(int userID)
         {
             string query = "DELETE FROM Users WHERE UserID = @UserID";
             var parameter = new SqlParameter("@UserID", SqlDbType.Int) { Value = userID };
 
-            return ExecuteNonQuery(query, new[] { parameter }) > 0;
+            return Execute.ExecuteNonQuery(query, new[] { parameter }) > 0;
         }
 
-        public DataTable GetAllUsers()
+        public static DataTable GetAllUsers()
         {
             DataTable dt = new DataTable();
             string query = "SELECT UserID, UserName, Email, Phone, PasswordHash, Permissions FROM Users";
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(Settings.ConnectionString))
             using (var command = new SqlCommand(query, connection))
             using (var adapter = new SqlDataAdapter(command))
             {
@@ -201,20 +213,40 @@ namespace AlaMashi.DAL
             return dt;
         }
 
-        public bool IsUserExist(int userID)
+        public static bool IsUserExist(int userID)
         {
             string query = "SELECT COUNT(1) FROM Users WHERE UserID = @UserID";
             var parameter = new SqlParameter("@UserID", SqlDbType.Int) { Value = userID };
 
-            return ExecuteScalar<int>(query, new[] { parameter }) > 0;
+            return Execute.ExecuteScalar<int>(query, new[] { parameter }) > 0;
         }
-
-        public bool IsEmailExists(string email)
+        
+        public static bool IsEmailExists(string email)
         {
             string query = "SELECT COUNT(1) FROM Users WHERE Email = @Email";
             var parameter = new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email };
 
-            return ExecuteScalar<int>(query, new[] { parameter }) > 0;
+            return Execute.ExecuteScalar<int>(query, new[] { parameter }) > 0;
         }
+
+
+        // Token Mathoud
+        public static bool SaveRefreshToken(int userID, string refreshToken, DateTime expiryTime)
+        {
+            string query = @"UPDATE Users 
+                       SET RefreshToken = @RefreshToken, RefreshTokenExpiryTime = @ExpiryTime 
+                       WHERE UserID = @UserID";
+
+            var parameters = new[]
+            {
+               new SqlParameter("@RefreshToken", SqlDbType.NVarChar, 256) { Value = (object)refreshToken ?? DBNull.Value },
+               new SqlParameter("@ExpiryTime", SqlDbType.DateTime2) { Value = expiryTime },
+               new SqlParameter("@UserID", SqlDbType.Int) { Value = userID }
+            };
+
+            // افترض أن لديك كلاس Execute للتعامل مع الأوامر
+            return Execute.ExecuteNonQuery(query, parameters) > 0;
+        }
+
     }
 }

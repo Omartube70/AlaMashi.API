@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AlaMashi.BLL;
+using Microsoft.Extensions.Configuration; // إضافة هذه المكتبة
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AlaMashi.BLL;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration; // إضافة هذه المكتبة
+using System.Security.Cryptography;
 
 public class JwtService
 {
@@ -17,6 +18,26 @@ public class JwtService
         _secretKey = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is not configured.");
         _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer is not configured.");
         _Audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience is not configured.");
+    }
+
+    public (string token, DateTime expiryTime) GenerateRefreshToken()
+    {
+        // إنشاء مصفوفة بايتات لتخزين رقم عشوائي آمن
+        var randomNumber = new byte[64];
+
+        // استخدام مولد أرقام عشوائية آمن (Cryptographically Secure)
+        using var rng = RandomNumberGenerator.Create();
+
+        // ملء المصفوفة بالأرقام العشوائية
+        rng.GetBytes(randomNumber);
+
+        // تحويل البايتات إلى نص Base64 ليكون هو التوكن
+        string token = Convert.ToBase64String(randomNumber);
+
+        // تحديد مدة صلاحية الـ Refresh Token (مثلاً 60 أيام)
+        DateTime expiryTime = DateTime.UtcNow.AddDays(60);
+
+        return (token, expiryTime);
     }
 
     public string GenerateToken(int userId, string username, UserBLL.enPermissions permissions, int expireMinutes = 60)

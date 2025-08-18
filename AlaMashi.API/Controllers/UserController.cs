@@ -1,6 +1,7 @@
 ﻿using AlaMashi.BLL;
 using AlaMashi.DAL;
 using AlaMashi.Services;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -72,19 +73,21 @@ public class ResetPasswordModel
     [Required]
     public string NewPassword { get; set; }
 }
-
+public class RefreshTokenRequestDto
+{
+    [Required]
+    public string RefreshToken { get; set; }
+}
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly UserDAL _userDAL;
     private readonly JwtService _jwtService;
     private readonly EmailService _emailService;
 
-    public UsersController(UserDAL userDAL, JwtService jwtService, EmailService emailService)
+    public UsersController(JwtService jwtService, EmailService emailService)
     {
-        _userDAL = userDAL;
         _jwtService = jwtService;
         _emailService = emailService;
     }
@@ -98,7 +101,7 @@ public class UsersController : ControllerBase
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
     {
-        var user = UserBLL.GetUserByEmail(_userDAL, model.Email);
+        var user = UserBLL.GetUserByEmail(model.Email);
 
         // لمنع تسريب معلومات المستخدمين، نرسل ردًا عامًا حتى لو لم يتم العثور على المستخدم
         if (user == null)
@@ -138,7 +141,7 @@ public class UsersController : ControllerBase
             throw new ArgumentException("Invalid token claims.");
         }
 
-        var user = UserBLL.GetUserByEmail(_userDAL, emailClaim.Value);
+        var user = UserBLL.GetUserByEmail(emailClaim.Value);
         if (user == null)
         {
             return Ok(new { message = "Password has been reset successfully." });
@@ -160,7 +163,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "Admin")]
     public ActionResult<IEnumerable<ResponseUserDto>> GetAllUsers()
     {
-        var users = UserBLL.GetAllUsers(_userDAL);
+        var users = UserBLL.GetAllUsers();
 
         var usersDto = users.Select(user => new ResponseUserDto
         {
@@ -185,7 +188,7 @@ public class UsersController : ControllerBase
             return Forbid();
         }
 
-        var user = UserBLL.FindByUserID(_userDAL, UserID);
+        var user = UserBLL.GetUserByUserID(UserID);
 
         if (user == null)
         {
@@ -201,13 +204,13 @@ public class UsersController : ControllerBase
             Permissions = user.Permissions
         };
 
-        return Ok(userDto);
+        return Ok(new { status = "success", data = userDto });
     }
 
     [HttpPost("Create")]
     public IActionResult CreateUser([FromBody] CreateUserDto userDto)
     {
-            var newUserBLL = new UserBLL(_userDAL)
+            var newUserBLL = new UserBLL()
             {
                 UserName = userDto.UserName,
                 Email = userDto.Email,
@@ -246,7 +249,7 @@ public class UsersController : ControllerBase
         }
 
 
-         var userToUpdate = UserBLL.FindByUserID(_userDAL, UserID);
+         var userToUpdate = UserBLL.GetUserByUserID(UserID);
          if (userToUpdate == null)
             {
                 throw new KeyNotFoundException($"User with ID {UserID} was not found.");
@@ -284,8 +287,8 @@ public class UsersController : ControllerBase
 
         if (userToUpdate.Save())
            {
-             return NoContent();
-           }
+            return Ok(new { status = "success", data = userToPatchDto });
+        }
 
         throw new Exception("An error occurred while updating the user.");
     }
@@ -305,14 +308,14 @@ public class UsersController : ControllerBase
         }
 
 
-        if (!UserBLL.isUserExist(_userDAL, UserID))
+        if (!UserBLL.isUserExist(UserID))
         {
             throw new KeyNotFoundException($"User with ID {UserID} was not found.");
         }
 
-        if (UserBLL.DeleteUser(_userDAL, UserID))
+        if (UserBLL.DeleteUser(UserID))
         {
-            return NoContent();
+            return Ok(new { status = "success", data = "User deleted successfully" });
         }
 
         throw new Exception("An error occurred while deleting the user.");
@@ -323,14 +326,16 @@ public class UsersController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginModel model)
     {
-        var user = UserBLL.GetUserByEmail(_userDAL, model.Email);
+        var user = UserBLL.GetUserByEmail(model.Email);
 
         if (user == null || !UserBLL.VerifyPassword(model.Password, user.PasswordHash))
         {
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var token = _jwtService.GenerateToken(user.UserID, user.UserName, user.Permissions);
+        var accessToken = _jwtService.GenerateToken(user.UserID, user.UserName, user.Permissions);
+        var (refreshToken, refreshTokenExpiry) = _jwtService.GenerateRefreshToken();
+        UserBLL.SaveRefreshToken(user.UserID, refreshToken, refreshTokenExpiry);
 
         var responseDto = new ResponseUserDto
         {
@@ -343,11 +348,57 @@ public class UsersController : ControllerBase
 
         return Ok(new
         {
-            token,
-            user = responseDto
+            status = "success",
+            data = new
+            {
+                accessToken,
+                refreshToken,
+                user = responseDto
+            }
         });
     }
 
+
+    [HttpPost("refresh")]
+    public IActionResult RefreshToken([FromBody] RefreshTokenRequestDto request)
+    {
+        if (string.IsNullOrEmpty(request.RefreshToken))
+        {
+            throw new ArgumentException("Refresh token is required.");
+        }
+
+        var user = UserBLL.GetUserByRefreshToken(request.RefreshToken);
+
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+        }
+
+        var newAccessToken = _jwtService.GenerateToken(user.UserID, user.UserName, user.Permissions);
+        var (newRefreshToken, newRefreshTokenExpiry) = _jwtService.GenerateRefreshToken();
+        UserBLL.SaveRefreshToken(user.UserID, newRefreshToken, newRefreshTokenExpiry);
+
+        return Ok(new
+        {
+            status = "success",
+            data = new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            }
+        });
+    }
+
+
+    [Authorize]
+    [HttpPost("revoke")]
+    public IActionResult RevokeToken()
+    {
+        var (userId, _) = GetCurrentUser();
+        UserBLL.SaveRefreshToken(userId, null, DateTime.UtcNow.AddYears(-1));
+
+        return Ok(new { status = "success", data = "Token revoked successfully." });
+    }
 
     // دالة مساعدة لتجنب تكرار الكود
     private (int, string) GetCurrentUser()

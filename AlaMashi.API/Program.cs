@@ -9,15 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // --- 1. قراءة الإعدادات والتحقق منها ---
-var connectionString = configuration.GetConnectionString("DefaultConnection") ??
-                     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 var jwtKey = configuration["Jwt:Key"] ??
            throw new InvalidOperationException("JWT Key not found in configuration.");
 var jwtIssuer = configuration["Jwt:Issuer"] ??
               throw new InvalidOperationException("JWT Issuer not found in configuration.");
 
 // --- 2. تسجيل الخدمات (Services) ---
-builder.Services.AddScoped<UserDAL>(provider => new UserDAL(connectionString));
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EmailService>();
 
