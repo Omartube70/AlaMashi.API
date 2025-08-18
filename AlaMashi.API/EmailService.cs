@@ -1,56 +1,62 @@
 ﻿using MailKit.Net.Smtp;
-using MimeKit;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using MimeKit;
+using Microsoft.AspNetCore.Hosting; // ## إضافة مهمة
 
-namespace AlaMashi.Services 
-
+public class EmailService
 {
-    public class EmailService
+    private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _env; // ## إضافة مهمة
+
+    // عدّل الـ Constructor
+    public EmailService(IConfiguration configuration, IWebHostEnvironment env)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+        _env = env; // ## إضافة مهمة
+    }
 
-        public EmailService(IConfiguration configuration)
+    public async Task SendPasswordResetEmailAsync(string email, string resetLink)
+    {
+        // 1. تحديد مسار ملف القالب
+        var templatePath = Path.Combine(_env.ContentRootPath, "EmailTemplates", "PasswordReset.html");
+
+        // 2. قراءة محتوى القالب
+        var templateText = await File.ReadAllTextAsync(templatePath);
+
+        // 3. استبدال المتغيرات بالقيم الفعلية
+        var emailBody = templateText.Replace("{{resetLink}}", resetLink);
+
+        // 4. بناء الرسالة (باقي الكود كما هو)
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("AlaMashi", _configuration["EmailSettings:SenderEmail"]));
+        message.To.Add(new MailboxAddress("", email));
+        message.Subject = "إعادة تعيين كلمة المرور";
+
+        var bodyBuilder = new BodyBuilder
         {
-            _configuration = configuration;
-        }
+            HtmlBody = emailBody // ## هنا نستخدم القالب الجديد
+        };
 
-        public async Task SendPasswordResetEmailAsync(string email, string resetLink)
+        message.Body = bodyBuilder.ToMessageBody();
+
+        using (var client = new SmtpClient())
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("AlaMashi", _configuration["EmailSettings:SenderEmail"]));
-            message.To.Add(new MailboxAddress("", email));
-            message.Subject = "إعادة تعيين كلمة المرور";
-
-            var bodyBuilder = new BodyBuilder
+            try
             {
-                HtmlBody = $"<h1>إعادة تعيين كلمة المرور</h1>" +
-                           $"<p>اضغط على الرابط التالي لإعادة تعيين كلمة المرور:</p>" +
-                           $"<a href='{resetLink}'>إعادة تعيين كلمة المرور</a>" +
-                           $"<p>إذا لم تطلب إعادة تعيين كلمة المرور، تجاهل هذا الإيميل.</p>"
-            };
-
-            message.Body = bodyBuilder.ToMessageBody();
-
-            using (var client = new SmtpClient())
+                await client.ConnectAsync(
+                    _configuration["EmailSettings:SmtpServer"],
+                    int.Parse(_configuration["EmailSettings:Port"]),
+                    false
+                );
+                await client.AuthenticateAsync(
+                    _configuration["EmailSettings:Username"],
+                    _configuration["EmailSettings:Password"]
+                );
+                await client.SendAsync(message);
+            }
+            finally
             {
-                try
-                {
-                    await client.ConnectAsync(
-                        _configuration["EmailSettings:SmtpServer"],
-                        int.Parse(_configuration["EmailSettings:Port"]),
-                        false
-                    );
-                    await client.AuthenticateAsync(
-                        _configuration["EmailSettings:Username"],
-                        _configuration["EmailSettings:Password"]
-                    );
-                    await client.SendAsync(message);
-                }
-                finally
-                {
-                    await client.DisconnectAsync(true);
-                }
+                await client.DisconnectAsync(true);
             }
         }
     }
