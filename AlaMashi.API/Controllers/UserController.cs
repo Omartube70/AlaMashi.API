@@ -1,5 +1,6 @@
 ﻿using AlaMashi.BLL;
 using AlaMashi.DAL;
+using AlaMashi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,16 @@ using System.Security.Claims;
 // DTOs (Data Transfer Objects)
 public class CreateUserDto
 {
+    [Required]
     public string UserName { get; set; }
 
+    [Required]
     [EmailAddress]
     public string Email { get; set; }
 
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
+
+    [Required]
     public string Password { get; set; }
     public UserBLL.enPermissions Permissions { get; set; }
 }
@@ -26,7 +31,7 @@ public class UpdateUserDto
     public string ?UserName { get; set; }
 
     [EmailAddress]
-    public string ?Email { get; set; }
+    public string? Email { get; set; }
     public string? Phone { get; set; }
     public string? Password { get; set; }
     public UserBLL.enPermissions Permissions { get; set; }
@@ -36,6 +41,7 @@ public class ResponseUserDto
 {
     public int UserID { get; set; }
     public string UserName { get; set; }
+    [EmailAddress]
     public string Email { get; set; }
     public string Phone { get; set; }
     public UserBLL.enPermissions Permissions { get; set; }
@@ -43,9 +49,30 @@ public class ResponseUserDto
 
 public class LoginModel
 {
+    [Required]
+    [EmailAddress]
     public string Email { get; set; }
+
+    [Required]
     public string Password { get; set; }
 }
+
+public class ForgotPasswordModel
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; }
+}
+
+public class ResetPasswordModel
+{
+    [Required]
+    public string Token { get; set; }
+
+    [Required]
+    public string NewPassword { get; set; }
+}
+
 
 [ApiController]
 [Route("api/[controller]")]
@@ -53,15 +80,81 @@ public class UsersController : ControllerBase
 {
     private readonly UserDAL _userDAL;
     private readonly JwtService _jwtService;
+    private readonly EmailService _emailService;
 
-    // حقن (Inject) UserDAL و JwtService مباشرةً
-    public UsersController(UserDAL userDAL, JwtService jwtService)
+    public UsersController(UserDAL userDAL, JwtService jwtService, EmailService emailService)
     {
         _userDAL = userDAL;
         _jwtService = jwtService;
+        _emailService = emailService;
     }
 
     // --- CRUD Operations ---
+
+    /// <summary>
+    /// يرسل رابط لإعادة تعيين كلمة المرور إلى البريد الإلكتروني الخاص بالمستخدم.
+    /// </summary>
+    /// <param name="model">البريد الإلكتروني للمستخدم.</param>
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+    {
+        var user = UserBLL.GetUserByEmail(_userDAL, model.Email);
+
+        // لمنع تسريب معلومات المستخدمين، نرسل ردًا عامًا حتى لو لم يتم العثور على المستخدم
+        if (user == null)
+        {
+            return Ok(new { message = "If your email is registered, you will receive a password reset link." });
+        }
+
+        // إنشاء رمز فريد قصير الأجل (يمكن أن يكون JWT أو أي رمز آخر)
+        var resetToken = _jwtService.GenerateResetToken(user.UserID, user.Email);
+
+        // بناء الرابط الذي سيتم إرساله عبر البريد الإلكتروني
+        var resetLink = $"https://your-app.com/reset-password?token={Uri.EscapeDataString(resetToken)}";
+
+        // إرسال البريد الإلكتروني
+        await _emailService.SendPasswordResetEmailAsync(model.Email, resetLink);
+
+        return Ok(new { message = "If your email is registered, you will receive a password reset link." });
+    }
+
+    /// <summary>
+    /// يعيد تعيين كلمة مرور المستخدم باستخدام الرمز المرسل.
+    /// </summary>
+    /// <param name="model">الرمز الجديد وكلمة المرور الجديدة.</param>
+    [HttpPost("reset-password")]
+    public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
+    {
+        // التحقق من صلاحية الرمز
+        var principal = _jwtService.ValidateResetToken(model.Token);
+        if (principal == null)
+        {
+            throw new ArgumentException("Invalid or expired token.");
+        }
+
+        var emailClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+        if (emailClaim == null)
+        {
+            throw new ArgumentException("Invalid token claims.");
+        }
+
+        var user = UserBLL.GetUserByEmail(_userDAL, emailClaim.Value);
+        if (user == null)
+        {
+            return Ok(new { message = "Password has been reset successfully." });
+        }
+
+        // تحديث كلمة المرور وحفظ التغييرات
+        user.Password = model.NewPassword;
+        if (user.Save())
+        {
+            return Ok(new { message = "Password has been reset successfully." });
+        }
+
+        throw new Exception("An error occurred while resetting password.");
+    }
+
+
 
     [HttpGet("All")]
     [Authorize(Roles = "Admin")]

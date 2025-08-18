@@ -10,12 +10,13 @@ public class JwtService
 {
     private readonly string _secretKey;
     private readonly string _issuer;
-
+    private readonly string _Audience;
     // استخدام IConfiguration مباشرة في الـ constructor
     public JwtService(IConfiguration configuration)
     {
         _secretKey = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is not configured.");
         _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer is not configured.");
+        _Audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience is not configured.");
     }
 
     public string GenerateToken(int userId, string username, UserBLL.enPermissions permissions, int expireMinutes = 60)
@@ -70,4 +71,56 @@ public class JwtService
             return null;
         }
     }
+
+
+    public string GenerateResetToken(int userId, string email)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var expires = DateTime.Now.AddHours(1); // صلاحية الرمز ساعة واحدة
+
+        var token = new JwtSecurityToken(
+            _issuer,
+            _Audience,
+            claims,
+            expires: expires,
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public ClaimsPrincipal ValidateResetToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = _issuer,
+                ValidAudience = _Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            }, out SecurityToken validatedToken);
+
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
+

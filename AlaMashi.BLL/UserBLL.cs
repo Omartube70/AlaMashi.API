@@ -10,7 +10,7 @@ namespace AlaMashi.BLL
     {
         private readonly UserDAL _userDAL;
 
-        public enum enPermissions { User = 1, Admin = 2 }
+        public enum enPermissions { User = 1, Admin = -1 }
         public enum enMode { AddNew = 0, Update = 1 };
 
         public int UserID { get; private set; }
@@ -115,7 +115,7 @@ namespace AlaMashi.BLL
                 PasswordHash = HashPassword(Password);
                 int newUserID = _userDAL.AddNewUser(UserName, Email, Phone, PasswordHash, (int)Permissions);
 
-                if (newUserID != -1)
+                if (newUserID != -1 & newUserID > 0)
                 {
                     UserID = newUserID;
                     Mode = enMode.Update;

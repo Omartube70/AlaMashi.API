@@ -1,6 +1,6 @@
-﻿// using statements الضرورية
-using System.Text;
+﻿using System.Text;
 using AlaMashi.DAL;
+using AlaMashi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -19,6 +19,8 @@ var jwtIssuer = configuration["Jwt:Issuer"] ??
 // --- 2. تسجيل الخدمات (Services) ---
 builder.Services.AddScoped<UserDAL>(provider => new UserDAL(connectionString));
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<EmailService>();
+
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 // إضافة خدمة المصادقة للـ API (تبقى كما هي)
