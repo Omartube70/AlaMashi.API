@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -57,5 +58,43 @@ namespace AlaMashi.DAL
                 return 0;
             }
         }
+        public static DataTable GetDataTable(string query, SqlParameter[] parameters = null)
+        {
+            var dt = new DataTable();
+            using (var connection = new SqlConnection(Settings.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                using (var adapter = new SqlDataAdapter(command))
+                {
+                    adapter.Fill(dt);
+                }
+            }
+            return dt;
+        }
+        public static bool ExecuteReader(string query, SqlParameter[] parameters, Action<SqlDataReader> processRow)
+        {
+            bool isFound = false;
+            using (var connection = new SqlConnection(Settings.ConnectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddRange(parameters);
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        isFound = true;
+                        processRow(reader); // استدعاء الدالة الممررة لمعالجة السجل
+                    }
+                }
+            }
+            return isFound;
+        }
+
     }
 }

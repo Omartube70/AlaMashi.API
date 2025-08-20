@@ -41,10 +41,11 @@ public class ResponseUserDto
 {
     public int UserID { get; set; }
     public string UserName { get; set; }
+
     [EmailAddress]
     public string Email { get; set; }
     public string Phone { get; set; }
-    public UserBLL.enPermissions Permissions { get; set; }
+    public string Permissions { get; set; }
 }
 
 public class LoginModel
@@ -170,14 +171,7 @@ public class UsersController : ControllerBase
     {
         var users = UserBLL.GetAllUsers();
 
-        var usersDto = users.Select(user => new ResponseUserDto
-        {
-            UserID = user.UserID,
-            UserName = user.UserName,
-            Email = user.Email,
-            Phone = user.Phone,
-            Permissions = user.Permissions
-        }).ToList();
+        var usersDto = users.Select(MapToResponseDto).ToList();
 
         return Ok(usersDto);
     }
@@ -200,14 +194,7 @@ public class UsersController : ControllerBase
             throw new KeyNotFoundException($"User with ID {UserID} was not found.");
         }
 
-        var userDto = new ResponseUserDto
-        {
-            UserID = user.UserID,
-            UserName = user.UserName,
-            Email = user.Email,
-            Phone = user.Phone,
-            Permissions = user.Permissions
-        };
+        var userDto = MapToResponseDto(user);
 
         return Ok(new { status = "success", data = userDto });
     }
@@ -226,14 +213,7 @@ public class UsersController : ControllerBase
 
             if (newUserBLL.Save())
             {
-                var responseDto = new ResponseUserDto
-                {
-                    UserID = newUserBLL.UserID,
-                    UserName = newUserBLL.UserName,
-                    Email = newUserBLL.Email,
-                    Phone = newUserBLL.Phone,
-                    Permissions = newUserBLL.Permissions
-                };
+                var responseDto = MapToResponseDto(newUserBLL);
 
                 return CreatedAtAction(nameof(GetUserById), new { UserID = newUserBLL.UserID }, responseDto);
             }
@@ -291,7 +271,7 @@ public class UsersController : ControllerBase
 
 
         if (userToUpdate.Save())
-           {
+         {
             return Ok(new { status = "success", data = userToPatchDto });
         }
 
@@ -342,14 +322,8 @@ public class UsersController : ControllerBase
         var (refreshToken, refreshTokenExpiry) = _jwtService.GenerateRefreshToken();
         UserBLL.SaveRefreshToken(user.UserID, refreshToken, refreshTokenExpiry);
 
-        var responseDto = new ResponseUserDto
-        {
-            UserID = user.UserID,
-            UserName = user.UserName,
-            Email = user.Email,
-            Phone = user.Phone,
-            Permissions = user.Permissions
-        };
+        var responseDto = MapToResponseDto(user);
+
 
         return Ok(new
         {
@@ -419,5 +393,17 @@ public class UsersController : ControllerBase
         }
 
         return (userId, userRole);
+    }
+
+    private ResponseUserDto MapToResponseDto(UserBLL bll)
+    {
+       return  new ResponseUserDto
+        {
+            UserID   = bll.UserID,
+            UserName = bll.UserName,
+            Email    = bll.Email,
+            Phone    = bll.Phone,
+            Permissions = bll.Permissions.ToString()
+        };
     }
 }

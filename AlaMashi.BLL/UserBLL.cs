@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using BCrypt.Net;
 using AlaMashi.DAL;
+using System.Diagnostics;
 
 namespace AlaMashi.BLL
 {
@@ -40,6 +41,66 @@ namespace AlaMashi.BLL
             this.PasswordHash = PasswordHash;
             this.Permissions = Permissions;
             this.Mode = enMode.Update;
+        }
+
+        private bool _AddNewUser()
+        {
+            if (UserDAL.IsEmailExists(Email))
+            {
+                throw new ArgumentException("Email already exists.");
+            }
+
+            // تشفير كلمة المرور    
+            PasswordHash = HashPassword(Password);
+
+            this.UserID  = UserDAL.AddNewUser(UserName, Email, Phone, PasswordHash, (int)Permissions);
+
+            Password = ""; // مسح كلمة المرور بعد التشفير
+
+            return (this.UserID > 0);
+        }
+
+        private bool _UpdateUser()
+        {
+            // جلب بيانات المستخدم الحالية أولاً وقبل كل شيء
+            string currentUserName = "";
+            string currentUserEmail = "";
+            string currentUserPhone = "";
+            string currentPasswordHash = "";
+            int currentUserPermissions = 0;
+
+            bool userFound = UserDAL.GetUserInfoByID(
+                this.UserID,
+                ref currentUserName,
+                ref currentUserEmail,
+                ref currentUserPhone,
+                ref currentPasswordHash,
+                ref currentUserPermissions
+            );
+
+            if (!userFound)
+            {
+                return false;
+            }
+
+            // عين القيمة المبدئية للـ Hash بالقديمة
+            this.PasswordHash = currentPasswordHash;
+
+            // الآن، تحقق فقط إذا كان هناك كلمة مرور جديدة لتحديثها
+            if (!string.IsNullOrEmpty(Password))
+            {
+                if (VerifyPassword(this.Password, currentPasswordHash))
+                {
+                    throw new InvalidOperationException("New password cannot be the same as the old password.");
+                }
+
+                // إذا كانت جديدة ومختلفة، قم بتحديث الـ Hash
+                this.PasswordHash = HashPassword(this.Password);
+                this.Password = "";
+            }
+
+            // في النهاية، قم بالتحديث. سيحتوي PasswordHash على القيمة الجديدة أو القديمة
+            return UserDAL.UpdateUser(UserID, UserName, Email, Phone, this.PasswordHash, (int)Permissions);
         }
 
         public static string HashPassword(string password)
@@ -82,10 +143,9 @@ namespace AlaMashi.BLL
             return null;
         }
 
-
         public bool Save()
         {
-            // Validation (كما هي، لكن مع بعض التحسينات الطفيفة)
+            // Validation
             if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Phone))
             {
                 throw new ArgumentException("All required fields must be filled.");
@@ -109,19 +169,11 @@ namespace AlaMashi.BLL
                 }
             }
 
+
             if (Mode == enMode.AddNew)
             {
-                if (UserDAL.IsEmailExists(Email))
+                if (_AddNewUser())
                 {
-                    throw new ArgumentException("Email already exists.");
-                }
-
-                PasswordHash = HashPassword(Password);
-                int newUserID = UserDAL.AddNewUser(UserName, Email, Phone, PasswordHash, (int)Permissions);
-
-                if (newUserID != -1 & newUserID > 0)
-                {
-                    UserID = newUserID;
                     Mode = enMode.Update;
                     return true;
                 }
@@ -130,12 +182,7 @@ namespace AlaMashi.BLL
             }
             else // Mode == enMode.Update
             {
-                if (!string.IsNullOrEmpty(Password))
-                {
-                    PasswordHash = HashPassword(Password);
-                }
-
-                return UserDAL.UpdateUser(UserID, UserName, Email, Phone, PasswordHash, (int)Permissions);
+                return _UpdateUser();
             }
         }
 
@@ -156,13 +203,15 @@ namespace AlaMashi.BLL
 
             foreach (DataRow row in dt.Rows)
             {
-                UserBLL userbll = new UserBLL();
-                userbll.UserID = Convert.ToInt32(row["UserID"]);
-                userbll.UserName = row["UserName"].ToString();
-                userbll.Email = row["Email"].ToString();
-                userbll.Phone = row["Phone"].ToString();
-                userbll.PasswordHash = row["PasswordHash"].ToString();
-                userbll.Permissions = (enPermissions) Convert.ToInt32(row["Permissions"]);
+                UserBLL userbll = new UserBLL()
+                {
+                    UserID = Convert.ToInt32(row["UserID"]),
+                    UserName = row["UserName"].ToString(),
+                    Email = row["Email"].ToString(),
+                    Phone = row["Phone"].ToString(),
+                    PasswordHash = row["PasswordHash"].ToString(),
+                    Permissions = (enPermissions)Convert.ToInt32(row["Permissions"])
+                };
                 users.Add(userbll);
             }
             return users;
