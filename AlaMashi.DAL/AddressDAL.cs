@@ -69,7 +69,7 @@ namespace AlaMashi.DAL
         public static bool UpdateAddress(int addressID, string street, string city, string addressDetails, int addressType)
         {
             string query = @"
-        UPDATE Addresses
+        UPDATE Address
         SET Street = @Street, 
             City = @City,
             AddressDetails = @AddressDetails, 

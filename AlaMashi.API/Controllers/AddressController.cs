@@ -27,7 +27,7 @@ public class UpdateAddressRequestDto
     public string Street { get; set; }
     public string City { get; set; }
     public string AddressDetails { get; set; }
-    public int AddressType { get; set; }
+    public int AddressType { get; set; } // 0: home, 1: Work, 2: Another
 }
 
 [ApiController]
