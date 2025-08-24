@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 // DTOs (Data Transfer Objects)
 public class CreateUserDto
@@ -102,7 +103,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
     {
 
-        if (ValidationHelper.IsEmailValid(model.Email))
+        if (!await ValidationHelper.IsEmailValidAsync(model.Email))
         {
             throw new ArgumentException("Invalid Email Format.");
         }
@@ -132,7 +133,7 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <param name="model">الرمز الجديد وكلمة المرور الجديدة.</param>
     [HttpPost("reset-password")]
-    public IActionResult ResetPassword([FromBody] ResetPasswordModel model)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
     {
         // التحقق من صلاحية الرمز
         var principal = _jwtService.ValidateResetToken(model.Token);
@@ -155,7 +156,7 @@ public class UsersController : ControllerBase
 
         // تحديث كلمة المرور وحفظ التغييرات
         user.Password = model.NewPassword;
-        if (user.Save())
+        if (await user.SaveAsync())
         {
             return Ok(new { message = "Password has been reset successfully." });
         }
@@ -200,7 +201,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public IActionResult CreateUser([FromBody] CreateUserDto userDto)
+    public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserDto userDto)
     {
             var newUserBLL = new UserBLL()
             {
@@ -211,7 +212,7 @@ public class UsersController : ControllerBase
                 Permissions = userDto.Permissions
             };
 
-            if (newUserBLL.Save())
+            if (await newUserBLL.SaveAsync())
             {
                 var responseDto = MapToResponseDto(newUserBLL);
 
@@ -222,7 +223,7 @@ public class UsersController : ControllerBase
 
     [HttpPatch("{UserID}")]
     [Authorize]
-    public IActionResult UpdateUser(int UserID, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
+    public async Task<IActionResult> UpdateUserAsync(int UserID, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
     {
         var (userIdFromToken, userRoleFromToken) = GetCurrentUser();
 
@@ -270,7 +271,7 @@ public class UsersController : ControllerBase
         }
 
 
-        if (userToUpdate.Save())
+        if (await userToUpdate.SaveAsync())
          {
             return Ok(new { status = "success", data = userToPatchDto });
         }

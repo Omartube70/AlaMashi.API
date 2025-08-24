@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.Linq;
-
+using System.Net.Mail;
+using DnsClient;
 
 namespace AlaMashi.BLL
 {
@@ -42,10 +43,36 @@ namespace AlaMashi.BLL
             return true;
         }
 
-        public static bool IsEmailValid(string email)
+        public static async Task<bool> IsEmailValidAsync(string email)
         {
-            string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"; 
-            return Regex.IsMatch(email, pattern);
+            if (string.IsNullOrEmpty(email))
+                return false;
+
+
+            var parts = email.Split('@');
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            var domain = parts[1];
+
+            try
+            {
+                var lookup = new LookupClient();
+                var result = await lookup.QueryAsync(domain, QueryType.MX);
+
+                if (result.HasError)
+                {
+                    return false;
+                }
+
+                return result.Answers.MxRecords().Any();
+            }
+            catch (DnsResponseException)
+            {
+                return false;
+            }
         }
 
         public static bool IsPhoneValid(string phone)

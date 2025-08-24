@@ -16,7 +16,6 @@ namespace AlaMashi.BLL
 
             public int AddressID { get; private set; }
             public int UserID { get; set; }
-            public AddressBLL Address { get; set; }
             public string Street { get; set; }
             public string City { get; set; }
             public string AddressDetails { get; set; } 
@@ -38,7 +37,6 @@ namespace AlaMashi.BLL
             {
                 this.AddressID = AddressID;
                 this.UserID = UserID;
-                this.Address = AddressBLL.GetAddressByAddressID(AddressID);    
                 this.Street = Street;
                 this.City = City;
                 this.AddressDetails = AddressDetails;

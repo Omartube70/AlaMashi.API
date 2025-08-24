@@ -50,7 +50,7 @@ namespace AlaMashi.BLL
                 throw new ArgumentException("Email already exists.");
             }
 
-            // تشفير كلمة المرور    
+            // تشفير كلمة المرور
             PasswordHash = HashPassword(Password);
 
             this.UserID  = UserDAL.AddNewUser(UserName, Email, Phone, PasswordHash, (int)Permissions);
@@ -143,7 +143,7 @@ namespace AlaMashi.BLL
             return null;
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
             // Validation
             if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Phone))
@@ -151,7 +151,7 @@ namespace AlaMashi.BLL
                 throw new ArgumentException("All required fields must be filled.");
             }
 
-            if (!ValidationHelper.IsEmailValid(Email))
+            if (!await ValidationHelper.IsEmailValidAsync(Email))
             {
                 throw new ArgumentException("Invalid email format.");
             }
