@@ -49,6 +49,7 @@ public class ResponseUserDto
     public string Permissions { get; set; }
 }
 
+
 public class LoginModel
 {
     [Required]
