@@ -103,6 +103,7 @@ namespace AlaMashi.BLL
             return UserDAL.UpdateUser(UserID, UserName, Email, Phone, this.PasswordHash, (int)Permissions);
         }
 
+
         public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
