@@ -32,4 +32,10 @@
     <ProjectReference Include="..\AlaMashi.BLL\AlaMashi.BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="EmailTemplates\PasswordReset.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
