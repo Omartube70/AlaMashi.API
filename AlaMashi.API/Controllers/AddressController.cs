@@ -4,6 +4,7 @@ using Application.Addresses.Queries;
 using Application.Users.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -61,22 +62,37 @@ public class AddressesController : ControllerBase
     }
 
 
-    [HttpPut("{AddressId}")]
-    public async Task<IActionResult> UpdateAddress(int AddressId, [FromBody] UpdateAddressDto dto)
+    [HttpPatch("{AddressId}")]
+    public async Task<IActionResult> UpdateAddressPartial(int AddressId, [FromBody] JsonPatchDocument<UpdateAddressDto> patchDoc)
     {
+        var query = new GetAddressByIdQuery { AddressId = AddressId, CurrentUserId = GetCurrentUserId() };
+        var currentAddressState = await _mediator.Send(query);
+
+        // الخطوة 2: تحويل الرد إلى DTO قابل للتعديل
+        var addressToPatch = new UpdateAddressDto
+        {
+            Street = currentAddressState.Street,
+            City = currentAddressState.City,
+            AddressDetails = currentAddressState.AddressDetails,
+            AddressType = (Domain.Common.AddressType)Enum.Parse(typeof(Domain.Common.AddressType), currentAddressState.AddressType)
+        };
+
+        patchDoc.ApplyTo(addressToPatch, ModelState);
+        if (!TryValidateModel(addressToPatch))
+        {
+            return ValidationProblem(ModelState);
+        }
+
         var command = new UpdateAddressCommand
         {
             AddressId = AddressId,
             CurrentUserId = GetCurrentUserId(),
-            Street = dto.Street,
-            City = dto.City,
-            AddressDetails = dto.AddressDetails,
-            AddressType = dto.AddressType
+            Street = addressToPatch.Street,
+            City = addressToPatch.City,
+            AddressDetails = addressToPatch.AddressDetails,
+            AddressType = addressToPatch.AddressType
         };
 
-        await _mediator.Send(command);
-
-        // 204 NoContent هو الرد القياسي لعملية تحديث ناجحة
         return Ok(new { status = "success", data = "Address Updated successfully" });
     }
 
