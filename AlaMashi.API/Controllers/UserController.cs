@@ -46,15 +46,22 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("all")]
-    [Authorize] // Authorization is now handled inside the handler
+    [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> GetAllUsers()
     {
-        var query = new GetAllUsersQuery
-        {
-            CurrentUserRole = User.FindFirstValue(ClaimTypes.Role)
-        };
+        var query = new GetAllUsersQuery();
         var users = await _mediator.Send(query);
         return Ok(users);
+    }
+
+    [HttpPost("{UserID}/promote-to-admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PromoteUserToAdmin(int UserID)
+    {
+        var command = new PromoteUserToAdminCommand { UserId = UserID };
+        await _mediator.Send(command);
+
+        return Ok(new { status = "success", message = $"User {UserID} has been promoted to Admin." });
     }
 
     [HttpPatch("{UserID}")]

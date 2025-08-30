@@ -1,30 +1,38 @@
-﻿# Stage 1: Build
+﻿# Stage 1: Build Environment
+# نستخدم صورة الـ SDK الكاملة التي تحتوي على كل أدوات البناء
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# انسخ ملفات الـ .csproj لكل المشاريع وملف الـ solution.
+# انسخ ملفات الـ .csproj لكل المشاريع وملف الـ solution
+# هذه الخطوة مهمة للاستفادة من الـ caching في Docker
 COPY ["AlaMashi.sln", "."]
 COPY ["AlaMashi.API/AlaMashi.API.csproj", "AlaMashi.API/"]
-COPY ["AlaMashi.BLL/AlaMashi.BLL.csproj", "AlaMashi.BLL/"]
-COPY ["AlaMashi.DAL/AlaMashi.DAL.csproj", "AlaMashi.DAL/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 
-# اعمل restore لكل الـ dependencies في الـ solution بالكامل
+# قم باستعادة كل الـ dependencies (NuGet packages)
 RUN dotnet restore "AlaMashi.sln"
 
-# انسخ كل ملفات الكود الأخرى
+# انسخ باقي ملفات الكود
 COPY . .
 
-# انتقل لمجلد مشروع الـ API الرئيسي واعمل له publish
+# انتقل إلى مجلد مشروع الـ API وقم بعملية النشر (publish)
 WORKDIR "/src/AlaMashi.API"
-RUN dotnet publish -c Release -o /out
+RUN dotnet publish "AlaMashi.API.csproj" -c Release -o /app/publish
 
-# Stage 2: Run
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# ---
+
+# Stage 2: Runtime Environment
+# نستخدم صورة الـ ASP.NET Runtime الخفيفة لتشغيل التطبيق
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /out ./
 
-# Port
+# انسخ فقط الملفات المنشورة من مرحلة البناء
+COPY --from=build /app/publish .
+
+# تحديد البورت الذي سيعمل عليه التطبيق داخل الـ container
 EXPOSE 8080
 
-# Run the app
+# الأمر الافتراضي لتشغيل التطبيق
 ENTRYPOINT ["dotnet", "AlaMashi.API.dll"]
