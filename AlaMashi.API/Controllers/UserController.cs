@@ -38,8 +38,8 @@ public class UsersController : ControllerBase
         var query = new GetUserByIdQuery
         {
             UserId = UserID,
-            CurrentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
-            CurrentUserRole = User.FindFirstValue(ClaimTypes.Role)
+            CurrentUserId = GetCurrentUserId(),
+            CurrentUserRole = GetCurrentUserRole()
         };
         var userDto = await _mediator.Send(query);
 
@@ -69,8 +69,8 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> UpdateUserPartial(int UserID, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
     {
-        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+        var currentUserId = GetCurrentUserId();
+        var currentUserRole = GetCurrentUserRole();
 
         var currentUserState = await _mediator.Send(new GetUserByIdQuery
         {
@@ -118,8 +118,8 @@ public class UsersController : ControllerBase
         var command = new DeleteUserCommand
         {
             TargetUserId = UserID,
-            CurrentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
-            CurrentUserRole = User.FindFirstValue(ClaimTypes.Role)
+            CurrentUserId = GetCurrentUserId(),
+            CurrentUserRole = GetCurrentUserRole()
         };
         await _mediator.Send(command);
 
@@ -146,8 +146,8 @@ public class UsersController : ControllerBase
     [HttpPost("revoke")]
     public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenDto dto)
     {
-        var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var currentUserRole = User.FindFirstValue(ClaimTypes.Role);
+        var currentUserId = GetCurrentUserId();
+        var currentUserRole = GetCurrentUserRole();
 
         var command = new RevokeTokenCommand
         {
@@ -167,7 +167,7 @@ public class UsersController : ControllerBase
     {
         var command = new ChangePasswordCommand
         {
-            UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
+            UserId = GetCurrentUserId(),
             OldPassword = dto.OldPassword,
             NewPassword = dto.NewPassword
         };
@@ -187,5 +187,22 @@ public class UsersController : ControllerBase
     {
         await _mediator.Send(command);
         return Ok(new { message = "Password has been reset successfully." });
+    }
+
+
+    // --- Helper Methods ---
+    private int GetCurrentUserId()
+    {
+        if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+        {
+            return userId;
+        }
+        throw new InvalidOperationException("User ID not found in token.");
+    }
+
+    private string GetCurrentUserRole()
+    {
+        return User.FindFirstValue(ClaimTypes.Role) ??
+               throw new InvalidOperationException("User Role not found in token.");
     }
 }

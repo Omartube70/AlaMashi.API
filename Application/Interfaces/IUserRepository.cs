@@ -15,5 +15,7 @@ namespace Application.Interfaces
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(int userId);
         Task SaveRefreshTokenAsync(int userId, string? refreshToken, DateTime expiryDate);
+
+        Task<User?> GetUserWithAddressesAsync(int userId);
     }
 }

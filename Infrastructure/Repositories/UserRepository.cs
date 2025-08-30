@@ -1,5 +1,4 @@
-﻿// --- File: MySolution.Infrastructure/Repositories/UserEfRepository.cs ---
-using Domain.Entities;
+﻿using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ namespace Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _context;
 
-        // نستقبل الـ DbContext عن طريق الـ Dependency Injection
         public UserRepository(ApplicationDbContext context)
         {
             _context = context;
@@ -71,12 +69,18 @@ namespace Infrastructure.Repositories
             var user = await _context.Users.FindAsync(userId);
             if (user != null)
             {
-                // هذا يفترض وجود هذه الخصائص في الـ User Entity
                 user.SetRefreshToken(refreshToken, expiryDate);
 
                 _context.Users.Update(user);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<User?> GetUserWithAddressesAsync(int userId)
+        {
+            return await _context.Users
+                .Include(u => u.Addresses) 
+                .FirstOrDefaultAsync(u => u.UserID == userId);
         }
 
     }

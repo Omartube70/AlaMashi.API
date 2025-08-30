@@ -9,8 +9,6 @@ namespace Domain.Entities
 {
     public class User
     {
-        public enum Permissions { User = 1, Admin = 2 }
-
         public int UserID { get; private set; }
         public string UserName { get; private set; }
         public string Email { get; private set; }
@@ -19,10 +17,11 @@ namespace Domain.Entities
         public Permissions UserPermissions { get; private set; }
         public string? RefreshToken { get; private set; }
         public DateTime? RefreshTokenExpiryTime { get; private set; }
+        public ICollection<Address> Addresses { get; private set; } = new List<Address>();
 
-        private User(int userId, string userName, string email, string phone, Permissions permissions, string passwordHash)
+
+        private User(string userName, string email, string phone, Permissions permissions, string passwordHash)
         {
-            UserID = userId;
             UserName = userName;
             Email = email;
             Phone = phone;
@@ -56,7 +55,7 @@ namespace Domain.Entities
             var defaultPermissions = Permissions.User;
 
             // --- Object Creation ---
-            return new User(0,userName, email, phone, defaultPermissions, passwordHash);
+            return new User(userName, email, phone, defaultPermissions, passwordHash);
         }
 
         public async Task UpdateProfileAsync(string userName, string email, string? phone)
@@ -111,5 +110,19 @@ namespace Domain.Entities
 
             UserPermissions = Permissions.Admin;
         }
+
+        // --Address Mangment--
+
+        public void AddAddress(Address address)
+        {
+            if(address == null)
+            {
+                throw new ArgumentNullException(nameof(address), "Address cannot be null.");
+            }
+
+            this.Addresses.Add(address);
+        }
+
+
     }
 }

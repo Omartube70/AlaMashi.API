@@ -33,6 +33,17 @@ namespace Infrastructure.Data
 
             });
 
+               modelBuilder.Entity<Address>(entity =>
+           {
+                entity.HasKey(e => e.AddressId);
+                entity.Property(e => e.Street).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.City).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.AddressType).HasConversion<string>().HasMaxLength(50); // تخزين النوع كنص
+                entity.Property(e => e.AddressDetails).IsRequired(false);
+
+               // تعريف علاقة واحد إلى متعدد
+               entity.HasOne(a => a.User).WithMany(u => u.Addresses).HasForeignKey(a => a.UserId);
+            });
 
         }
 
