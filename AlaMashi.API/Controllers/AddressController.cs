@@ -20,7 +20,7 @@ public class AddressesController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost]
+    [HttpPost("Create")]
     public async Task<IActionResult> CreateAddress([FromBody] CreateAddressDto dto)
     {
         var command = new CreateAddressCommand
@@ -35,7 +35,7 @@ public class AddressesController : ControllerBase
         return Ok(new { status = "success", data = addressDto });
     }
 
-    [HttpGet] // يجلب عناوين المستخدم الحالي
+    [HttpGet("all")] // يجلب عناوين المستخدم الحالي
     public async Task<IActionResult> GetMyAddresses()
     {
         var query = new GetUserAddressesQuery
