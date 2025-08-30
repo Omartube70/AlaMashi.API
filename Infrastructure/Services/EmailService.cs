@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using MailKit.Net.Smtp;
+using MailKit.Security; // <-- ✅ إضافة مهمة
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -24,7 +25,6 @@ namespace Infrastructure.Services
             var emailSettings = _configuration.GetSection("EmailSettings");
 
             var templatePath = Path.Combine(_env.ContentRootPath, "EmailTemplates", "PasswordReset.html");
-
             var templateText = await File.ReadAllTextAsync(templatePath);
 
             var emailBody = templateText.Replace("{{username}}", userName);
@@ -35,15 +35,13 @@ namespace Infrastructure.Services
             message.To.Add(new MailboxAddress(userName, toEmail));
             message.Subject = "إعادة تعيين كلمة المرور";
 
-            var bodyBuilder = new BodyBuilder
-            {
-                HtmlBody = emailBody 
-            };
+            var bodyBuilder = new BodyBuilder { HtmlBody = emailBody };
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
 
-            await client.ConnectAsync(emailSettings["SmtpServer"], int.Parse(emailSettings["Port"]), false);
+            await client.ConnectAsync(emailSettings["SmtpServer"], int.Parse(emailSettings["Port"]), SecureSocketOptions.StartTls);
+
             await client.AuthenticateAsync(emailSettings["UserName"], emailSettings["Password"]);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);

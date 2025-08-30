@@ -15,7 +15,7 @@ namespace Application.Users.Commands
         {
             RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Username is required.")
-                .Length(3, 50).WithMessage("Username must be between 3 and 50 characters.");
+                .Length(3, 100).WithMessage("Username must be between 3 and 100 characters.");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")
