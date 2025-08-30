@@ -60,6 +60,26 @@ public class AddressesController : ControllerBase
         return Ok(new { status = "success", data = "Address deleted successfully" });
     }
 
+
+    [HttpPut("{AddressId}")]
+    public async Task<IActionResult> UpdateAddress(int AddressId, [FromBody] UpdateAddressDto dto)
+    {
+        var command = new UpdateAddressCommand
+        {
+            AddressId = AddressId,
+            CurrentUserId = GetCurrentUserId(),
+            Street = dto.Street,
+            City = dto.City,
+            AddressDetails = dto.AddressDetails,
+            AddressType = dto.AddressType
+        };
+
+        await _mediator.Send(command);
+
+        // 204 NoContent هو الرد القياسي لعملية تحديث ناجحة
+        return Ok(new { status = "success", data = "Address Updated successfully" });
+    }
+
     // --- Helper Methods ---
     private int GetCurrentUserId()
     {
