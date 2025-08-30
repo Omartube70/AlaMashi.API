@@ -21,6 +21,10 @@
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.13.0" />
     <PackageReference Include="MimeKit" Version="4.13.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
@@ -29,7 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AlaMashi.BLL\AlaMashi.BLL.csproj" />
+    <ProjectReference Include="..\..\AlaMashi\Application\Application.csproj" />
+    <ProjectReference Include="..\..\AlaMashi\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

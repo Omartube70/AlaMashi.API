@@ -1,15 +1,10 @@
-﻿using FluentValidation; // ستحتاج إضافة مكتبة FluentValidation للتعامل مع هذا الخطأ
+﻿using FluentValidation;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using Application.Exceptions;
 using System.Text.Json;
 using ValidationException = FluentValidation.ValidationException;
-
-public class ForbiddenAccessException : Exception { }
-public class ConflictException : Exception
-{
-    public ConflictException(string message) : base(message) { }
-}
 
 
 public class ErrorHandlingMiddleware
@@ -86,9 +81,7 @@ public class ErrorHandlingMiddleware
             // 500 Internal Server Error - لأي خطأ آخر غير متوقع يحدث في السيرفر
             default:
                 statusCode = HttpStatusCode.InternalServerError;
-                // لا تعرض رسالة الخطأ الحقيقية للمستخدم النهائي لدواعي الأمان
-                message = "An unexpected internal server error occurred.";
-                // يمكنك تسجيل الخطأ الفعلي (exception.ToString()) في نظام Logs لمراجعته لاحقاً
+                message = exception.Message;
                 break;
         }
 
