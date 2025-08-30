@@ -10,6 +10,7 @@ using Application.Users.Dtos;
 using Application.Authentication.Commands;
 using Application.Authentication.Dtos;
 
+
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
