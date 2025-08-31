@@ -43,7 +43,7 @@ public class AddressesController : ControllerBase
         {
             UserId = GetCurrentUserId(),
             CurrentUserId = GetCurrentUserId(),
-            CurrentUserRole = GetCurrentUserRole()
+            CurrentUserRole = GetCurrentUserRole()   
         };
         var result = await _mediator.Send(query);
         return Ok(result);
@@ -68,7 +68,6 @@ public class AddressesController : ControllerBase
         var query = new GetAddressByIdQuery { AddressId = AddressId, CurrentUserId = GetCurrentUserId() };
         var currentAddressState = await _mediator.Send(query);
 
-        // الخطوة 2: تحويل الرد إلى DTO قابل للتعديل
         var addressToPatch = new UpdateAddressDto
         {
             Street = currentAddressState.Street,
@@ -92,6 +91,8 @@ public class AddressesController : ControllerBase
             AddressDetails = addressToPatch.AddressDetails,
             AddressType = addressToPatch.AddressType
         };
+
+        await _mediator.Send(command);
 
         return Ok(new { status = "success", data = "Address Updated successfully" });
     }
