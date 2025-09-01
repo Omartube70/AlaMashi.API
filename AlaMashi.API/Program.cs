@@ -32,6 +32,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 // تسجيل MediatR والـ Pipeline Behaviors بالترتيب الصحيح
 builder.Services.AddMediatR(cfg => {

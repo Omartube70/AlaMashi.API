@@ -34,7 +34,7 @@ namespace Infrastructure.Data
             });
 
                modelBuilder.Entity<Address>(entity =>
-           {
+            {
                 entity.HasKey(e => e.AddressId);
                 entity.Property(e => e.Street).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.City).IsRequired().HasMaxLength(100);
@@ -45,8 +45,31 @@ namespace Infrastructure.Data
                entity.HasOne(a => a.User).WithMany(u => u.Addresses).HasForeignKey(a => a.UserId);
             });
 
+               modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasKey(e => e.CategoryID);
+                entity.Property(e => e.CategoryName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.ParentID).IsRequired(false);
+            });
+
+               modelBuilder.Entity<Product>(entity =>
+            {
+             entity.HasKey(e => e.ProductID);
+             entity.Property(e => e.ProductName).IsRequired().HasColumnType("Nvarchar(200)");
+             entity.Property(e => e.Barcode).IsRequired();  // 450 Length
+             entity.Property(e => e.ProductDescription).IsRequired(false);  // MAX Length
+             entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+             entity.Property(e => e.QuantityInStock).IsRequired(); // int
+             entity.Property(e => e.MainImageURL).IsRequired(); // MAX Length
+             entity.HasIndex(p => p.Barcode).IsUnique(); // Barcode is Unique
+            });
+
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+
     }
 }

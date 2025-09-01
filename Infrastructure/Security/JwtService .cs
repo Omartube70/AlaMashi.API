@@ -41,7 +41,7 @@ namespace Infrastructure.Security
 
             var expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:AccessTokenDurationInMinutes"]));
 
-            return GenerateJwtToken(claims, expires); // <-- استدعاء الدالة الموحدة
+            return GenerateJwtToken(claims, expires); 
         }
 
         public string GeneratePasswordResetToken(User user)

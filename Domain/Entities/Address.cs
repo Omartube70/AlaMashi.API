@@ -17,6 +17,7 @@ namespace Domain.Entities
 
         // Foreign Key to User
         public int UserId { get; private set; }
+
         // Navigation Property
         public User User { get; private set; }
 

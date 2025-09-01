@@ -44,7 +44,7 @@ namespace Application.Users.Commands
             }
 
             // 4. استدعاء دالة التحديث في الـ Domain Entity
-            userToUpdate.UpdateProfileAsync(request.UserName, request.Email, request.Phone);
+            await userToUpdate.UpdateProfileAsync(request.UserName, request.Email, request.Phone);
 
             // 5. حفظ التغييرات في قاعدة البيانات
             await _userRepository.UpdateUserAsync(userToUpdate);

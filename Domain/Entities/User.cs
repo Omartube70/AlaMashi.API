@@ -20,7 +20,7 @@ namespace Domain.Entities
         public ICollection<Address> Addresses { get; private set; } = new List<Address>();
 
 
-        private User(string userName, string email, string phone, Permissions permissions, string passwordHash)
+        private User(string userName, string email, string? phone, Permissions permissions, string passwordHash)
         {
             UserName = userName;
             Email = email;
@@ -50,15 +50,16 @@ namespace Domain.Entities
             if (!string.IsNullOrWhiteSpace(phone) && !ValidationHelper.IsPhoneValid(phone))
                 throw new ArgumentException("Invalid phone number format.", nameof(phone));
 
-            // --- Business Rule Enforcement ---
+            var normalizedPhone = string.IsNullOrWhiteSpace(phone) ? null : phone;
+
             // المستخدم الجديد يحصل دائمًا على صلاحيات User بشكل افتراضي
             var defaultPermissions = Permissions.User;
 
             // --- Object Creation ---
-            return new User(userName, email, phone, defaultPermissions, passwordHash);
+            return new User(userName, email, normalizedPhone, defaultPermissions, passwordHash);
         }
 
-        public async Task UpdateProfileAsync(string userName, string email, string? phone)
+        public async Task UpdateProfileAsync(string userName, string email, string phone)
         {
             // --- Validation ---
             if (string.IsNullOrWhiteSpace(userName))
@@ -76,10 +77,12 @@ namespace Domain.Entities
             if (!ValidationHelper.IsPhoneValid(phone))
                 throw new ArgumentException("Invalid phone number format.", nameof(phone));
 
+            var normalizedPhone = string.IsNullOrWhiteSpace(phone) ? null : phone;
+
             // --- State Update ---
             UserName = userName;
             Email = email;
-            Phone = phone;
+            Phone = normalizedPhone;
         }
 
         public void ChangePassword(string newPasswordHash)
