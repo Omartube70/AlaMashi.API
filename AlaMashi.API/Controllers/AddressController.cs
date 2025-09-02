@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // كل العمليات هنا تتطلب تسجيل الدخول
+[Authorize]
 public class AddressesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -36,8 +36,8 @@ public class AddressesController : ControllerBase
         return Ok(new { status = "success", data = addressDto });
     }
 
-    [HttpGet("all")] // يجلب عناوين المستخدم الحالي
-    public async Task<IActionResult> GetMyAddresses()
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllAddressesByUser()
     {
         var query = new GetUserAddressesQuery
         {
@@ -47,6 +47,17 @@ public class AddressesController : ControllerBase
         };
         var result = await _mediator.Send(query);
         return Ok(result);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllAddresses()
+    {
+        var query = new GetAllAddressesQuery();
+
+        var addressDtos = await _mediator.Send(query);
+
+        return Ok(addressDtos);
     }
 
     [HttpDelete("{AddressId}")]

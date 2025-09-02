@@ -18,18 +18,18 @@ namespace Application.Addresses.Commands
         public async Task Handle(DeleteAddressCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetUserWithAddressesAsync(request.CurrentUserId);
-            if (user == null)
+            if (user is null)
             {
                 throw new UserNotFoundException(request.CurrentUserId);
             }
 
             var addressToDelete = user.Addresses.FirstOrDefault(a => a.AddressId == request.AddressId);
-            if (addressToDelete == null)
+            if (addressToDelete is null)
             {
                 throw new NotFoundException($"Address with ID {request.AddressId} not found for this user.");
             }
 
-            user.Addresses.Remove(addressToDelete);
+            user.RemoveAddress(addressToDelete);
 
             await _userRepository.UpdateUserAsync(user);
         }

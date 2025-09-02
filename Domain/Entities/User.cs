@@ -126,6 +126,10 @@ namespace Domain.Entities
             this.Addresses.Add(address);
         }
 
+        public void RemoveAddress(Address address)
+        {
+            this.Addresses.Remove(address);
+        }
 
     }
 }

@@ -42,7 +42,10 @@ namespace Infrastructure.Data
                 entity.Property(e => e.AddressDetails).IsRequired(false);
 
                // تعريف علاقة واحد إلى متعدد
-               entity.HasOne(a => a.User).WithMany(u => u.Addresses).HasForeignKey(a => a.UserId);
+               entity.HasOne(a => a.User)
+                .WithMany(u => u.Addresses)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
 
                modelBuilder.Entity<Category>(entity =>

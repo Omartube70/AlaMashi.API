@@ -11,7 +11,7 @@ namespace Application.Interfaces
     {
         Task<Product?> GetProductByIdAsync(int ProductID);
         Task<IReadOnlyList<Product>> GetAllProductsAsync();
-        Task<IReadOnlyList<Product>> GetAllProductsByCategoryIdAsync(int categoryId);
+        Task<IReadOnlyList<Product>> GetProductsByCategoryIdAsync(int categoryId);
 
         Task AddProductAsync(Product product);
         Task UpdateProductAsync(Product product);

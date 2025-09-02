@@ -50,7 +50,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Product>> GetProductsByCategoryIdAsync(int categoryId)
         {
-            return await _context.Products.Where(p => p.CategoryID == categoryId) // فلترة حسب رقم الفئة
+            return await _context.Products.Where(p => p.CategoryID == categoryId) 
                                  .Include(p => p.Category)
                                  .AsNoTracking()
                                  .ToListAsync();

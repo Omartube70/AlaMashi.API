@@ -19,7 +19,7 @@ namespace Application.Products.Queries
 
         public async Task<IReadOnlyList<ProductDto>> Handle(GetAllProductsByCategoryQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productRepository.GetAllProductsByCategoryIdAsync(request.CategoryId);
+            var products = await _productRepository.GetProductsByCategoryIdAsync(request.CategoryId);
 
             var productDtos = products
                 .Select(product => new ProductDto

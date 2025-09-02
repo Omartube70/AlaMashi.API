@@ -9,7 +9,8 @@ namespace Application.Addresses.Commands
 {
     public class DeleteAddressCommand : IRequest
     {
-        public int CurrentUserId { get; set; }
         public int AddressId { get; set; }
+
+        public int CurrentUserId { get; set; }
     }
 }

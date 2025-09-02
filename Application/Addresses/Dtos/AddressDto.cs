@@ -13,5 +13,7 @@ namespace Application.Addresses.Dtos
         public string City { get; set; }
         public string? AddressDetails { get; set; }
         public string AddressType { get; set; }
+        public int UserId { get; init; }
+
     }
 }

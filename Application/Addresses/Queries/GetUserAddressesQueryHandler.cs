@@ -17,7 +17,7 @@ namespace Application.Addresses.Queries
         {
             _userRepository = userRepository;
         }
-
+         
         public async Task<IEnumerable<AddressDto>> Handle(GetUserAddressesQuery request, CancellationToken cancellationToken)
         {
             bool isAdmin = request.CurrentUserRole == "Admin";

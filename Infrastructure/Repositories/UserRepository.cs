@@ -83,5 +83,9 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.UserID == userId);
         }
 
+        public async Task<IReadOnlyList<Address>> GetAllAddressesAsync()
+        {
+            return await _context.Addresses.AsNoTracking().ToListAsync();
+        }
     }
 }
