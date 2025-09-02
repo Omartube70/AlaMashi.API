@@ -27,6 +27,7 @@ namespace Infrastructure.Repositories
         public async Task AddCategoryAsync(Category category)
         {
             await _context.Categories.AddAsync(category);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateCategory(Category category) 
