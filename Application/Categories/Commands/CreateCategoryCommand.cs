@@ -10,7 +10,7 @@ namespace Application.Categories.Commands
 {
     public class CreateCategoryCommand : IRequest<CategoryDto>
     {
-        public string CategoryName { get; }
-        public int? ParentId { get; }
+        public string CategoryName { get; set; }
+        public int? ParentId { get; set; }
     }
 }
