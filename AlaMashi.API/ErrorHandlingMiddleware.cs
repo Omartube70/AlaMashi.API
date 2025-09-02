@@ -62,9 +62,9 @@ public class ErrorHandlingMiddleware
                 break;
 
             // 404 Not Found - عند البحث عن عنصر (مثل منتج أو مستخدم) برقم ID غير موجود
-            case KeyNotFoundException keyNotFoundException:
+            case Application.Exceptions.NotFoundException notFoundException:
                 statusCode = HttpStatusCode.NotFound;
-                message = keyNotFoundException.Message;
+                message = notFoundException.Message;
                 break;
 
             // 409 Conflict - عند محاولة إنشاء عنصر موجود بالفعل (مثل مستخدم بنفس البريد الإلكتروني)
