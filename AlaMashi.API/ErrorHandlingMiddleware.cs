@@ -5,15 +5,16 @@ using System.Net;
 using Application.Exceptions;
 using System.Text.Json;
 using ValidationException = FluentValidation.ValidationException;
-
+using Microsoft.Extensions.Logging;
 
 public class ErrorHandlingMiddleware
 {
     private readonly RequestDelegate _next;
-
-    public ErrorHandlingMiddleware(RequestDelegate next)
+    private readonly ILogger<ErrorHandlingMiddleware> _logger;
+    public ErrorHandlingMiddleware(RequestDelegate next , ILogger<ErrorHandlingMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -24,11 +25,11 @@ public class ErrorHandlingMiddleware
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex);
+            await HandleExceptionAsync(context, ex , _logger);
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception , ILogger logger)
     {
         HttpStatusCode statusCode;
         string message;
@@ -82,6 +83,7 @@ public class ErrorHandlingMiddleware
             default:
                 statusCode = HttpStatusCode.InternalServerError;
                 message = exception.Message;
+                logger.LogError(exception, "An unhandled exception has occurred: {ErrorMessage}", exception.Message);
                 break;
         }
 
