@@ -21,11 +21,11 @@ public class CategoryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryCommand command)
     {
-        var newCategoryId = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetCategoryById), new { id = newCategoryId }, null);
+        var CategoryDto = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetCategoryById), new { categoryId = CategoryDto.CategoryId }, CategoryDto);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{categoryId}")]
     public async Task<IActionResult> GetCategoryById(int categoryId)
     {
         var query = new GetCategoryByIdQuery() 
