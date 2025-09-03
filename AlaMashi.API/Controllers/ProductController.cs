@@ -22,7 +22,7 @@ public class ProductController : ControllerBase
     // POST: api/products
     [HttpPost("Create")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
+    public async Task<IActionResult> CreateProduct([FromForm] CreateProductCommand command)
     {
         var createdProductDto = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetProductById), new { productId = createdProductDto.ProductID }, createdProductDto);

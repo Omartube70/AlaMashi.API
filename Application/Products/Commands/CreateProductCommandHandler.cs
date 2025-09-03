@@ -9,21 +9,33 @@ namespace Application.Products.Commands
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ProductDto>
     {
         private readonly IProductRepository _productRepository;
-
-        public CreateProductCommandHandler(IProductRepository productRepository)
+        private readonly IFileUploadService _fileUploadService;
+        public CreateProductCommandHandler(IProductRepository productRepository, IFileUploadService fileUploadService)
         {
             _productRepository = productRepository;
+            _fileUploadService = fileUploadService;
         }
 
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
+            string imageUrl = string.Empty;
+            if (request.ProductImageFile != null && request.ProductImageFile.Length > 0)
+            {
+                imageUrl = await _fileUploadService.UploadFileAsync(request.ProductImageFile);
+            }
+            else
+            {
+                throw new ArgumentException("Product image is required.");
+            }
+
+
             var NewProduct = Product.Create(
                 request.ProductName,
                 request.Barcode,
                 request.ProductDescription,
                 request.Price,
                 request.QuantityInStock,
-                request.MainImageURL,
+                imageUrl,
                 request.CategoryID
             );
 
