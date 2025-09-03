@@ -10,14 +10,12 @@ namespace Application.Products.Commands
 {
     public class CreateProductCommand : IRequest<ProductDto>
     {
-        public string ProductName { get; }
-        public string Barcode { get; }
-        public string? ProductDescription { get; }
-        public decimal Price { get; }
-        public int QuantityInStock { get; }
-        public string MainImageURL { get; }
-        public int CategoryID { get; }
-        public int? BrandID { get; }
-
+        public string ProductName { get; set;}
+        public string Barcode { get; set;}
+        public string? ProductDescription { get; set;}
+        public decimal Price { get; set;}
+        public int QuantityInStock { get; set;}
+        public string MainImageURL { get; set;}
+        public int CategoryID { get; set;}
     }
 }

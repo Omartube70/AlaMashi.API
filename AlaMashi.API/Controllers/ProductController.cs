@@ -25,7 +25,7 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
     {
         var createdProductDto = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetProductById), new { ProductID = createdProductDto.ProductID }, createdProductDto);
+        return CreatedAtAction(nameof(GetProductById), new { productId = createdProductDto.ProductID }, createdProductDto);
     }
 
     // GET: api/products/{ProductID}
