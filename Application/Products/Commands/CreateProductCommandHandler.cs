@@ -48,8 +48,7 @@ namespace Application.Products.Commands
                 ProductDescription = NewProduct.ProductDescription,
                 Price = NewProduct.Price,
                 QuantityInStock = NewProduct.QuantityInStock,
-                MainImageURL = NewProduct.MainImageURL,
-                CategoryName =  await _productRepository.GetProductByIdAsync(NewProduct.ProductID).ConfigureAwait(false) is Product prod ? prod.Category.CategoryName : string.Empty
+                MainImageURL = NewProduct.MainImageURL            
             };
         }
     }
