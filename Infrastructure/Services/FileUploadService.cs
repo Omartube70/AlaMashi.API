@@ -37,7 +37,6 @@ namespace Infrastructure.Services
                 Key = uniqueFileName, 
                 InputStream = memoryStream,
                 ContentType = file.ContentType,
-                CannedACL = S3CannedACL.PublicRead 
             };
 
             await _s3Client.PutObjectAsync(request);

@@ -19,7 +19,7 @@ public class ProductController : ControllerBase
         _mediator = mediator;
     }
 
-    // POST: api/products
+    // POST: api/products/Create
     [HttpPost("Create")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateProduct([FromForm] CreateProductCommand command)
@@ -28,7 +28,7 @@ public class ProductController : ControllerBase
         return CreatedAtAction(nameof(GetProductById), new { productId = createdProductDto.ProductID }, createdProductDto);
     }
 
-    // GET: api/products/{ProductID}
+    // GET: api/products/{productId}
     [HttpGet("{productId}")]
     public async Task<IActionResult> GetProductById(int productId)
     {
