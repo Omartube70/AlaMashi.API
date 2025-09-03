@@ -7,6 +7,7 @@ using Infrastructure.Security;
 using Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -18,6 +19,11 @@ var configuration = builder.Configuration;
 // =================================================================================
 // 1. تسجيل الخدمات في الـ DI Container (Services Registration)
 // =================================================================================
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
 
 // إضافة Controllers ودعم NewtonsoftJson للتحديثات الجزئية (PATCH)
 builder.Services.AddControllers().AddNewtonsoftJson();
@@ -66,6 +72,16 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 });
 
 // إعداد Swagger مع دعم JWT
@@ -117,9 +133,13 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
     app.UseSwaggerUI();
 //}
 
+app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 
-// الترتيب الصحيح: المصادقة أولًا ثم الصلاحيات
+// ✅ تفعيل سياسة CORS
+app.UseCors("AllowAll");
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 
