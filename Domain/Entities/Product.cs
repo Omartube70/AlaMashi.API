@@ -48,9 +48,9 @@ namespace Domain.Entities
             if (quantity < 0)
                 throw new ArgumentException("Quantity cannot be negative.", nameof(quantity));
 
-            var normalizedPhone = string.IsNullOrWhiteSpace(description) ? null : description;
+            var normalizeddescription = string.IsNullOrWhiteSpace(description) ? null : description;
 
-            return new Product(name, barcode, normalizedPhone, price, quantity, imageUrl, categoryId);
+            return new Product(name, barcode, normalizeddescription, price, quantity, imageUrl, categoryId);
         }
 
         // --- Business Logic Methods ---

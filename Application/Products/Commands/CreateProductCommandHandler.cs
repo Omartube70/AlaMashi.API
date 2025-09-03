@@ -29,7 +29,7 @@ namespace Application.Products.Commands
             }
 
 
-            var NewProduct = Product.Create(
+            Product NewProduct = Product.Create(
                 request.ProductName,
                 request.Barcode,
                 request.ProductDescription,
@@ -49,7 +49,7 @@ namespace Application.Products.Commands
                 Price = NewProduct.Price,
                 QuantityInStock = NewProduct.QuantityInStock,
                 MainImageURL = NewProduct.MainImageURL,
-                CategoryName = NewProduct.Category.CategoryName
+                CategoryName =  await _productRepository.GetProductByIdAsync(NewProduct.ProductID).ConfigureAwait(false) is Product prod ? prod.Category.CategoryName : string.Empty
             };
         }
     }
