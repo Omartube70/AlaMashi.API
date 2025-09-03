@@ -26,6 +26,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("{categoryId}")]
+    [Authorize]
     public async Task<IActionResult> GetCategoryById(int categoryId)
     {
         var query = new GetCategoryByIdQuery() 
@@ -39,6 +40,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("tree")]
+    [Authorize]
     public async Task<IActionResult> GetAllCategoriesTree()
     {
         var query = new GetAllCategoriesTreeQuery();
@@ -47,6 +49,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet("flat")]
+    [Authorize]
     public async Task<IActionResult> GetAllCategoriesFlat()
     {
         var query = new GetAllCategoriesQuery();
