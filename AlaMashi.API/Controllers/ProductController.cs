@@ -30,6 +30,7 @@ public class ProductController : ControllerBase
 
     // GET: api/products/{productId}
     [HttpGet("{productId}")]
+    [Authorize]
     public async Task<IActionResult> GetProductById(int productId)
     {
         var query = new GetProductByIdQuery() 
@@ -43,6 +44,7 @@ public class ProductController : ControllerBase
 
     // GET: api/products
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
     {
         var productDtos = await _mediator.Send(query);
@@ -51,6 +53,7 @@ public class ProductController : ControllerBase
 
     // GET: api/products/category/{categoryId}
     [HttpGet("category/{categoryId}")]
+    [Authorize]
     public async Task<IActionResult> GetProductsByCategory(int categoryId)
     {
         var query = new GetAllProductsByCategoryQuery() { CategoryId = categoryId };
