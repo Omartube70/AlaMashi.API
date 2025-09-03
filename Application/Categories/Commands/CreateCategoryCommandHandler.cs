@@ -20,6 +20,7 @@ namespace Application.Categories.Commands
 
             await _categoryRepository.AddCategoryAsync(NewCategory);
 
+
             return new CategoryDto 
             { 
                CategoryId   = NewCategory.CategoryID,
