@@ -1,50 +1,35 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
+using Application.Interfaces;
 using MailKit.Net.Smtp;
-using MailKit.Security; // <-- ✅ إضافة مهمة
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using MailKit.Security;
+using Microsoft.Extensions.Options;
 using MimeKit;
-using System.IO;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Services
+public class SmtpEmailService : IEmailService
 {
-    public class EmailService : IEmailService
+    private readonly EmailSettings _emailSettings;
+
+    public SmtpEmailService(IOptions<EmailSettings> emailSettings)
     {
-        private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _env;
+        _emailSettings = emailSettings.Value;
+    }
 
-        public EmailService(IConfiguration configuration, IWebHostEnvironment env)
-        {
-            _configuration = configuration;
-            _env = env;
-        }
-
-        public async Task SendPasswordResetEmailAsync(string userName, string toEmail, string resetLink)
-        {
-            var emailSettings = _configuration.GetSection("EmailSettings");
-
-            var templatePath = Path.Combine(_env.ContentRootPath, "EmailTemplates", "PasswordReset.html");
-            var templateText = await File.ReadAllTextAsync(templatePath);
-
-            var emailBody = templateText.Replace("{{username}}", userName);
-            emailBody = emailBody.Replace("{{resetLink}}", resetLink);
-
+    public async Task SendEmailAsync(string toEmail, string subject, string htmlBody)
+    {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(emailSettings["FromName"], emailSettings["FromAddress"]));
-            message.To.Add(new MailboxAddress(userName, toEmail));
-            message.Subject = "إعادة تعيين كلمة المرور";
+            message.From.Add(new MailboxAddress(_emailSettings.FromName, _emailSettings.FromAddress));
+            message.To.Add(MailboxAddress.Parse(toEmail));
+            message.Subject = subject;
 
-            var bodyBuilder = new BodyBuilder { HtmlBody = emailBody };
+            var bodyBuilder = new BodyBuilder { HtmlBody = htmlBody };
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-
-            await client.ConnectAsync(emailSettings["SmtpServer"], int.Parse(emailSettings["Port"]), SecureSocketOptions.StartTls);
-
-            await client.AuthenticateAsync(emailSettings["UserName"], emailSettings["Password"]);
+            await client.ConnectAsync(_emailSettings.SmtpHost, _emailSettings.SmtpPort, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(_emailSettings.SmtpUser, _emailSettings.SmtpPass);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
-        }
+        
     }
 }

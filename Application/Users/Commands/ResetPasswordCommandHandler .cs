@@ -1,63 +1,48 @@
-﻿using Application.Exceptions;
-using Application.Interfaces;
-using MediatR;
-using System.Security.Claims;
+﻿using MediatR;
+using Microsoft.AspNetCore.Identity;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Entities;
+using Application.Users.Commands;
+using Application.Interfaces;
 
-namespace Application.Users.Commands
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
 {
-    public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
+    private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher _passwordHasher;
+
+    public ResetPasswordCommandHandler(IUserRepository userRepository ,IPasswordHasher passwordHasher)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly IJwtService _jwtService; 
+        _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
+    }
 
-        public ResetPasswordCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtService jwtService)
+    public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetUserByEmailAsync(request.Email);
+        if (user == null)
         {
-            _userRepository = userRepository;
-            _passwordHasher = passwordHasher;
-            _jwtService = jwtService;
+            throw new Exception("Invalid email or OTP code.");
         }
 
-        public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+        if (user.PasswordResetOtp != request.Otp)
         {
-            // 1. التحقق من صحة التوكن واستخراج البيانات منه
-            var principal = _jwtService.ValidateToken(request.Token); 
-            if (principal == null)
-            {
-                throw new InvalidTokenException("Invalid or expired password reset token.");
-            }
-
-            // تأكد من أن التوكن مخصص لإعادة تعيين كلمة المرور
-            var purpose = principal.FindFirst("purpose")?.Value;
-            if (purpose != "PasswordReset")
-            {
-                throw new InvalidTokenException("Invalid token purpose.");
-            }
-
-            var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!int.TryParse(userIdString, out int userId))
-            {
-                throw new InvalidTokenException("Invalid user identifier in token.");
-            }
-
-            // 2. جلب المستخدم من قاعدة البيانات
-            var user = await _userRepository.GetUserByIdAsync(userId);
-            if (user == null)
-            {
-                // يمكن إرجاع خطأ عام هنا أيضًا لمزيد من الأمان
-                throw new UserNotFoundException(userId);
-            }
-
-            // 3. تشفير كلمة المرور الجديدة
-            var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
-
-            // 4. استدعاء دالة التحديث في الـ Domain Entity
-            user.ChangePassword(newPasswordHash);
-
-            // 5. حفظ التغييرات في قاعدة البيانات
-            await _userRepository.UpdateUserAsync(user);
+            throw new Exception("Invalid email or OTP code.");
         }
+
+        if (user.OtpExpiryTime <= DateTime.UtcNow)
+        {
+            throw new Exception("OTP code has expired. Please request a new one.");
+        }
+
+        string NewPasswordhash = _passwordHasher.HashPassword(request.NewPassword);
+
+        user.ChangePassword(NewPasswordhash);
+
+        user.RemovePasswordResetOtp();
+
+        await _userRepository.UpdateUserAsync(user);
     }
 }

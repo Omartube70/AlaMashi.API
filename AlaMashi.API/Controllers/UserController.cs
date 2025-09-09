@@ -151,7 +151,6 @@ public class UsersController : ControllerBase
 
         var command = new RevokeTokenCommand
         {
-            // إذا قام الأدمن بإرسال ID، استخدمه. وإلا، استخدم ID المستخدم الحالي.
             TargetUserId = dto.UserId ?? currentUserId,
             CurrentUserId = currentUserId,
             CurrentUserRole = currentUserRole
@@ -186,7 +185,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
     {
         await _mediator.Send(command);
-        return Ok(new { message = "Password has been reset successfully." });
+        return Ok(new { status = "success", message = "Password has been reset successfully." });
     }
 
 

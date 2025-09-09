@@ -17,6 +17,8 @@ namespace Domain.Entities
         public Permissions UserPermissions { get; private set; }
         public string? RefreshToken { get; private set; }
         public DateTime? RefreshTokenExpiryTime { get; private set; }
+        public string? PasswordResetOtp { get; private set; }
+        public DateTime? OtpExpiryTime { get; private set; }
         public ICollection<Address> Addresses { get; private set; } = new List<Address>();
 
 
@@ -92,6 +94,29 @@ namespace Domain.Entities
 
             PasswordHash = newPasswordHash;
         }
+
+        public void SetPasswordResetOtp(string? otp, DateTime? expiryTime)
+        {
+            if (otp != null && expiryTime.HasValue && expiryTime.Value < DateTime.UtcNow)
+            {
+                throw new ArgumentException("Expiry time must be in the future.");
+            }
+
+            PasswordResetOtp = otp;
+            OtpExpiryTime = expiryTime;
+        }
+
+        public void RemovePasswordResetOtp()
+        { 
+            if(PasswordResetOtp == null || OtpExpiryTime < DateTime.Now)
+            {
+                throw new ArgumentException("Alaedy Null");
+            }
+
+            PasswordResetOtp = null;
+            OtpExpiryTime = null;
+        }
+
 
         public void SetRefreshToken(string? refreshToken, DateTime? expiryTime)
         {

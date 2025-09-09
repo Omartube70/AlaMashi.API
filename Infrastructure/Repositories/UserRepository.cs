@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> IsEmailTakenAsync(string email)
         {
-            return await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower());
+            return await _context.Users.AnyAsync(u => u.Email == email.ToLower());
         }
 
         public async Task UpdateUserAsync(User user)

@@ -8,6 +8,6 @@ namespace Application.Interfaces
 {
     public interface IEmailService
     {
-        Task SendPasswordResetEmailAsync(string userName, string toEmail, string resetLink);
+        Task SendEmailAsync(string toEmail, string subject, string htmlBody);
     }
 }

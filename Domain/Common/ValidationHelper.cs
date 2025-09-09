@@ -10,43 +10,6 @@ namespace Domain.Common
 {
     public class ValidationHelper
     {
-        public static bool IsPasswordValid(string password)
-        {
-            // 1. الطول لا يقل عن 8 أحرف
-            if (password.Length < 8)
-            {
-                return false;
-            }
-
-            // 2. يحتوي على رقم واحد على الأقل
-            if (!password.Any(char.IsDigit))
-            {
-                return false;
-            }
-
-            // 3. يحتوي على حرف كبير واحد على الأقل
-            if (!password.Any(char.IsUpper))
-            {
-                return false;
-            }
-
-            // 4. يحتوي على حرف صغير واحد على الأقل
-            if (!password.Any(char.IsLower))
-            {
-                return false;
-            }
-
-            // 5. يحتوي على رمز خاص واحد على الأقل
-            string specialCharacters = @"!@#$%^&*()_+=-`~?><,.";
-
-            if (!password.Any(c => specialCharacters.Contains(c)))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public static async Task<bool> IsEmailValidAsync(string email)
         {
             if (string.IsNullOrEmpty(email))

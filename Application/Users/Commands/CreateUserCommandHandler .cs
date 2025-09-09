@@ -29,8 +29,10 @@ namespace Application.Users.Commands
                 throw new EmailAlreadyExistsException(request.Email);
             }
 
-            var hashedPassword = _passwordHasher.HashPassword(request.Password);
-            var newUser = await User.CreateAsync(request.UserName, request.Email, request.Phone, hashedPassword);
+
+
+            string hashedPassword = _passwordHasher.HashPassword(request.Password);
+            User newUser = await User.CreateAsync(request.UserName, request.Email, request.Phone, hashedPassword);
 
             await _userRepository.AddUserAsync(newUser);
 
