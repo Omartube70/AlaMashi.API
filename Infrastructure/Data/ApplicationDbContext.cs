@@ -10,10 +10,7 @@ namespace Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-
-        }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +28,8 @@ namespace Infrastructure.Data
                 entity.Property(e => e.RefreshToken).IsRequired(false);
                 entity.Property(e => e.RefreshTokenExpiryTime).IsRequired(false);
 
+                entity.Property(e => e.PasswordResetOtp).IsRequired(false).HasMaxLength(6);
+                entity.Property(e => e.OtpExpiryTime).IsRequired(false);
             });
 
                modelBuilder.Entity<Address>(entity =>
