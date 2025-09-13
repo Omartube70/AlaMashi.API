@@ -28,10 +28,7 @@ namespace Application.Common.Behaviors
                 // في حالة حدوث أي خطأ غير متوقع داخل الـ Handler
                 var requestName = typeof(TRequest).Name;
 
-                // قم بتسجيل تفاصيل الخطأ الكاملة لمراجعته لاحقًا
                 _logger.LogError(ex, "Application Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
-
-                // أعد إلقاء الخطأ، سيقوم الـ ErrorHandlingMiddleware بالتقاطه وإرسال رد 500 Internal Server Error
                 throw;
             }
         }

@@ -32,7 +32,7 @@ namespace Application.Common.Behaviors
                     .ToList();
 
                 if (failures.Count != 0)
-                    throw new ValidationException(failures); // هذا الخطأ سيلتقطه الـ Middleware
+                    throw new ValidationException(failures);
             }
             return await next();
         }

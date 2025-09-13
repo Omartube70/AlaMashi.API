@@ -1,4 +1,5 @@
-﻿using Application.Common.Behaviors;
+﻿using Application.Common.Interfaces;
+using Application.Common.Behaviors;
 using Application.Interfaces;
 using FluentValidation;
 using Infrastructure.Data;
@@ -41,6 +42,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 // تسجيل MediatR والـ Pipeline Behaviors بالترتيب الصحيح
 builder.Services.AddMediatR(cfg => {

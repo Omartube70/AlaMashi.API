@@ -108,11 +108,6 @@ namespace Domain.Entities
 
         public void RemovePasswordResetOtp()
         { 
-            if(PasswordResetOtp == null || OtpExpiryTime < DateTime.Now)
-            {
-                throw new ArgumentException("Alaedy Null");
-            }
-
             PasswordResetOtp = null;
             OtpExpiryTime = null;
         }
