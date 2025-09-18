@@ -10,6 +10,6 @@ namespace Application.Interfaces
 {
     public interface IFileUploadService
     {
-        Task<string> UploadFileAsync(IFormFile file);
+        Task<string> UploadFileAsync(IFormFile file, int? targetWidth = null, int? targetHeight = null);
     }
 }

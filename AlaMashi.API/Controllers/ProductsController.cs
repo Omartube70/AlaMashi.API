@@ -1,21 +1,18 @@
-﻿using Application.Addresses.Dtos;
-using Application.Products.Commands;
+﻿using Application.Products.Commands;
 using Application.Products.Dtos;
 using Application.Products.Queries;
-using Application.Users.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ProductController : ControllerBase
+public class ProductsController : ControllerBase
 {
     private readonly ISender _mediator;
 
-    public ProductController(ISender mediator)
+    public ProductsController(ISender mediator)
     {
         _mediator = mediator;
     }
@@ -43,7 +40,7 @@ public class ProductController : ControllerBase
     }
 
     // GET: api/products
-    [HttpGet]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
     {
         var productDtos = await _mediator.Send(query);

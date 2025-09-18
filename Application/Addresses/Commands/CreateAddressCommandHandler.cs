@@ -44,6 +44,7 @@ namespace Application.Addresses.Commands
                 City = newAddress.City,
                 AddressDetails = newAddress.AddressDetails,
                 AddressType = newAddress.AddressType.ToString(),
+                UserId = newAddress.UserId
             };
         }
     }

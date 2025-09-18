@@ -10,7 +10,10 @@ namespace Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) 
+        { 
+
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,7 +44,7 @@ namespace Infrastructure.Data
                 entity.Property(e => e.AddressDetails).IsRequired(false);
 
                // تعريف علاقة واحد إلى متعدد
-               entity.HasOne(a => a.User)
+                entity.HasOne(a => a.User)
                 .WithMany(u => u.Addresses)
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -51,6 +54,7 @@ namespace Infrastructure.Data
             {
                 entity.HasKey(e => e.CategoryID);
                 entity.Property(e => e.CategoryName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.CategoryImageURL).IsRequired(); // MAX Length
                 entity.Property(e => e.ParentID).IsRequired(false);
             });
 

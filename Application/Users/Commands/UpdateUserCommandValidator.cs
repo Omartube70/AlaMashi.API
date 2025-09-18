@@ -11,13 +11,33 @@ namespace Application.Users.Commands
     {
         public UpdateUserCommandValidator()
         {
-            RuleFor(x => x.UserName)
-                .NotEmpty()
-                .Length(3, 50);
+            // --- Validation for Target and Authorization Data ---
 
-            RuleFor(x => x.Email)
-                .NotEmpty()
-                .EmailAddress();
+            RuleFor(p => p.TargetUserId)
+                .GreaterThan(0).WithMessage("Target User ID is required.");
+
+            RuleFor(p => p.CurrentUserId)
+                .GreaterThan(0).WithMessage("Current User ID is required for authorization.");
+
+            RuleFor(p => p.CurrentUserRole)
+                .NotEmpty().WithMessage("Current User Role is required for authorization.");
+
+            // --- Validation for New Data ---
+
+            RuleFor(p => p.UserName)
+                .NotEmpty().WithMessage("UserName is required.")
+                .MaximumLength(100).WithMessage("UserName must not exceed 100 characters.");
+
+            RuleFor(p => p.Email)
+                .NotEmpty().WithMessage("{PropertyName} is required.")
+                .EmailAddress().WithMessage("A valid email address is required.");
+
+            When(p => !string.IsNullOrEmpty(p.Phone), () =>
+            {
+                RuleFor(p => p.Phone)
+                    .Matches(@"^(010|011|012|015)\d{8}$")
+                    .WithMessage("Please enter a valid Egyptian phone number.");
+            });
         }
     }
 }

@@ -131,8 +131,8 @@ public class UsersController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
-        var response = await _mediator.Send(command);
-        return Ok(new { status = "success", response });
+        var LoginResponseDto = await _mediator.Send(command);
+        return Ok(new { status = "success", LoginResponseDto});
     }
 
     [HttpPost("refresh")]

@@ -8,15 +8,27 @@ namespace Application.Categories.Commands
     public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, CategoryDto>
     {
         private readonly ICategoryRepository _categoryRepository;
-
-        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository)
+        private readonly IFileUploadService _fileUploadService;
+        public CreateCategoryCommandHandler(ICategoryRepository categoryRepository ,IFileUploadService fileUploadService)
         {
             _categoryRepository = categoryRepository;
+            _fileUploadService = fileUploadService;
         }
 
         public async Task<CategoryDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            Category NewCategory = Category.Create(request.CategoryName, request.ParentId);
+            string imageUrl = string.Empty;
+            if (request.CategoryImageFile != null && request.CategoryImageFile.Length > 0)
+            {
+                imageUrl = await _fileUploadService.UploadFileAsync(request.CategoryImageFile, 800, 600);
+            }
+            else
+            {
+                throw new ArgumentException("Category image is required.");
+            }
+
+            Category NewCategory = Category.Create(request.CategoryName , imageUrl , request.ParentId);
+
 
             await _categoryRepository.AddCategoryAsync(NewCategory);
 
@@ -25,6 +37,7 @@ namespace Application.Categories.Commands
             { 
                CategoryId   = NewCategory.CategoryID,
                CategoryName = NewCategory.CategoryName,
+               CategoryImageURL = NewCategory.CategoryImageURL,
                ParentId     = NewCategory.ParentID,
             };
         }

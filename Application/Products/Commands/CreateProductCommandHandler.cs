@@ -21,7 +21,7 @@ namespace Application.Products.Commands
             string imageUrl = string.Empty;
             if (request.ProductImageFile != null && request.ProductImageFile.Length > 0)
             {
-                imageUrl = await _fileUploadService.UploadFileAsync(request.ProductImageFile);
+                imageUrl = await _fileUploadService.UploadFileAsync(request.ProductImageFile, 1024, 768);
             }
             else
             {

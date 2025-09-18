@@ -14,7 +14,7 @@ namespace Application.Interfaces
         Task AddUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(int userId);
-        Task SaveRefreshTokenAsync(int userId, string? refreshToken, DateTime expiryDate);
+        Task SaveRefreshTokenAsync(int userId, string? refreshToken, DateTime? expiryDate);
 
         Task<User?> GetUserWithAddressesAsync(int userId);
         Task<IReadOnlyList<Address>> GetAllAddressesAsync();

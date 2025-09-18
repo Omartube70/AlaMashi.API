@@ -39,10 +39,10 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IEmailService, AzureEmailService>();
 builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
-builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IFileUploadService, AzureBlobStorageService>();
+builder.Services.Configure<AzureEmailSettings>(builder.Configuration.GetSection("AzureEmailSettings"));
 
 // تسجيل MediatR والـ Pipeline Behaviors بالترتيب الصحيح
 builder.Services.AddMediatR(cfg => {
@@ -130,10 +130,10 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // تفعيل Swagger فقط في بيئة التطوير للأمان
 //if (app.Environment.IsDevelopment())
-//{
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+}
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();

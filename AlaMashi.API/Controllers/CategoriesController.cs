@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class CategoryController : ControllerBase
+public class CategoriesController : ControllerBase
 {
     private readonly ISender _mediator;
 
-    public CategoryController(ISender mediator)
+    public CategoriesController(ISender mediator)
     {
         _mediator = mediator;
     }
 
     [HttpPost("Create")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryCommand command)
+    public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryCommand command)
     {
         var CategoryDto = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetCategoryById), new { categoryId = CategoryDto.CategoryId }, CategoryDto);

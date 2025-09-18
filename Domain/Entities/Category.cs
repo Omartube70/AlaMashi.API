@@ -11,15 +11,17 @@ namespace Domain.Entities
     {
         public int CategoryID { get; private set; }
         public string CategoryName { get; private set; }
+        public string CategoryImageURL { get; private set; }
         public int? ParentID { get; private set; }
         public virtual Category? Parent { get; private set; }
         public virtual ICollection<Category> SubCategories { get; private set; } = new List<Category>();
 
 
 
-        private Category(string categoryName, int? parentId)
+        private Category(string categoryName,string categoryImageURL, int? parentId)
         {
             CategoryName = categoryName;
+            CategoryImageURL = categoryImageURL;
             ParentID = parentId;
         }
 
@@ -29,14 +31,18 @@ namespace Domain.Entities
         }
 #pragma warning restore CS8618
 
-        public static Category Create(string categoryName, int? parentId)
+        public static Category Create(string categoryName,string categoryImageURL, int? parentId)
         {
             // --- Validation ---
             if (string.IsNullOrWhiteSpace(categoryName))
                 throw new ArgumentException("CategoryName is required.", nameof(categoryName));
 
+            if (string.IsNullOrWhiteSpace(categoryImageURL))
+                throw new ArgumentException("CategoryImageURL is required.", nameof(categoryImageURL));
+
+
             // --- Object Creation ---
-            return new Category(categoryName, parentId);
+            return new Category(categoryName, categoryImageURL, parentId);
         }
 
         public void UpdateCategoryName(string categoryName)
@@ -47,6 +53,15 @@ namespace Domain.Entities
 
             // --- State Update ---
             CategoryName = categoryName;
+        }
+
+        public void UpdateCategoryImageURL(string categoryImageURL)
+        {
+            // --- Validation ---
+            if (string.IsNullOrWhiteSpace(categoryImageURL))
+                throw new ArgumentException("CategoryImageURL is required.", nameof(categoryImageURL));
+            // --- State Update ---
+            CategoryImageURL = categoryImageURL;
         }
 
     }

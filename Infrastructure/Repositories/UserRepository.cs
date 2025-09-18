@@ -32,7 +32,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.AsNoTracking().ToListAsync();
         }
 
         public async Task<bool> IsEmailTakenAsync(string email)
@@ -58,13 +58,11 @@ namespace Infrastructure.Repositories
 
         public async Task<User?> GetUserByRefreshTokenAsync(string token)
         {
-            // هذا يفترض وجود خصائص RefreshToken و RefreshTokenExpiryTime في الـ User Entity
-            return await _context.Users.FirstOrDefaultAsync(
-            u =>u.RefreshToken == token &&
+            return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == token &&
             u.RefreshTokenExpiryTime > System.DateTime.UtcNow);
         }
 
-        public async Task SaveRefreshTokenAsync(int userId, string? refreshToken, System.DateTime expiryDate)
+        public async Task SaveRefreshTokenAsync(int userId, string? refreshToken, System.DateTime? expiryDate)
         {
             var user = await _context.Users.FindAsync(userId);
             if (user != null)

@@ -33,7 +33,7 @@ namespace Application.Authentication.Commands
             }
 
             // الخطوة 2: إذا كان مسموحًا له، استمر في تنفيذ المنطق الأصلي
-            await _userRepository.SaveRefreshTokenAsync(request.TargetUserId, null, DateTime.UtcNow.AddDays(-1));
+            await _userRepository.SaveRefreshTokenAsync(request.TargetUserId, null,null);
         }
     }
 }

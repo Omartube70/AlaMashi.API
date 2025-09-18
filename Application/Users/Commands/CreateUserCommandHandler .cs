@@ -1,5 +1,4 @@
-﻿//using Application.Exceptions;
-using Application.Exceptions;
+﻿using Application.Exceptions;
 using Application.Interfaces;
 using Application.Users.DTOs;
 using Domain.Entities;
@@ -28,7 +27,6 @@ namespace Application.Users.Commands
             {
                 throw new EmailAlreadyExistsException(request.Email);
             }
-
 
 
             string hashedPassword = _passwordHasher.HashPassword(request.Password);
