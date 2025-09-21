@@ -1,260 +1,168 @@
-# 📄 توثيق API مشروع "على ماشي" (AlaMashi)
+# 🔱 AlaMashi.API Documentation
 
-مرحبًا بك في توثيق الواجهة البرمجية (API) لمشروع "على ماشي". هذا الدليل يوفر كل المعلومات اللازمة للتفاعل مع الـ API بنجاح.
+مرحبًا بك في توثيق واجهة برمجة التطبيقات (API) لمشروع **AlaMashi**. يوفر هذا المستند شرحًا تفصيليًا لجميع نقاط النهاية (Endpoints) المتاحة، بما في ذلك الطلبات والاستجابات المتوقعة.
 
----
-
-## 🧭 جدول المحتويات
-1.  [**مقدمة**](#مقدمة)
-    -   [الرابط الأساسي (Base URL)](#الرابط-الأساسي-base-url)
-    -   [المصادقة (Authentication)](#المصادقة-authentication)
-2.  [**المصادقة (Authentication Endpoints)**](#1-المصادقة-authentication-endpoints)
-    -   [تسجيل الدخول](#11-تسجيل-الدخول)
-    -   [تحديث التوكن](#12-تحديث-التوكن)
-    -   [تسجيل الخروج](#13-تسجيل-الخروج-إلغاء-التوكن)
-3.  [**إدارة المستخدمين (User Management)**](#2-إدارة-المستخدمين-user-management)
-    -   [إنشاء مستخدم جديد](#21-إنشاء-مستخدم-جديد)
-    -   [جلب مستخدم بواسطة ID](#22-جلب-مستخدم-بواسطة-id)
-    -   [جلب كل المستخدمين](#23-جلب-كل-المستخدمين)
-    -   [حذف مستخدم](#24-حذف-مستخدم)
-4.  [**إدارة كلمة المرور (Password Management)**](#3-إدارة-كلمة-المرور-password-management)
-    -   [طلب إعادة تعيين كلمة المرور](#31-طلب-إعادة-تعيين-كلمة-المرور)
-    -   [إعادة تعيين كلمة المرور](#32-إعادة-تعيين-كلمة-المرور)
+-   **Base URL:** `https://YOUR_AZURE_API_LINK.azurewebsites.net/api`
 
 ---
 
-## مقدمة
+## 🔐 Authentication Endpoints
 
-### الرابط الأساسي (Base URL)
-جميع الروابط المذكورة في هذا التوثيق تبدأ من هذا الرابط الأساسي:
-`https://alamashi-api.onrender.com`
+هذه النقاط مسؤولة عن عمليات المصادقة وإدارة حسابات المستخدمين.
 
-### المصادقة (Authentication)
-المصادقة تتم باستخدام **JWT Bearer Tokens**. عند تسجيل الدخول، ستحصل على `accessToken` والذي يجب إرساله مع كل الطلبات للـ Endpoints المحمية في هيدر الطلب.
+### 1. Register a New User
 
-**مثال على الهيدر:**
-```
-Authorization: Bearer <your_accessToken>
-```
-
----
-
-## 1. المصادقة (Authentication Endpoints)
-
-### 1.1 تسجيل الدخول
-يقوم بتسجيل دخول المستخدم وإرجاع `accessToken`, `refreshToken`, وبيانات المستخدم.
-
--   **Method:** `POST`
--   **Endpoint:** `/api/Users/login`
-
--   **جسم الطلب (Request Body):**
+-   **Endpoint:** `POST /auth/register`
+-   **Description:** إنشاء مستخدم جديد في النظام. بشكل افتراضي، يتم منحه دور "User".
+-   **Requires Authentication:** No.
+-   **Request Body:**
     ```json
     {
+      "firstName": "Omar",
+      "lastName": "Tube",
+      "email": "user@example.com",
+      "password": "Password123!"
+    }
+    ```
+-   **Success Response (200 OK):**
+    ```json
+    {
+      "isAuthenticated": true,
+      "message": "User registered successfully.",
+      "email": "user@example.com",
+      "roles": ["User"],
+      "token": "ey...",
+      "refreshToken": "ey...",
+      "refreshTokenExpiration": "2025-09-28T12:00:00Z"
+    }
+    ```
+-   **Error Response (400 Bad Request):**
+    ```json
+    {
+      "succeeded": false,
+      "message": "Email is already registered!"
+    }
+    ```
+
+### 2. Login
+
+-   **Endpoint:** `POST /auth/login`
+-   **Description:** تسجيل دخول مستخدم موجود وإرجاع `AccessToken` و `RefreshToken`.
+-   **Requires Authentication:** No.
+-   **Request Body:**
+    ```json
+    {
+      "email": "user@example.com",
+      "password": "Password123!"
+    }
+    ```
+-   **Success Response (200 OK):** (نفس استجابة التسجيل)
+-   **Error Response (400 Bad Request):**
+    ```json
+    {
+      "succeeded": false,
+      "message": "Invalid credentials."
+    }
+    ```
+
+### 3. Generate a New Access Token
+
+-   **Endpoint:** `POST /auth/refresh-token`
+-   **Description:** إنشاء `AccessToken` جديد باستخدام `RefreshToken` صالح.
+-   **Requires Authentication:** No. (يتم إرسال التوكن القديم في الـ Header)
+-   **Request Body:**
+    ```json
+    {
+      "accessToken": "ey...",
+      "refreshToken": "ey..."
+    }
+    ```
+-   **Success Response (200 OK):** (نفس استجابة التسجيل)
+
+### 4. Revoke a Refresh Token
+
+-   **Endpoint:** `POST /auth/revoke-token`
+-   **Description:** إلغاء صلاحية `RefreshToken` لمستخدم معين لمنعه من إنشاء `AccessTokens` جديدة.
+-   **Requires Authentication:** Yes (Bearer Token).
+-   **Request Body:**
+    ```json
+    {
+      "refreshToken": "ey..."
+    }
+    ```
+-   **Success Response (200 OK):**
+    ```json
+    {
+      "succeeded": true,
+      "message": "Token revoked successfully."
+    }
+    ```
+
+---
+
+## 👤 Users Endpoints
+
+هذه النقاط مسؤولة عن إدارة بيانات المستخدمين.
+
+### 1. Get All Users
+
+-   **Endpoint:** `GET /users`
+-   **Description:** الحصول على قائمة بجميع المستخدمين المسجلين في النظام.
+-   **Requires Authentication:** Yes (Role: `Admin`).
+-   **Success Response (200 OK):**
+    ```json
+    [
+      {
+        "id": "guid-goes-here",
+        "firstName": "Admin",
+        "lastName": "User",
+        "email": "admin@example.com",
+        "roles": ["Admin"]
+      },
+      {
+        "id": "guid-goes-here-2",
+        "firstName": "Regular",
+        "lastName": "User",
         "email": "user@example.com",
-        "password": "YourPassword123"
-    }
+        "roles": ["User"]
+      }
+    ]
     ```
 
--   **الاستجابة (Success `200 OK`):**
+### 2. Get User by ID
+
+-   **Endpoint:** `GET /users/{id}`
+-   **Description:** الحصول على بيانات مستخدم معين باستخدام الـ ID الخاص به.
+-   **Requires Authentication:** Yes (Role: `Admin` or the user themself).
+-   **Success Response (200 OK):** (نفس شكل العنصر الواحد في Get All Users)
+-   **Error Response (404 Not Found):**
     ```json
     {
-        "status": "success",
-        "data": {
-            "accessToken": "ey...",
-            "refreshToken": "AbCd...",
-            "user": {
-                "userID": 1,
-                "userName": "Omar",
-                "email": "user@example.com",
-                "phone": "0123456789",
-                "permissions": "User"
-            }
-        }
+      "succeeded": false,
+      "message": "User not found."
     }
     ```
 
-### 1.2 تحديث التوكن
-يستخدم الـ `refreshToken` للحصول على `accessToken` و `refreshToken` جديدين.
+### 3. Partially Update User Data
 
--   **Method:** `POST`
--   **Endpoint:** `/api/Users/refresh`
-
--   **جسم الطلب (Request Body):**
+-   **Endpoint:** `PATCH /users/{id}`
+-   **Description:** تحديث جزء من بيانات المستخدم (مثل الاسم الأول) باستخدام `JSON Patch`.
+-   **Requires Authentication:** Yes (Role: `Admin` or the user themself).
+-   **Request Body (Content-Type: `application/json-patch+json`):**
     ```json
-    {
-        "refreshToken": "Your_Long_RefreshToken_String_Here"
-    }
+    [
+      {
+        "op": "replace",
+        "path": "/firstName",
+        "value": "NewFirstName"
+      }
+    ]
     ```
+-   **Success Response (204 No Content):** لا يوجد محتوى في الاستجابة عند النجاح.
 
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "status": "success",
-        "data": {
-            "accessToken": "ey_New...",
-            "refreshToken": "XyZ_New..."
-        }
-    }
-    ```
+### 4. Delete a User
 
-### 1.3 تسجيل الخروج (إلغاء التوكن)
-يقوم بإلغاء صلاحية الـ `refreshToken` الحالي. يتطلب `accessToken` صالحًا.
-
--   **Method:** `POST`
--   **Endpoint:** `/api/Users/revoke`
--   **الصلاحية:** `Bearer Token` مطلوب.
-
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "status": "success",
-        "data": "Token revoked successfully."
-    }
-    ```
-
----
-
-## 2. إدارة المستخدمين (User Management)
-
-### 2.1 إنشاء مستخدم جديد
-يقوم بتسجيل مستخدم جديد في النظام.
-
--   **Method:** `POST`
--   **Endpoint:** `/api/Users/Create`
-
--   **جسم الطلب (Request Body):**
-    ```json
-    {
-        "userName": "New User",
-        "email": "new.user@example.com",
-        "phone": "01122334455",
-        "password": "Password123!",
-        "permissions": "User"
-    }
-    ```
-
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "status": "success",
-        "data": {
-            "userID": 10,
-            "userName": "New User",
-            "email": "new.user@example.com",
-            "phone": "01122334455",
-            "permissions": "User"
-        }
-    }
-    ```
-
-### 2.2 جلب مستخدم بواسطة ID
-يجلب بيانات مستخدم محدد. (المستخدم العادي يمكنه جلب بياناته فقط، الأدمن يمكنه جلب أي مستخدم).
-
--   **Method:** `GET`
--   **Endpoint:** `/api/Users/{UserID}`
--   **الصلاحية:** `Bearer Token` مطلوب.
-
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "status": "success",
-        "data": {
-            "userID": 1,
-            "userName": "Omar",
-            "email": "user@example.com",
-            "phone": "0123456789",
-            "permissions": "User"
-        }
-    }
-    ```
-
-### 2.3 جلب كل المستخدمين
-يجلب قائمة بكل المستخدمين في النظام. (للأدمن فقط).
-
--   **Method:** `GET`
--   **Endpoint:** `/api/Users/All`
--   **الصلاحية:** `Bearer Token` مطلوب (صلاحية `Admin` فقط).
-
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "status": "success",
-        "data": [
-            {
-                "userID": 1,
-                "userName": "Admin User",
-                "email": "admin@example.com",
-                "phone": "...",
-                "permissions": "Admin"
-            },
-            {
-                "userID": 2,
-                "userName": "Regular User",
-                "email": "user@example.com",
-                "phone": "...",
-                "permissions": "User"
-            }
-        ]
-    }
-    ```
-
-### 2.4 حذف مستخدم
-يقوم بحذف مستخدم من النظام. (المستخدم يمكنه حذف حسابه، والأدمن يمكنه حذف أي حساب).
-
--   **Method:** `DELETE`
--   **Endpoint:** `/api/Users/{UserID}`
--   **الصلاحية:** `Bearer Token` مطلوب.
-
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "status": "success",
-        "data": "User deleted successfully."
-    }
-    ```
-
----
-
-## 3. إدارة كلمة المرور (Password Management)
-
-### 3.1 طلب إعادة تعيين كلمة المرور
-يرسل رابطًا لإعادة التعيين إلى البريد الإلكتروني للمستخدم.
-
--   **Method:** `POST`
--   **Endpoint:** `/api/Users/forgot-password`
-
--   **جسم الطلب (Request Body):**
-    ```json
-    {
-        "email": "user.to.reset@example.com"
-    }
-    ```
-
--   **الاستجابة (Success `200 OK`):**
-    > **ملاحظة:** يتم إرجاع نفس الرسالة دائمًا لمنع المهاجمين من معرفة ما إذا كان البريد الإلكتروني مسجلاً أم لا.
-    ```json
-    {
-        "message": "If your email is registered, you will receive a password reset link."
-    }
-    ```
-
-### 3.2 إعادة تعيين كلمة المرور
-يقوم بتعيين كلمة مرور جديدة باستخدام التوكن المرسل عبر البريد الإلكتروني.
-
--   **Method:** `POST`
--   **Endpoint:** `/api/Users/reset-password`
-
--   **جسم الطلب (Request Body):**
-    ```json
-    {
-        "token": "The_Reset_Token_From_Email_Link",
-        "newPassword": "NewSecurePassword123!"
-    }
-    ```
-
--   **الاستجابة (Success `200 OK`):**
-    ```json
-    {
-        "message": "Password has been reset successfully."
-    }
-    ```
+-   **Endpoint:** `DELETE /users/{id}`
+-   **Description:** حذف مستخدم من النظام.
+-   **Requires Authentication:** Yes (Role: `Admin`).
+-   **Success Response (204 No Content):** لا يوجد محتوى في الاستجابة عند النجاح.
