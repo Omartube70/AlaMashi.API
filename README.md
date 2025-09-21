@@ -13,7 +13,7 @@
 
 
 <div align="center">
-  <img src="https://user-images.githubusercontent.com/51096395/187948519-5477485f-7c70-43f1-a185-3b1a8d56b0d9.png" alt="AlaMashi API Logo" width="300" />
+  <img src="https://raw.githubusercontent.com/Omartube70/AlaMashi.API/master/AlaMashi.API/.assets/logo.png" alt="AlaMashi API Logo" width="300" />
 </div>
 
 
@@ -31,7 +31,7 @@
 
 
 -   **الرابط الأساسي للـ API (على Azure):**
-    `https://YOUR_AZURE_API_LINK.azurewebsites.net`
+    `https://alamashiapi.azurewebsites.net/swagger/index.html`
 
 -   **التوثيق الكامل للـ API:**
     [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/master/Documentation.md)
