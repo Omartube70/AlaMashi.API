@@ -2,7 +2,7 @@
 
 مرحبًا بك في توثيق واجهة برمجة التطبيقات (API) لمشروع **AlaMashi**. يوفر هذا المستند شرحًا تفصيليًا لجميع نقاط النهاية (Endpoints) المتاحة، بما في ذلك الطلبات والاستجابات المتوقعة.
 
--   **Base URL:** `https://YOUR_AZURE_API_LINK.azurewebsites.net/api`
+-   **Base URL:** `https://alamashiapi.azurewebsites.net/swagger/index.html`
 
 ---
 
