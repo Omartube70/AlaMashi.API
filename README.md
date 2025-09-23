@@ -34,7 +34,7 @@
     `https://alamashiapi.azurewebsites.net/swagger/index.html`
 
 -   **التوثيق الكامل للـ API:**
-    [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/API_Documentation.md)
+    [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/master/API_Documentation.md)
 
 
 
@@ -137,7 +137,7 @@
     `https://localhost:xxxx/swagger` (استبدل xxxx بالبورت الخاص بك).
 
 -   **التوثيق الثابت (على GitHub):**
-    للاطلاع السريع على جميع الـ Endpoints، راجع [ملف توثيق الـ API](https://github.com/Omartube70/AlaMashi.API/blob/main/Documentation.md).
+    للاطلاع السريع على جميع الـ Endpoints، راجع [ملف توثيق الـ API](https://github.com/Omartube70/AlaMashi.API/blob/master/API_Documentation.md).
 
 
 
