@@ -34,7 +34,7 @@
     `https://alamashiapi.azurewebsites.net/swagger/index.html`
 
 -   **التوثيق الكامل للـ API:**
-    [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/master/Documentation.md)
+    [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/API_Documentation.md)
 
 
 
