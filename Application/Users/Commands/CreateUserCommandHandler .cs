@@ -24,10 +24,18 @@ namespace Application.Users.Commands
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             if (await _userRepository.IsEmailTakenAsync(request.Email))
-            {
+            
                 throw new EmailAlreadyExistsException(request.Email);
-            }
 
+
+            if (!string.IsNullOrEmpty(request.Phone))
+                if (await _userRepository.IsPhoneTakenAsync(request.Phone))
+                
+                    throw new PhoneAlreadyExistsException(request.Phone);
+
+            else
+                request.Phone = null; 
+            
 
             string hashedPassword = _passwordHasher.HashPassword(request.Password);
             User newUser = await User.CreateAsync(request.UserName, request.Email, request.Phone, hashedPassword);

@@ -32,12 +32,12 @@ namespace Application.Users.Commands
                 .NotEmpty().WithMessage("{PropertyName} is required.")
                 .EmailAddress().WithMessage("A valid email address is required.");
 
-            When(p => !string.IsNullOrEmpty(p.Phone), () =>
-            {
-                RuleFor(p => p.Phone)
-                    .Matches(@"^(010|011|012|015)\d{8}$")
-                    .WithMessage("Please enter a valid Egyptian phone number.");
-            });
+            // Phone Validation ( but validates if provided)
+            RuleFor(p => p.Phone)
+                .NotEmpty().WithMessage("phone number is required.")
+                .Matches(@"^(010|011|012|015)\d{8}$")
+                .WithMessage("Please enter a valid Egyptian phone number.");
+
         }
     }
 }

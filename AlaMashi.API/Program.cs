@@ -44,16 +44,19 @@ builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IFileUploadService, AzureBlobStorageService>();
 builder.Services.Configure<AzureEmailSettings>(builder.Configuration.GetSection("AzureEmailSettings"));
 
-// تسجيل MediatR والـ Pipeline Behaviors بالترتيب الصحيح
+// تسجيل MediatR
 builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly); // Requires a dummy class in Application
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
-    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+    cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly);
 });
 
 // تسجيل كل الـ Validators من مشروع الـ Application تلقائيًا
 builder.Services.AddValidatorsFromAssembly(typeof(Application.AssemblyReference).Assembly);
+
+// تسجيل الـ Pipeline Behaviors مباشرة في الخدمات
+// الترتيب هنا مهم: السلوك المسجل أولاً يتنفذ أولاً (يكون في الطبقة الخارجية)
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 // إعداد المصادقة باستخدام JWT
 builder.Services.AddAuthentication(options =>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Exceptions
 {
-    public class InvalidCredentialsException : Exception
+    public class InvalidCredentialsException : UnauthorizedAccessException
     {
         // Constructor افتراضي برسالة عامة
         public InvalidCredentialsException(): base("Invalid email or password.")

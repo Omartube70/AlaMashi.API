@@ -8,9 +8,11 @@ namespace Application.Interfaces
     {
         Task<User?> GetUserByIdAsync(int userId);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByPhoneAsync(string phone);
         Task<User?> GetUserByRefreshTokenAsync(string token);
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<bool> IsEmailTakenAsync(string email);
+        Task<bool> IsPhoneTakenAsync(string phone);
         Task AddUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(int userId);

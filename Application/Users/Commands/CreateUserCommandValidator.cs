@@ -26,13 +26,11 @@ namespace Application.Users.Commands
                 .EmailAddress().WithMessage("A valid email address is required.");
 
 
-            // Phone Validation (Optional, but validates if provided)
-            When(p => !string.IsNullOrEmpty(p.Phone), () =>
-            {
+            // Phone Validation ( but validates if provided)
                 RuleFor(p => p.Phone)
+                    .NotEmpty().WithMessage("phone number is required.")
                     .Matches(@"^(010|011|012|015)\d{8}$")
                     .WithMessage("Please enter a valid Egyptian phone number.");
-            });
 
 
             // Password Validation

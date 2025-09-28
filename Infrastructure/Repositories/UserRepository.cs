@@ -29,6 +29,10 @@ namespace Infrastructure.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
+        public async Task<User?> GetUserByPhoneAsync(string phone)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
+        }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
@@ -38,6 +42,10 @@ namespace Infrastructure.Repositories
         public async Task<bool> IsEmailTakenAsync(string email)
         {
             return await _context.Users.AnyAsync(u => u.Email == email.ToLower());
+        }
+        public async Task<bool> IsPhoneTakenAsync(string phone)
+        {
+            return await _context.Users.AnyAsync(u => u.Phone == phone);
         }
 
         public async Task UpdateUserAsync(User user)

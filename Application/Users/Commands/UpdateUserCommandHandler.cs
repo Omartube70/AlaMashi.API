@@ -13,7 +13,7 @@ namespace Application.Users.Commands
     {
         private readonly IUserRepository _userRepository;
 
-        public UpdateUserCommandHandler(IUserRepository userRepository)
+            public UpdateUserCommandHandler(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
@@ -41,6 +41,13 @@ namespace Application.Users.Commands
             if (userWithNewEmail != null && userWithNewEmail.UserID != request.TargetUserId)
             {
                 throw new EmailAlreadyExistsException(request.Email); 
+            }
+
+            // 3. التحقق من أن رقم الهاتف الجديد غير مستخدم من قبل شخص آخر
+            var userWithNewPhone = await _userRepository.GetUserByPhoneAsync(request.Phone);
+            if (userWithNewPhone != null && userWithNewPhone.UserID != request.TargetUserId)
+            {
+                throw new PhoneAlreadyExistsException(request.Phone);
             }
 
             // 4. استدعاء دالة التحديث في الـ Domain Entity

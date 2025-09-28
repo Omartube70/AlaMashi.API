@@ -22,7 +22,7 @@ namespace Domain.Entities
         public ICollection<Address> Addresses { get; private set; } = new List<Address>();
 
 
-        private User(string userName, string email, string? phone, Permissions permissions, string passwordHash)
+        private User(string userName, string email, string phone, Permissions permissions, string passwordHash)
         {
             UserName = userName;
             Email = email;
@@ -79,12 +79,11 @@ namespace Domain.Entities
             if (!ValidationHelper.IsPhoneValid(phone))
                 throw new ArgumentException("Invalid phone number format.", nameof(phone));
 
-            var normalizedPhone = string.IsNullOrWhiteSpace(phone) ? null : phone;
 
             // --- State Update ---
             UserName = userName;
             Email = email;
-            Phone = normalizedPhone;
+            Phone = phone;
         }
 
         public void ChangePassword(string newPasswordHash)

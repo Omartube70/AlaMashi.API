@@ -46,7 +46,7 @@ namespace Domain.Common
         public static bool IsPhoneValid(string phone)
         {
             // The pattern for an 11-digit Egyptian phone number starting with 01
-            string pattern = @"^01[0-9]{9}$";
+            string pattern = @"^(010|011|012|015)\d{8}$";
 
             // Check if the input phone number matches the pattern
             return Regex.IsMatch(phone, pattern);

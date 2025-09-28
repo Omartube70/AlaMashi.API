@@ -2,8 +2,6 @@
 using Application.Authentication.Dtos;
 using Application.Exceptions;
 using Application.Interfaces;
-
-//using Application.Exceptions;
 using Application.Users.DTOs;
 using MediatR;
 using System.Security.Authentication;

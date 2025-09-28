@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Application.Exceptions
 {
-    public class UserNotFoundException : NotFoundException
+    public class PhoneAlreadyExistsException : ConflictException
     {
-        public UserNotFoundException(int userId)
-            : base($"User with ID '{userId}' was not found.")
+        public PhoneAlreadyExistsException(string phone)
+            : base($"The phone '{phone}' is already registered.")
         {
         }
     }
