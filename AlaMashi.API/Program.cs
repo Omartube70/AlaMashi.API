@@ -134,8 +134,12 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 // تفعيل Swagger فقط في بيئة التطوير للأمان
 //if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+ app.UseSwagger();
+    app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlaMashi API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
 app.UseForwardedHeaders();
