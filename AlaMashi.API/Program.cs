@@ -56,6 +56,7 @@ builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IFileUploadService, AzureBlobStorageService>();
 builder.Services.Configure<AzureEmailSettings>(builder.Configuration.GetSection("AzureEmailSettings"));
 builder.Services.AddAutoMapper(typeof(Application.AssemblyReference).Assembly);
+builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 
 // تسجيل MediatR
 builder.Services.AddMediatR(cfg => {

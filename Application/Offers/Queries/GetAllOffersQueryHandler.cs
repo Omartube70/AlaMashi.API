@@ -10,21 +10,20 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Queries
 {
-    public class GetActiveOffersQueryHandler : IRequestHandler<GetActiveOffersQuery, IEnumerable<OfferDto>>
+    public class GetAllOffersQueryHandler : IRequestHandler<GetAllOffersQuery, IEnumerable<OfferDto>>
     {
         private readonly IOfferRepository _offerRepository;
         private readonly IMapper _mapper;
 
-        public GetActiveOffersQueryHandler(IOfferRepository offerRepository, IMapper mapper)
+        public GetAllOffersQueryHandler(IOfferRepository offerRepository, IMapper mapper)
         {
             _offerRepository = offerRepository;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<OfferDto>> Handle(GetActiveOffersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<OfferDto>> Handle(GetAllOffersQuery request, CancellationToken cancellationToken)
         {
-            var offers = await _offerRepository.GetActiveOffersAsync();
-
+            var offers = await _offerRepository.GetAllOffersAsync();
             return _mapper.Map<IEnumerable<OfferDto>>(offers);
         }
     }
