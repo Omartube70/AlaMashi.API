@@ -16,6 +16,6 @@ namespace Application.Products.Dtos
         public string MainImageURL { get; init; }
 
         // تم تبسيط البيانات المرتبطة
-        public string CategoryName { get; init; }
+        public string CategoryName { get; set; } = string.Empty;
     }
 }

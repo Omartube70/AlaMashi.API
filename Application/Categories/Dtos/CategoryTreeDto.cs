@@ -10,6 +10,8 @@ namespace Application.Categories.Dtos
     {
         public int CategoryId { get; init; }
         public string CategoryName { get; init; }
+        public string IconName { get; init; }  // ✅ الأيقونة
+
 
         // قائمة تحتوي على الأبناء (الفئات الفرعية) لهذه الفئة
         public List<CategoryTreeDto> SubCategories { get; init; } = new();

@@ -1,6 +1,7 @@
-﻿using MediatR;
-using Application.Categories.Dtos;
+﻿using Application.Categories.Dtos;
 using Application.Interfaces;
+using Domain.Entities;
+using MediatR;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,31 +21,30 @@ namespace Application.Categories.Queries
         public async Task<IReadOnlyList<CategoryTreeDto>> Handle(GetAllCategoriesTreeQuery request, CancellationToken cancellationToken)
         {
             var allCategories = await _categoryRepository.GetAllCategoriesAsync();
-            var categoryMap = new Dictionary<int, CategoryTreeDto>();
+
+            // 🧩 بناء القاموس لكل الفئات
+            var categoryMap = allCategories.ToDictionary(
+                c => c.CategoryID,
+                c => new CategoryTreeDto
+                {
+                    CategoryId = c.CategoryID,
+                    CategoryName = c.CategoryName,
+                    IconName = c.IconName,
+                    SubCategories = new List<CategoryTreeDto>()
+                }
+            );
+
+            // 📚 بناء العلاقات بين الأب والابن
             var rootCategories = new List<CategoryTreeDto>();
 
-            // الخطوة 1: قم بإنشاء DTO لكل فئة وضعها في الـ Map لسهولة الوصول
-            foreach (var category in allCategories)
-            {
-                categoryMap[category.CategoryID] = new CategoryTreeDto
-                {
-                    CategoryId = category.CategoryID,
-                    CategoryName = category.CategoryName
-                };
-            }
-
-            // الخطوة 2: قم ببناء هيكل الشجرة
             foreach (var category in allCategories)
             {
                 if (category.ParentID.HasValue && categoryMap.ContainsKey(category.ParentID.Value))
                 {
-                    // إذا كانت فئة فرعية، أضفها إلى قائمة الفئات الفرعية لوالدها
-                    var parentDto = categoryMap[category.ParentID.Value];
-                    parentDto.SubCategories.Add(categoryMap[category.CategoryID]);
+                    categoryMap[category.ParentID.Value].SubCategories.Add(categoryMap[category.CategoryID]);
                 }
                 else
                 {
-                    // إذا كانت فئة رئيسية، أضفها إلى القائمة الجذرية
                     rootCategories.Add(categoryMap[category.CategoryID]);
                 }
             }
