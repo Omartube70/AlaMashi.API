@@ -21,6 +21,9 @@ namespace Application.Offers.Commands
         {
             var entity = _mapper.Map<Offer>(request.Offer);
 
+            //Logic inside entity
+            entity.ActivateOffer();
+
             await _offerRepo.AddOfferAsync(entity);
 
             return _mapper.Map<OfferDto>(entity);

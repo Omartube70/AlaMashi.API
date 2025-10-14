@@ -8,7 +8,6 @@ namespace Domain.Entities
         public int OfferID { get; private set; }
         public string Title { get; private set; } // عنوان العرض (مثلاً: "عروض تصل إلى 30%")
         public string? Description { get; private set; } // وصف اختياري للعرض
-        public string ImageUrl { get; private set; } // صورة أو بانر العرض
         public decimal DiscountPercentage { get; private set; } // نسبة الخصم (مثلاً: 0.30 لـ 30%)
         public DateTime StartDate { get; private set; } // تاريخ بداية العرض
         public DateTime EndDate { get; private set; } // تاريخ نهاية العرض
@@ -21,11 +20,10 @@ namespace Domain.Entities
         private Offer() { } 
 #pragma warning restore CS8618
 
-        private Offer(string title, string? description, string imageUrl, decimal discountPercentage, DateTime startDate, DateTime endDate , bool isActive)
+        private Offer(string title, string? description, decimal discountPercentage, DateTime startDate, DateTime endDate , bool isActive)
         {
             Title = title;
             Description = description;
-            ImageUrl = imageUrl;
             DiscountPercentage = discountPercentage;
             StartDate = startDate;
             EndDate = endDate;
@@ -34,15 +32,12 @@ namespace Domain.Entities
         
         // --- Business Logic Methods ---
 
-        public static Offer Create(string title, string? description, string imageUrl, decimal discountPercentage, DateTime startDate, DateTime endDate)
+        public static Offer Create(string title, string? description, decimal discountPercentage, DateTime startDate, DateTime endDate)
         {
             // --- Validation ---   
 
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Offer title is required.", nameof(title));
-
-            if (string.IsNullOrWhiteSpace(imageUrl))
-                throw new ArgumentException("Offer Image URL is required.", nameof(imageUrl));
 
             if (discountPercentage <= 0 || discountPercentage > 1)
                 throw new ArgumentException("Discount percentage must be between 0 and 1 (exclusive).", nameof(discountPercentage));
@@ -52,17 +47,14 @@ namespace Domain.Entities
 
             bool isActive = (DateTime.UtcNow >= startDate && DateTime.UtcNow <= endDate); // تحديث الحالة عند الإنشاء
 
-            return new Offer(title, description, imageUrl, discountPercentage, startDate, endDate, isActive);
+            return new Offer(title, description, discountPercentage, startDate, endDate, isActive);
         }
 
-        public void UpdateOfferDetails(string newTitle, string? newDescription, string newImageUrl, decimal newDiscountPercentage, DateTime newStartDate, DateTime newEndDate)
+        public void UpdateOfferDetails(string newTitle, string? newDescription, decimal newDiscountPercentage, DateTime newStartDate, DateTime newEndDate)
         {
             // --- Validation ---   
             if (string.IsNullOrWhiteSpace(newTitle))
                 throw new ArgumentException("Offer title is required.", nameof(newTitle));
-
-            if (string.IsNullOrWhiteSpace(newImageUrl))
-                throw new ArgumentException("Offer Image URL is required.", nameof(newImageUrl));
 
             if (newDiscountPercentage <= 0 || newDiscountPercentage > 1)
                 throw new ArgumentException("Discount percentage must be between 0 and 1 (exclusive).", nameof(newDiscountPercentage));
@@ -72,7 +64,6 @@ namespace Domain.Entities
 
             Title = newTitle;
             Description = newDescription;
-            ImageUrl = newImageUrl;
             DiscountPercentage = newDiscountPercentage;
             StartDate = newStartDate;
             EndDate = newEndDate;

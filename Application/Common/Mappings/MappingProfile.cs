@@ -1,4 +1,5 @@
-﻿using Application.Users.Dtos;
+﻿using Application.Offers.Dtos;
+using Application.Users.Dtos;
 using Application.Users.DTOs;
 using AutoMapper;
 using Domain.Entities;
@@ -17,6 +18,11 @@ namespace Application.Common.Mappings
             CreateMap<User, UserDto>();
 
             CreateMap<User, UpdateUserDto>().ReverseMap();
+
+
+            CreateMap<CreateOfferDto, Offer>();
+            CreateMap<Offer, OfferDto>();
+            CreateMap<UpdateOfferDto, Offer>();
         }
     }
 }

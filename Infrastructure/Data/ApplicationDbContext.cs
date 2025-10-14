@@ -85,8 +85,7 @@ namespace Infrastructure.Data
             {
                 entity.HasKey(o => o.OfferID);
                 entity.Property(o => o.Title).IsRequired().HasMaxLength(200);
-                entity.Property(o => o.ImageUrl).IsRequired();
-                entity.Property(o => o.DiscountPercentage).HasColumnType("decimal(5, 4)");
+                entity.Property(o => o.DiscountPercentage).HasColumnType("decimal(5, 2)");
 
                 // -- إضافة جديدة: تعريف علاقة العرض بالمنتجات (واحد-إلى-متعدد) --
                 entity.HasMany(o => o.Products)
