@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Application.Users.Dtos;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,22 +8,10 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
+    public class UpdateUserCommandValidator : AbstractValidator<UpdateUserDto>
     {
         public UpdateUserCommandValidator()
         {
-            // --- Validation for Target and Authorization Data ---
-
-            RuleFor(p => p.TargetUserId)
-                .GreaterThan(0).WithMessage("Target User ID is required.");
-
-            RuleFor(p => p.CurrentUserId)
-                .GreaterThan(0).WithMessage("Current User ID is required for authorization.");
-
-            RuleFor(p => p.CurrentUserRole)
-                .NotEmpty().WithMessage("Current User Role is required for authorization.");
-
-            // --- Validation for New Data ---
 
             RuleFor(p => p.UserName)
                 .NotEmpty().WithMessage("UserName is required.")

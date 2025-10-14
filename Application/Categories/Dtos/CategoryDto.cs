@@ -10,7 +10,7 @@ namespace Application.Categories.Dtos
     {
         public int CategoryId { get; init; }
         public string CategoryName { get; init; }
-        public string CategoryImageURL { get; init; }
+        public string IconName { get; init; }
         public int? ParentId { get; init; }
     }
 }

@@ -1,28 +1,35 @@
-﻿using MediatR;
+﻿using Application.Exceptions;
 using Application.Interfaces;
+using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Application.Categories.Commands
 {
-    public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
+
+    namespace Application.Categories.Commands
     {
-        private readonly ICategoryRepository _categoryRepository;
-
-        public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository)
+        public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
         {
-            _categoryRepository = categoryRepository;
-        }
+            private readonly ICategoryRepository _categoryRepository;
+            private readonly IFileUploadService _fileUploadService;
 
-        public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
-        {
-            var categoryToDelete = await _categoryRepository.GetCategoryByIdAsync(request.CategoryId);
-
-            if (categoryToDelete != null)
+            public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository,IFileUploadService fileUploadService) 
             {
-               await _categoryRepository.DeleteCategory(categoryToDelete);
+                _categoryRepository = categoryRepository;
+                _fileUploadService = fileUploadService;
             }
 
+            public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+            {
+                var categoryToDelete = await _categoryRepository.GetCategoryByIdAsync(request.CategoryId);
+                if (categoryToDelete == null)
+                {
+                    throw new NotFoundException($"Category id {request.CategoryId} was not found");
+                }
+
+                await _categoryRepository.DeleteCategory(categoryToDelete);
+            }
         }
     }
 }

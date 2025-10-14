@@ -65,50 +65,21 @@ public class UsersController : ControllerBase
         return Ok(new { status = "success", message = $"User {UserID} has been promoted to Admin." });
     }
 
-    [HttpPatch("{UserID}")]
+    [HttpPatch("{userId}")]
     [Authorize]
-    public async Task<IActionResult> UpdateUserPartial(int UserID, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
+    public async Task<IActionResult> UpdateUserPartial(int userId, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
     {
-        var currentUserId = GetCurrentUserId();
-        var currentUserRole = GetCurrentUserRole();
-
-        var currentUserState = await _mediator.Send(new GetUserByIdQuery
+        var command = new UpdateUserPartialCommand
         {
-            UserId = UserID,
-            CurrentUserId = currentUserId,
-            CurrentUserRole = currentUserRole
-        });
-
-        var userToPatch = new UpdateUserDto
-        {
-            UserName = currentUserState.UserName,
-            Email = currentUserState.Email,
-            Phone = currentUserState.Phone
+            TargetUserId = userId,
+            PatchDoc = patchDoc, 
+            CurrentUserId = GetCurrentUserId(),
+            CurrentUserRole = GetCurrentUserRole()
         };
 
-        // 3. تطبيق التعديلات على كائن UpdateUserDto الجديد
-        patchDoc.ApplyTo(userToPatch, ModelState);
+        var updatedUserDto = await _mediator.Send(command);
 
-        // 4. التحقق من صحة النموذج بعد التعديل
-        if (!TryValidateModel(userToPatch))
-        {
-            return ValidationProblem(ModelState);
-        }
-
-        // 5. إنشاء وإرسال الـ Command بالبيانات المحدثة
-        var command = new UpdateUserCommand
-        {
-            TargetUserId = UserID,
-            CurrentUserId = currentUserId,
-            CurrentUserRole = currentUserRole,
-            UserName = userToPatch.UserName,
-            Email = userToPatch.Email,
-            Phone = userToPatch.Phone
-        };
-
-        await _mediator.Send(command);
-
-        return Ok(new { status = "success", data = userToPatch });
+        return Ok(new { status = "success", data = updatedUserDto });
     }
 
     [HttpDelete("{UserID}")]
@@ -196,12 +167,16 @@ public class UsersController : ControllerBase
         {
             return userId;
         }
-        throw new InvalidOperationException("User ID not found in token.");
+        throw new UnauthorizedAccessException("User ID not found or invalid in token.");
     }
 
     private string GetCurrentUserRole()
     {
-        return User.FindFirstValue(ClaimTypes.Role) ??
-               throw new InvalidOperationException("User Role not found in token.");
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        if (string.IsNullOrEmpty(role))
+        {
+            throw new UnauthorizedAccessException("User Role not found in token.");
+        }
+        return role;
     }
 }

@@ -7,10 +7,13 @@ namespace Application.Products.Commands
     public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
     {
         private readonly IProductRepository _productRepository;
+        private readonly IFileUploadService _fileUploadService;
 
-        public DeleteProductCommandHandler(IProductRepository productRepository)
+
+        public DeleteProductCommandHandler(IProductRepository productRepository , IFileUploadService fileUploadService)
         {
             _productRepository = productRepository;
+            _fileUploadService = fileUploadService;
         }
 
         public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
@@ -22,7 +25,12 @@ namespace Application.Products.Commands
                 throw new NotFoundException($"Product with ID {request.ProductID} not found.");
             }
 
-           await _productRepository.DeleteProductAsync(productToDelete);
+            if (!string.IsNullOrEmpty(productToDelete.MainImageURL))
+            {
+                await _fileUploadService.DeleteFileAsync(productToDelete.MainImageURL);
+            }
+
+            await _productRepository.DeleteProductAsync(productToDelete);
 
         }
     }

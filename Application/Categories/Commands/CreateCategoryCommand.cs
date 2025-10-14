@@ -12,7 +12,7 @@ namespace Application.Categories.Commands
     public class CreateCategoryCommand : IRequest<CategoryDto>
     {
         public string CategoryName { get; set; }
-        public IFormFile CategoryImageFile { get; set; }
+        public string IconName { get; set; }
         public int? ParentId { get; set; }
     }
 }

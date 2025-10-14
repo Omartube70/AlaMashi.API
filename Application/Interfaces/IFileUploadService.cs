@@ -11,5 +11,6 @@ namespace Application.Interfaces
     public interface IFileUploadService
     {
         Task<string> UploadFileAsync(IFormFile file, int? targetWidth = null, int? targetHeight = null);
+        Task DeleteFileAsync(string fileUrl);
     }
 }

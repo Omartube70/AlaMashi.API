@@ -16,14 +16,11 @@ namespace Infrastructure.Services
         private readonly BlobServiceClient _blobServiceClient;
         private readonly string _containerName;
 
-        public AzureBlobStorageService(IConfiguration configuration)
+        public AzureBlobStorageService(BlobServiceClient blobServiceClient, IConfiguration configuration)
         {
-            var connectionString = configuration["AzureBlobStorage:ConnectionString"];
+            _blobServiceClient = blobServiceClient;
             _containerName = configuration["AzureBlobStorage:ContainerName"];
-
-            _blobServiceClient = new BlobServiceClient(connectionString);
         }
-
         public async Task<string> UploadFileAsync(IFormFile file, int? targetWidth = null, int? targetHeight = null)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
@@ -59,6 +56,24 @@ namespace Infrastructure.Services
             }
 
             return blobClient.Uri.ToString();
+        }
+
+        public async Task DeleteFileAsync(string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl))
+            {
+                return; 
+            }
+                
+                var blobUri = new Uri(fileUrl);
+                var blobContainerName = blobUri.Segments[1].TrimEnd('/'); // Segments[0] is '/', Segments[1] is 'container-name/'
+                var blobName = blobUri.Segments.Last();
+
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(blobContainerName);
+
+                var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                await blobClient.DeleteIfExistsAsync();     
         }
     }
 }

@@ -40,7 +40,8 @@ namespace Application.Addresses.Queries
                 Street = a.Street,
                 City = a.City,
                 AddressDetails = a.AddressDetails,
-                AddressType = a.AddressType.ToString()
+                AddressType = a.AddressType.ToString(),
+                UserId = a.UserId
             });
         }
     }

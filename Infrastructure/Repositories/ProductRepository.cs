@@ -16,9 +16,14 @@ namespace Infrastructure.Repositories
 
         public async Task<Product?> GetProductByIdAsync(int productId)
         {
-            // Eager Loading: تحميل الفئة مع المنتج في استعلام واحد
             return await _context.Products.Include(p => p.Category)
                          .FirstOrDefaultAsync(p => p.ProductID == productId);
+        }
+
+        public async Task<Product?> GetProductByBarcodeAsync(string Barcode)
+        {
+            return await _context.Products.Include(p => p.Category)
+                         .FirstOrDefaultAsync(p => p.Barcode == Barcode);
         }
 
         public async Task<IReadOnlyList<Product>> GetAllProductsAsync()

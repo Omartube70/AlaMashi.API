@@ -16,9 +16,12 @@ namespace Domain.Entities
 
         // --- Foreign Keys ---
         public int CategoryID { get; private set; }
+        public int? OfferID { get; private set; }
 
         // --- Navigation Properties ---
         public Category Category { get; private set; }
+        public virtual Offer? Offer { get; private set; }
+
 
 
 #pragma warning disable CS8618
@@ -97,6 +100,17 @@ namespace Domain.Entities
                 throw new InvalidOperationException("Not enough stock available.");
 
             QuantityInStock -= amountToRemove;
+        }
+        public void AssignToOffer(int offerId)
+        {
+            if (offerId <= 0)
+                throw new ArgumentException("Invalid Offer ID.", nameof(offerId));
+            OfferID = offerId;
+        }
+
+        public void RemoveFromOffer()
+        {
+            OfferID = null;
         }
     }
 }

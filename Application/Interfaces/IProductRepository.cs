@@ -10,9 +10,9 @@ namespace Application.Interfaces
     public interface IProductRepository
     {
         Task<Product?> GetProductByIdAsync(int ProductID);
+        Task<Product?> GetProductByBarcodeAsync(string Barcode);
         Task<IReadOnlyList<Product>> GetAllProductsAsync();
         Task<IReadOnlyList<Product>> GetProductsByCategoryIdAsync(int categoryId);
-
         Task AddProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(Product product);

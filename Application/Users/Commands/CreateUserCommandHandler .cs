@@ -28,13 +28,10 @@ namespace Application.Users.Commands
                 throw new EmailAlreadyExistsException(request.Email);
 
 
-            if (!string.IsNullOrEmpty(request.Phone))
                 if (await _userRepository.IsPhoneTakenAsync(request.Phone))
                 
                     throw new PhoneAlreadyExistsException(request.Phone);
 
-            else
-                request.Phone = null; 
             
 
             string hashedPassword = _passwordHasher.HashPassword(request.Password);

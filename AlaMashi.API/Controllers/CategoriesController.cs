@@ -20,7 +20,7 @@ public class CategoriesController : ControllerBase
 
     [HttpPost("Create")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryCommand command)
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryCommand command)
     {
         var CategoryDto = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetCategoryById), new { categoryId = CategoryDto.CategoryId }, CategoryDto);
@@ -44,7 +44,7 @@ public class CategoriesController : ControllerBase
     {
         var query = new GetAllCategoriesTreeQuery();
         var result = await _mediator.Send(query);
-        return Ok(result);
+        return Ok(new { status = "success", data = result });
     }
 
     [HttpGet("flat")]
@@ -52,7 +52,7 @@ public class CategoriesController : ControllerBase
     {
         var query = new GetAllCategoriesQuery();
         var result = await _mediator.Send(query);
-        return Ok(result);
+        return Ok(new { status = "success", data = result });
     }
 
     [HttpPut("{categoryId}")]

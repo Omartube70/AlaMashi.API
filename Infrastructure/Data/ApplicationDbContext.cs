@@ -55,8 +55,13 @@ namespace Infrastructure.Data
             {
                 entity.HasKey(e => e.CategoryID);
                 entity.Property(e => e.CategoryName).IsRequired().HasMaxLength(200);
-                entity.Property(e => e.CategoryImageURL).IsRequired(); // MAX Length
+                entity.Property(e => e.IconName).IsRequired(); // MAX Length
                 entity.Property(e => e.ParentID).IsRequired(false);
+
+                entity.HasOne(c => c.Parent)
+                    .WithMany(c => c.SubCategories)
+                    .HasForeignKey(c => c.ParentID)
+                    .OnDelete(DeleteBehavior.Restrict); // لمنع حذف قسم رئيسي إذا كان لديه أقسام فرعية
             });
 
                modelBuilder.Entity<Product>(entity =>
@@ -69,6 +74,25 @@ namespace Infrastructure.Data
              entity.Property(e => e.QuantityInStock).IsRequired(); // int
              entity.Property(e => e.MainImageURL).IsRequired(); // MAX Length
              entity.HasIndex(p => p.Barcode).IsUnique(); // Barcode is Unique
+
+            entity.HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryID)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
+
+               modelBuilder.Entity<Offer>(entity =>
+            {
+                entity.HasKey(o => o.OfferID);
+                entity.Property(o => o.Title).IsRequired().HasMaxLength(200);
+                entity.Property(o => o.ImageUrl).IsRequired();
+                entity.Property(o => o.DiscountPercentage).HasColumnType("decimal(5, 4)");
+
+                // -- إضافة جديدة: تعريف علاقة العرض بالمنتجات (واحد-إلى-متعدد) --
+                entity.HasMany(o => o.Products)
+                      .WithOne(p => p.Offer)
+                      .HasForeignKey(p => p.OfferID)
+                      .OnDelete(DeleteBehavior.SetNull); // عند حذف العرض، اجعل المنتجات المرتبطة به بدون عرض
             });
 
         }
@@ -77,6 +101,6 @@ namespace Infrastructure.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Address> Addresses { get; set; }
-
+        public DbSet<Offer> Offers { get; set; } 
     }
 }

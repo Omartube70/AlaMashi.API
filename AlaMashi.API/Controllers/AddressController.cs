@@ -36,7 +36,7 @@ public class AddressesController : ControllerBase
         return Ok(new { status = "success", data = addressDto });
     }
 
-    [HttpGet("all")]
+    [HttpGet("all/ByUser")]
     public async Task<IActionResult> GetAllAddressesByUser()
     {
         var query = new GetUserAddressesQuery
@@ -49,7 +49,7 @@ public class AddressesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet]
+    [HttpGet("all")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllAddresses()
     {

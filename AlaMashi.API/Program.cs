@@ -1,6 +1,7 @@
-﻿using Application.Common.Interfaces;
-using Application.Common.Behaviors;
+﻿using Application.Common.Behaviors;
+using Application.Common.Interfaces;
 using Application.Interfaces;
+using Azure.Storage.Blobs;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -10,6 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -31,7 +33,17 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 
 // تسجيل الـ DbContext مع قراءة الـ Connection String
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure();
+        }
+    )
+);
+
+builder.Services.AddSingleton(x =>
+    new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]));
 
 // تسجيل خدمات طبقة Infrastructure مع الواجهات الخاصة بها
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -43,6 +55,7 @@ builder.Services.AddScoped<IEmailService, AzureEmailService>();
 builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
 builder.Services.AddScoped<IFileUploadService, AzureBlobStorageService>();
 builder.Services.Configure<AzureEmailSettings>(builder.Configuration.GetSection("AzureEmailSettings"));
+builder.Services.AddAutoMapper(typeof(Application.AssemblyReference).Assembly);
 
 // تسجيل MediatR
 builder.Services.AddMediatR(cfg => {

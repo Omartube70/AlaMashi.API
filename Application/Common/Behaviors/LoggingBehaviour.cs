@@ -19,7 +19,6 @@ namespace Application.Common.Behaviors
         {
             var requestName = typeof(TRequest).Name;
 
-            // يمكنك هنا إضافة بيانات المستخدم الذي قام بالطلب لمزيد من التفاصيل
             _logger.LogInformation("Handling Request: {Name} {@Request}", requestName, request);
 
             var response = await next();
