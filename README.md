@@ -4,8 +4,6 @@
 
 [![.NET Version](https://img.shields.io/badge/.NET-8.0-blueviolet?style=for-the-badge&logo=.net)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/Omartube70/AlaMashi.API/blob/master/LICENSE)
-[![Deployed to Azure](https://img.shields.io/badge/Deployment-Azure-0078D4?style=for-the-badge&logo=microsoft-azure)](https://YOUR_AZURE_API_LINK.azurewebsites.net)
-
 
 
 مرحبًا بك في مشروع **AlaMashi.API**! هذا المشروع عبارة عن واجهة برمجة تطبيقات (API) خلفية (Backend) قوية وآمنة، مصممة بلغة C# باستخدام إطار عمل ASP.NET Core 8.0. تم بناء المشروع على أساس **هندسة Clean Architecture** لضمان أقصى درجات فصل الاهتمامات (Separation of Concerns)، سهولة الصيانة، وقابلية التوسع والاختبار.
@@ -30,8 +28,8 @@
 
 
 
--   **الرابط الأساسي للـ API (على Azure):**
-    `https://alamashiapi.azurewebsites.net/swagger/index.html`
+-   **الرابط الأساسي للـ API:**
+    `[https://alamashiapi.azurewebsites.net/swagger/index.html](http://alamashi.runasp.net/swagger/index.html)`
 
 -   **التوثيق الكامل للـ API:**
     [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/master/API_Documentation.md)
