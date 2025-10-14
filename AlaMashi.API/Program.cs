@@ -1,7 +1,6 @@
 ﻿using Application.Common.Behaviors;
 using Application.Common.Interfaces;
 using Application.Interfaces;
-using Azure.Storage.Blobs;
 using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -42,8 +41,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
-builder.Services.AddSingleton(x =>
-    new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]));
+//builder.Services.AddSingleton(x =>
+//    new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]));
 
 // تسجيل خدمات طبقة Infrastructure مع الواجهات الخاصة بها
 builder.Services.AddScoped<IUserRepository, UserRepository>();
