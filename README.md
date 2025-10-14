@@ -29,7 +29,7 @@
 
 
 -   **الرابط الأساسي للـ API:**
-    `[https://alamashiapi.azurewebsites.net/swagger/index.html](http://alamashi.runasp.net/swagger/index.html)`
+    [**BaseUrl**](https://alamashiapi.azurewebsites.net/swagger/index.html)
 
 -   **التوثيق الكامل للـ API:**
     [**API Documentation Link**](https://github.com/Omartube70/AlaMashi.API/blob/master/API_Documentation.md)
