@@ -1,4 +1,5 @@
-﻿using Application.Categories.Dtos;
+﻿using Application.Addresses.Dtos;
+using Application.Categories.Dtos;
 using Application.Offers.Dtos;
 using Application.Products.Dtos;
 using Application.Users.Dtos;
@@ -47,6 +48,8 @@ namespace Application.Common.Mappings
                 .ForMember(dest => dest.MainImageURL, opt => opt.MapFrom(src => src.MainImageURL))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
                 .ReverseMap();
+
+            CreateMap<Address, UpdateAddressDto>().ReverseMap();
         }
     }
 }

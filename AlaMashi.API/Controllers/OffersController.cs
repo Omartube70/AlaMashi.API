@@ -35,7 +35,7 @@ public class OffersController : ControllerBase
     public async Task<IActionResult> GetAllOffers()
     {
         var result = await _mediator.Send(new GetAllOffersQuery());
-        return Ok(result);
+        return Ok(new { status = "success", data = result });
     }
 
     // GET: api/offers/{offerId}

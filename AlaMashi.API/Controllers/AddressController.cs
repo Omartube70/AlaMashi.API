@@ -1,13 +1,11 @@
 ﻿using Application.Addresses.Commands;
 using Application.Addresses.Dtos;
 using Application.Addresses.Queries;
-using Application.Users.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -32,8 +30,10 @@ public class AddressesController : ControllerBase
             AddressDetails = dto.AddressDetails,
             AddressType = dto.AddressType
         };
+
         AddressDto addressDto = await _mediator.Send(command);
-        return Ok(new { status = "success", data = addressDto });
+
+        return CreatedAtAction(nameof(GetAddressById),new { AddressId = addressDto.AddressId , addressDto });
     }
 
     [HttpGet("all/ByUser")]
@@ -46,7 +46,7 @@ public class AddressesController : ControllerBase
             CurrentUserRole = GetCurrentUserRole()   
         };
         var result = await _mediator.Send(query);
-        return Ok(result);
+        return Ok(new { status = "success", data = result });
     }
 
     [HttpGet("all")]
@@ -57,8 +57,23 @@ public class AddressesController : ControllerBase
 
         var addressDtos = await _mediator.Send(query);
 
-        return Ok(addressDtos);
+        return Ok(new { status = "success", data = addressDtos });
     }
+
+    [HttpGet("{AddressId}")]
+    public async Task<IActionResult> GetAddressById(int AddressId)
+    {
+        var query = new GetAddressByIdQuery
+        {
+            AddressId = AddressId,
+            CurrentUserId = GetCurrentUserId()
+        };
+
+        var addressDto = await _mediator.Send(query);
+
+        return Ok(new { status = "success", data = addressDto });
+    }
+
 
     [HttpDelete("{AddressId}")]
     public async Task<IActionResult> DeleteAddress(int AddressId)
@@ -76,37 +91,21 @@ public class AddressesController : ControllerBase
     [HttpPatch("{AddressId}")]
     public async Task<IActionResult> UpdateAddressPartial(int AddressId, [FromBody] JsonPatchDocument<UpdateAddressDto> patchDoc)
     {
-        var query = new GetAddressByIdQuery { AddressId = AddressId, CurrentUserId = GetCurrentUserId() };
-        var currentAddressState = await _mediator.Send(query);
+        if (patchDoc == null)
+            return BadRequest("Invalid patch document.");
 
-        var addressToPatch = new UpdateAddressDto
-        {
-            Street = currentAddressState.Street,
-            City = currentAddressState.City,
-            AddressDetails = currentAddressState.AddressDetails,
-            AddressType = (Domain.Common.AddressType)Enum.Parse(typeof(Domain.Common.AddressType), currentAddressState.AddressType)
-        };
-
-        patchDoc.ApplyTo(addressToPatch, ModelState);
-        if (!TryValidateModel(addressToPatch))
-        {
-            return ValidationProblem(ModelState);
-        }
-
-        var command = new UpdateAddressCommand
+        var command = new UpdateAddressPartialCommand
         {
             AddressId = AddressId,
             CurrentUserId = GetCurrentUserId(),
-            Street = addressToPatch.Street,
-            City = addressToPatch.City,
-            AddressDetails = addressToPatch.AddressDetails,
-            AddressType = addressToPatch.AddressType
+            PatchDoc = patchDoc
         };
 
         await _mediator.Send(command);
 
         return Ok(new { status = "success", data = "Address Updated successfully" });
     }
+
 
     // --- Helper Methods ---
     private int GetCurrentUserId()

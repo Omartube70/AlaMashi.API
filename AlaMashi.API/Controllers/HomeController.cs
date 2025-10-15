@@ -2,6 +2,7 @@
 using Application.Home.Queries;
 using Application.Home.Queries.Application.Home.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ public class HomeController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<HomeDataDto>> GetHomeData()
     {
         var result = await _mediator.Send(new GetHomeDataQuery());

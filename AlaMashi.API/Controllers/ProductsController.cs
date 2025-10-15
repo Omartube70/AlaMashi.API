@@ -3,6 +3,7 @@ using Application.Products.Dtos;
 using Application.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -44,7 +45,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
     {
         var productDtos = await _mediator.Send(query);
-        return Ok(productDtos);
+        return Ok(new { status = "success", data = productDtos });
     }
 
     // GET: api/products/category/{categoryId}
@@ -52,26 +53,24 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> GetProductsByCategory(int categoryId)
     {
         var query = new GetAllProductsByCategoryQuery() { CategoryId = categoryId };
-        var result = await _mediator.Send(query);
-        return Ok(result);
+        var productDtos = await _mediator.Send(query);
+        return Ok(new { status = "success", data = productDtos });
     }
 
     // PUT: api/products/{id}
-    [HttpPut("{id}")]
+    [HttpPatch("{productId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateProduct(int productId, [FromBody] UpdateProductDto Dto)
+    public async Task<IActionResult> UpdateProductPartial(int productId,[FromBody] JsonPatchDocument<UpdateProductDto> patchDoc)
     {
-        var command = new UpdateProductCommand
+        var command = new UpdateProductPartialCommand
         {
-            ProductID = productId,
-            ProductName = Dto.ProductName,
-            ProductDescription = Dto.ProductDescription,
-            Price = Dto.Price
+            ProductId = productId,
+            PatchDoc = patchDoc
         };
 
         await _mediator.Send(command);
 
-        return Ok(new { status = "success", data = "Product Updated successfully" });
+        return Ok(new { status = "success", data = "Product updated successfully" });
     }
 
     // DELETE: api/products/{id}

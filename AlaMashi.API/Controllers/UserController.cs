@@ -1,14 +1,15 @@
-﻿using MediatR;
+﻿using Application.Authentication.Commands;
+using Application.Authentication.Dtos;
+using Application.Users.Commands;
+using Application.Users.Dtos;
+using Application.Users.DTOs;
+using Application.Users.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Application.Users.Commands;
-using Application.Users.Queries;
-using Application.Users.Dtos;
-using Application.Authentication.Commands;
-using Application.Authentication.Dtos;
 
 
 [ApiController]
@@ -51,8 +52,10 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetAllUsers()
     {
         var query = new GetAllUsersQuery();
+
         var users = await _mediator.Send(query);
-        return Ok(users);
+
+        return Ok(new { status = "success", data = users });
     }
 
     [HttpPost("{UserID}/promote-to-admin")]
@@ -62,13 +65,16 @@ public class UsersController : ControllerBase
         var command = new PromoteUserToAdminCommand { UserId = UserID };
         await _mediator.Send(command);
 
-        return Ok(new { status = "success", message = $"User {UserID} has been promoted to Admin." });
+        return Ok(new { status = "success", data = $"User {UserID} has been promoted to Admin." });
     }
 
     [HttpPatch("{userId}")]
     [Authorize]
     public async Task<IActionResult> UpdateUserPartial(int userId, [FromBody] JsonPatchDocument<UpdateUserDto> patchDoc)
     {
+        if (patchDoc == null)
+            return BadRequest("Invalid patch document.");
+
         var command = new UpdateUserPartialCommand
         {
             TargetUserId = userId,
@@ -103,14 +109,14 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
         var LoginResponseDto = await _mediator.Send(command);
-        return Ok(new { status = "success", LoginResponseDto});
+        return Ok(new { status = "success", data = LoginResponseDto});
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
     {
         var response = await _mediator.Send(command);
-        return Ok(new { status = "success", response });
+        return Ok(new { status = "success", data =  response });
     }
 
     [Authorize]
@@ -128,7 +134,7 @@ public class UsersController : ControllerBase
         };
 
         await _mediator.Send(command);
-        return Ok(new {status = "success", message = "Token revoked successfully." });
+        return Ok(new {status = "success", data = "Token revoked successfully." });
     }
 
     [Authorize]
@@ -142,21 +148,21 @@ public class UsersController : ControllerBase
             NewPassword = dto.NewPassword
         };
         await _mediator.Send(command);
-        return Ok(new { message = "Password changed successfully." });
+        return Ok(new {status = "success", data = "Password changed successfully." });
     }
 
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
     {
         await _mediator.Send(command);
-        return Ok(new { message = "If your email is registered, you will receive a password reset link." });
+        return Ok(new { status = "success" , data = "If your email is registered, you will receive a password reset link." });
     }
 
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
     {
         await _mediator.Send(command);
-        return Ok(new { status = "success", message = "Password has been reset successfully." });
+        return Ok(new { status = "success", data = "Password has been reset successfully." });
     }
 
 
