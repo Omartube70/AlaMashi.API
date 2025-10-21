@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand>
+    public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Unit>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
@@ -21,7 +21,7 @@ namespace Application.Users.Commands
             _passwordHasher = passwordHasher;
         }
 
-        public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {
             // 1. جلب المستخدم الحالي من قاعدة البيانات
             var user = await _userRepository.GetUserByIdAsync(request.UserId);
@@ -44,6 +44,8 @@ namespace Application.Users.Commands
 
             // 5. حفظ التغييرات
             await _userRepository.UpdateUserAsync(user);
+
+            return Unit.Value;
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand>
+    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand,Unit>
     {
         private readonly IUserRepository _userRepository;
 
@@ -18,7 +18,7 @@ namespace Application.Users.Commands
             _userRepository = userRepository;
         }
 
-        public async Task Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetUserByIdAsync(request.TargetUserId);
             if (user == null)
@@ -39,6 +39,8 @@ namespace Application.Users.Commands
 
 
             await _userRepository.DeleteUserAsync(request.TargetUserId);
+
+            return Unit.Value;
         }
     }
 }

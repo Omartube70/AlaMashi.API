@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class PromoteUserToAdminCommandHandler : IRequestHandler<PromoteUserToAdminCommand>
+    public class PromoteUserToAdminCommandHandler : IRequestHandler<PromoteUserToAdminCommand,Unit>
     {
         private readonly IUserRepository _userRepository;
 
@@ -15,7 +15,7 @@ namespace Application.Users.Commands
             _userRepository = userRepository;
         }
 
-        public async Task Handle(PromoteUserToAdminCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(PromoteUserToAdminCommand request, CancellationToken cancellationToken)
         {
             // 1. جلب المستخدم
             var userToPromote = await _userRepository.GetUserByIdAsync(request.UserId);
@@ -29,6 +29,8 @@ namespace Application.Users.Commands
 
             // 3. حفظ التغييرات
             await _userRepository.UpdateUserAsync(userToPromote);
+
+            return Unit.Value;
         }
     }
 }

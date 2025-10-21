@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class ForgotPasswordCommand : IRequest
+    public class ForgotPasswordCommand : IRequest<Unit>
     {
         public string Email { get; set; }
     }

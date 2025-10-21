@@ -41,8 +41,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
-//builder.Services.AddSingleton(x =>
-//    new BlobServiceClient(builder.Configuration["AzureBlobStorage:ConnectionString"]));
 
 // تسجيل خدمات طبقة Infrastructure مع الواجهات الخاصة بها
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -50,10 +48,10 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IEmailService, AzureEmailService>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddSingleton<IRefreshTokenGenerator, RefreshTokenGenerator>();
-builder.Services.AddScoped<IFileUploadService, AzureBlobStorageService>();
-builder.Services.Configure<AzureEmailSettings>(builder.Configuration.GetSection("AzureEmailSettings"));
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddAutoMapper(typeof(Application.AssemblyReference).Assembly);
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 
@@ -155,15 +153,26 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
     });
 }
 
-app.UseForwardedHeaders();
+
 app.UseHttpsRedirection();
+app.UseRouting();
 
 // ✅ تفعيل سياسة CORS
 app.UseCors("AllowAll");
 
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+// ✅ السماح بعرض الملفات من wwwroot/uploads
+app.UseStaticFiles(new StaticFileOptions
+{
+    ServeUnknownFileTypes = true, // علشان لو نوع الملف مش معروف
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000");
+    }
+});
 
 app.MapControllers();
 

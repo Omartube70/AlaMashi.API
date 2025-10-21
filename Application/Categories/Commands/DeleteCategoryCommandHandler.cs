@@ -9,18 +9,16 @@ namespace Application.Categories.Commands
 
     namespace Application.Categories.Commands
     {
-        public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
+        public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Unit>
         {
             private readonly ICategoryRepository _categoryRepository;
-            private readonly IFileUploadService _fileUploadService;
 
-            public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository,IFileUploadService fileUploadService) 
+            public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository) 
             {
                 _categoryRepository = categoryRepository;
-                _fileUploadService = fileUploadService;
             }
 
-            public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
             {
                 var categoryToDelete = await _categoryRepository.GetCategoryByIdAsync(request.CategoryId);
                 if (categoryToDelete == null)
@@ -29,6 +27,8 @@ namespace Application.Categories.Commands
                 }
 
                 await _categoryRepository.DeleteCategory(categoryToDelete);
+
+                return Unit.Value;
             }
         }
     }

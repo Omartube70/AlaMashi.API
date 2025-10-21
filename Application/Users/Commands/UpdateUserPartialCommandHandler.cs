@@ -12,9 +12,9 @@ namespace Application.Users.Commands
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<UpdateUserDto> _dtoValidator;
+        private readonly IValidator<UpdateUserPartialCommand> _dtoValidator;
 
-        public UpdateUserPartialCommandHandler(IUserRepository userRepository, IMapper mapper, IValidator<UpdateUserDto> dtoValidator)
+        public UpdateUserPartialCommandHandler(IUserRepository userRepository, IMapper mapper, IValidator<UpdateUserPartialCommand> dtoValidator)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -47,7 +47,7 @@ namespace Application.Users.Commands
             request.PatchDoc.ApplyTo(userToPatch);
 
             // ✅  التحقق من صحة البيانات بعد تطبيق الـ Patch
-            var validationResult = await _dtoValidator.ValidateAsync(userToPatch, cancellationToken);
+            var validationResult = await _dtoValidator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);

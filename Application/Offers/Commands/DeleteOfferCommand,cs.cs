@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Commands
 {
-    public class DeleteOfferCommand : IRequest
+    public class DeleteOfferCommand : IRequest<Unit>
     {
         public int OfferId { get; set; }
 

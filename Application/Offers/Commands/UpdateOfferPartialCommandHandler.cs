@@ -17,9 +17,9 @@ namespace Application.Offers.Commands
     {
         private readonly IOfferRepository _offerRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<UpdateOfferDto> _dtoValidator;
+        private readonly IValidator<UpdateOfferPartialCommand> _dtoValidator;
 
-        public UpdateOfferPartialCommandHandler(IOfferRepository offerRepository, IMapper mapper, IValidator<UpdateOfferDto> dtoValidator)
+        public UpdateOfferPartialCommandHandler(IOfferRepository offerRepository, IMapper mapper, IValidator<UpdateOfferPartialCommand> dtoValidator)
         {
             _offerRepository = offerRepository;
             _mapper = mapper;
@@ -41,7 +41,7 @@ namespace Application.Offers.Commands
             request.PatchDoc.ApplyTo(offerToPatch);
 
             // 4. Validate patched data
-            var validationResult = await _dtoValidator.ValidateAsync(offerToPatch, cancellationToken);
+            var validationResult = await _dtoValidator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 

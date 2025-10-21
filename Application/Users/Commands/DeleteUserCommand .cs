@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class DeleteUserCommand : IRequest
+    public class DeleteUserCommand : IRequest<Unit>
     {
         // 1. ID المستخدم المراد حذفه (يأتي من الرابط/route)
         public int TargetUserId { get; set; }

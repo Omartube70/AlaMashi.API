@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Categories.Commands
 {
-    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>
+    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Unit>
     {
         private readonly ICategoryRepository _categoryRepository;
 
@@ -15,7 +15,7 @@ namespace Application.Categories.Commands
             _categoryRepository = categoryRepository;
         }
 
-        public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var categoryToUpdate = await _categoryRepository.GetCategoryByIdAsync(request.CategoryId);
 
@@ -28,6 +28,8 @@ namespace Application.Categories.Commands
 
 
            await _categoryRepository.UpdateCategory(categoryToUpdate); 
+
+            return Unit.Value;
         }
     }
 }

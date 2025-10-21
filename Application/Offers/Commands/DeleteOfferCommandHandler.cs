@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Commands
 {
-    public class DeleteOfferCommandHandler : IRequestHandler<DeleteOfferCommand>
+    public class DeleteOfferCommandHandler : IRequestHandler<DeleteOfferCommand, Unit>
     {
         private readonly IOfferRepository _offerRepository;
 
@@ -19,7 +19,7 @@ namespace Application.Offers.Commands
             _offerRepository = offerRepository;
         }
 
-        public async Task Handle(DeleteOfferCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteOfferCommand request, CancellationToken cancellationToken)
         {
             var offerEntity = await _offerRepository.GetOfferByIdAsync(request.OfferId);
 
@@ -27,6 +27,8 @@ namespace Application.Offers.Commands
                 throw new NotFoundException($"Offer With Id {request.OfferId} was not found");
 
             await _offerRepository.DeleteOfferAsync(offerEntity);
+
+            return Unit.Value;
         }
     }
 }

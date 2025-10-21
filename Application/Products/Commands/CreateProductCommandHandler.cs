@@ -11,11 +11,11 @@ namespace Application.Products.Commands
     {
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IFileUploadService _fileUploadService;
-        public CreateProductCommandHandler(IProductRepository productRepository , ICategoryRepository categoryRepository, IFileUploadService fileUploadService)
+        private readonly IFileStorageService _fileStorageService;
+        public CreateProductCommandHandler(IProductRepository productRepository , ICategoryRepository categoryRepository, IFileStorageService fileStorageService)
         {
             _productRepository = productRepository;
-            _fileUploadService = fileUploadService;
+            _fileStorageService = fileStorageService;
             _categoryRepository = categoryRepository;
         }
 
@@ -37,7 +37,7 @@ namespace Application.Products.Commands
             string imageUrl = string.Empty;
             if (request.ProductImageFile != null && request.ProductImageFile.Length > 0)
             {
-                imageUrl = await _fileUploadService.UploadFileAsync(request.ProductImageFile, 1024, 768);
+                imageUrl = await _fileStorageService.UploadFileAsync(request.ProductImageFile);
             }
             else
             {

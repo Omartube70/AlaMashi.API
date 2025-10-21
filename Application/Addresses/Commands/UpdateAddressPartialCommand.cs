@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.JsonPatch;
 
 namespace Application.Addresses.Commands
 {
-    public class UpdateAddressPartialCommand : IRequest
+    public class UpdateAddressPartialCommand : IRequest<Unit>
     {
             public int AddressId { get; set; }
             public int CurrentUserId { get; set; }

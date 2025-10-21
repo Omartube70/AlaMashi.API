@@ -10,20 +10,20 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Application.Addresses.Commands
 {
-    public class UpdateAddressPartialCommandHandler : IRequestHandler<UpdateAddressPartialCommand>
+    public class UpdateAddressPartialCommandHandler : IRequestHandler<UpdateAddressPartialCommand, Unit>
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<UpdateAddressDto> _validator;
+        private readonly IValidator<UpdateAddressPartialCommand> _validator;
 
-        public UpdateAddressPartialCommandHandler(IUserRepository userRepository,IMapper mapper,IValidator<UpdateAddressDto> validator)
+        public UpdateAddressPartialCommandHandler(IUserRepository userRepository,IMapper mapper,IValidator<UpdateAddressPartialCommand> validator)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _validator = validator;
         }
 
-        public async Task Handle(UpdateAddressPartialCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateAddressPartialCommand request, CancellationToken cancellationToken)
         {
             // 🧩 1. جيب المستخدم بالعناوين
             var user = await _userRepository.GetUserWithAddressesAsync(request.CurrentUserId);
@@ -46,7 +46,7 @@ namespace Application.Addresses.Commands
             request.PatchDoc.ApplyTo(dtoToPatch);
 
             // 6️⃣ تحقق من صحة البيانات
-            var validationResult = await _validator.ValidateAsync(dtoToPatch, cancellationToken);
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
@@ -55,6 +55,8 @@ namespace Application.Addresses.Commands
 
             // 8️⃣ احفظ التغييرات عن طريق المستخدم
             await _userRepository.UpdateUserAsync(user);
+
+            return Unit.Value;
         }
     }
 }

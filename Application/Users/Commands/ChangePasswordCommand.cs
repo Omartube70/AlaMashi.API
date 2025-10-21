@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class ChangePasswordCommand : IRequest
+    public class ChangePasswordCommand : IRequest<Unit>
     {
         public int UserId { get; set; } 
         public string OldPassword { get; set; }

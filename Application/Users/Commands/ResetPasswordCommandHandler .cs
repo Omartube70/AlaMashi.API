@@ -8,7 +8,7 @@ using Domain.Entities;
 using Application.Users.Commands;
 using Application.Interfaces;
 
-public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,Unit>
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
@@ -19,7 +19,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
         _passwordHasher = passwordHasher;
     }
 
-    public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetUserByEmailAsync(request.Email);
         if (user == null)
@@ -44,5 +44,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
         user.RemovePasswordResetOtp();
 
         await _userRepository.UpdateUserAsync(user);
+
+        return Unit.Value;
     }
 }

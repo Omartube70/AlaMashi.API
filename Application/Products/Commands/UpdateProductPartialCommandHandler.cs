@@ -8,23 +8,23 @@ using MediatR;
 
 namespace Application.Products.Commands
 {
-    public class UpdateProductPartialCommandHandler : IRequestHandler<UpdateProductPartialCommand>
+    public class UpdateProductPartialCommandHandler : IRequestHandler<UpdateProductPartialCommand, Unit>
     {
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<UpdateProductDto> _validator;
+        private readonly IValidator<UpdateProductPartialCommand> _validator;
 
         public UpdateProductPartialCommandHandler(
             IProductRepository productRepository,
             IMapper mapper,
-            IValidator<UpdateProductDto> validator)
+            IValidator<UpdateProductPartialCommand> validator)
         {
             _productRepository = productRepository;
             _mapper = mapper;
             _validator = validator;
         }
 
-        public async Task Handle(UpdateProductPartialCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateProductPartialCommand request, CancellationToken cancellationToken)
         {
             // 1️⃣ تأكد إن المنتج موجود
             var productEntity = await _productRepository.GetProductByIdAsync(request.ProductId);
@@ -39,7 +39,7 @@ namespace Application.Products.Commands
             request.PatchDoc.ApplyTo(dtoToPatch);
 
             // 4️⃣ تحقق من صحة القيم بعد التحديث
-            var validationResult = await _validator.ValidateAsync(dtoToPatch, cancellationToken);
+            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
@@ -48,6 +48,8 @@ namespace Application.Products.Commands
 
             // 6️⃣ حفظ التغييرات
             await _productRepository.UpdateProductAsync(productEntity);
+
+            return Unit.Value;
         }
     }
 }

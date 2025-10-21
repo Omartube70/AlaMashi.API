@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Users.Commands
 {
-    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand>
+    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand,Unit>
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
@@ -20,9 +20,10 @@ namespace Application.Users.Commands
             _env = env;
         }
 
-        public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
+
             if (user != null)
             {
                 // 1. إنشاء وتخزين الـ OTP
@@ -43,6 +44,8 @@ namespace Application.Users.Commands
                 await _emailService.SendEmailAsync(user.Email, subject, emailBody);
 
             }
+
+            return Unit.Value;
         }
     }
 }

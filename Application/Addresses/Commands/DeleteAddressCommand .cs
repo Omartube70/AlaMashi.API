@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Addresses.Commands
 {
-    public class DeleteAddressCommand : IRequest
+    public class DeleteAddressCommand : IRequest<Unit>
     {
         public int AddressId { get; set; }
 

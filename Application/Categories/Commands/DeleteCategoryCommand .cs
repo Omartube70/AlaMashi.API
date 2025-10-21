@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Categories.Commands
 {
-    public class DeleteCategoryCommand : IRequest
+    public class DeleteCategoryCommand : IRequest<Unit>
     {
         public int CategoryId { get; set; }
     }

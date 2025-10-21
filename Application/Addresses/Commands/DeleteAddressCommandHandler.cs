@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Addresses.Commands
 {
-    public class DeleteAddressCommandHandler : IRequestHandler<DeleteAddressCommand>
+    public class DeleteAddressCommandHandler : IRequestHandler<DeleteAddressCommand, Unit>
     {
         private readonly IUserRepository _userRepository;
 
@@ -15,7 +15,7 @@ namespace Application.Addresses.Commands
             _userRepository = userRepository;
         }
 
-        public async Task Handle(DeleteAddressCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteAddressCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetUserWithAddressesAsync(request.CurrentUserId);
             if (user is null)
@@ -32,6 +32,8 @@ namespace Application.Addresses.Commands
             user.RemoveAddress(addressToDelete);
 
             await _userRepository.UpdateUserAsync(user);
+
+            return Unit.Value;
         }
     }
 }

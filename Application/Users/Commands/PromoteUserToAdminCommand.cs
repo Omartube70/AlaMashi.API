@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Users.Commands
 {
-    public class PromoteUserToAdminCommand : IRequest
+    public class PromoteUserToAdminCommand : IRequest<Unit>
     {
         public int UserId { get; set; }
     }
