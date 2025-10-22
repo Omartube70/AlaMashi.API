@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أهلاً بك في AlaMashi!</title>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            -webkit-text-size-adjust: none;
+        }
+
+        table {
+            border-collapse: collapse !important;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .main {
+            background-color: #ffffff;
+            margin: 0 auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            padding: 30px 0;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .content {
+            padding: 30px;
+            text-align: right;
+        }
+
+        /* 3. تم حذف تنسيقات الـ OTP لأننا لا نحتاجها هنا */
+
+        .greeting {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .body-text {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* 4. تم حذف تنسيق otp-expiry */
+
+        .footer {
+            background-color: #f2f2f2;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        @media screen and (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+
+            .greeting {
+                font-size: 16px;
+            }
+
+            .body-text {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="wrapper">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
+                    <tr>
+                        <td class="header">
+                            <img src="https://raw.githubusercontent.com/Omartube70/AlaMashi.API/master/AlaMashi.API/.assets/logo.png" alt="شعار AlaMashi" width="120" style="display: block; margin: 0 auto;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content">
+                            <h1 class="greeting">أهلاً بك {{username}}،</h1>
+
+                            <p class="body-text">
+                                يسعدنا انضمامك إلى عائلة **AlaMashi**! 🚀
+                            </p>
+                            <p class="body-text">
+                                أنت الآن جزء من مجتمعنا. تطبيق AlaMashi هو رفيقك الأول لتوصيل جميع منتجاتك وطلباتك بسهولة وسرعة.
+                            </p>
+                            <p class="body-text">
+                                يسعدنا خدمتك،<br>
+                                فريق AlaMashi
+                            </p>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="footer">
+                            <p>&copy; 2025 AlaMashi. جميع الحقوق محفوظة.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
