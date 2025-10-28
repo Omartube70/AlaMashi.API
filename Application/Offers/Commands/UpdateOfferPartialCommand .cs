@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Commands
 {
-    public class UpdateOfferPartialCommand : IRequest<OfferDto>
+    public class UpdateOfferPartialCommand : IRequest<Unit>
     {
         public int OfferId { get; set; }
         public JsonPatchDocument<UpdateOfferDto> PatchDoc { get; set; }

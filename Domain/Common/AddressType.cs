@@ -10,6 +10,5 @@ namespace Domain.Common
     {
         home = 1,
         Work = 2,
-        Another = 3
     }
 }

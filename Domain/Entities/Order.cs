@@ -13,6 +13,8 @@ namespace Domain.Entities
 
         public DateTime OrderDate { get; private set; }
 
+        public DateTime DeliveryDate { get; private set; }
+
         public string DeliveryTimeSlot { get; private set; }
 
 

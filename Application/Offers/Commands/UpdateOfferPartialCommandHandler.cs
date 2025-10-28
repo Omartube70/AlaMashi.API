@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Commands
 {
-    public class UpdateOfferPartialCommandHandler : IRequestHandler<UpdateOfferPartialCommand, OfferDto>
+    public class UpdateOfferPartialCommandHandler : IRequestHandler<UpdateOfferPartialCommand, Unit>
     {
         private readonly IOfferRepository _offerRepository;
         private readonly IMapper _mapper;
@@ -26,7 +26,7 @@ namespace Application.Offers.Commands
             _dtoValidator = dtoValidator;
         }
 
-        public async Task<OfferDto> Handle(UpdateOfferPartialCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateOfferPartialCommand request, CancellationToken cancellationToken)
         {
             // 1. Get the offer from DB
             var offerEntity = await _offerRepository.GetOfferByIdAsync(request.OfferId);
@@ -52,7 +52,7 @@ namespace Application.Offers.Commands
             await _offerRepository.UpdateOfferAsync(offerEntity);
 
             // 7. Return updated DTO
-            return _mapper.Map<OfferDto>(offerEntity);
+            return Unit.Value;
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Users.Commands
 {
-    public class UpdateUserPartialCommand : IRequest<UserDto> 
+    public class UpdateUserPartialCommand : IRequest<Unit> 
     {
         public int TargetUserId { get; set; }
         public JsonPatchDocument<UpdateUserDto> PatchDoc { get; set; }

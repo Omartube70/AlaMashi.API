@@ -54,7 +54,7 @@ builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddAutoMapper(typeof(Application.AssemblyReference).Assembly);
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
-
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 // تسجيل MediatR
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly);

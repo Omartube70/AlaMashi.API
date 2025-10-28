@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Users.Commands
 {
-    public class UpdateUserPartialCommandHandler : IRequestHandler<UpdateUserPartialCommand, UserDto>
+    public class UpdateUserPartialCommandHandler : IRequestHandler<UpdateUserPartialCommand,Unit>
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
@@ -21,7 +21,7 @@ namespace Application.Users.Commands
             _dtoValidator = dtoValidator; 
         }
 
-        public async Task<UserDto> Handle(UpdateUserPartialCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateUserPartialCommand request, CancellationToken cancellationToken)
         {
             // 1. التحقق من الصلاحيات (Authorization)
             if (request.CurrentUserRole != "Admin" && request.CurrentUserId != request.TargetUserId)
@@ -73,14 +73,11 @@ namespace Application.Users.Commands
                 }
             }
 
-            // 5. تحديث الـ Entity الأصلية بالبيانات الجديدة من الـ DTO
             _mapper.Map(userToPatch, userEntity);
 
-            // 6. حفظ التغييرات في قاعدة البيانات
             await _userRepository.UpdateUserAsync(userEntity);
 
-            // 7. إرجاع الـ DTO النهائي
-            return _mapper.Map<UserDto>(userEntity);
+            return Unit.Value;
         }
     }
 }

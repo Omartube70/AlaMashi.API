@@ -83,9 +83,9 @@ public class UsersController : ControllerBase
             CurrentUserRole = GetCurrentUserRole()
         };
 
-        var updatedUserDto = await _mediator.Send(command);
+         await _mediator.Send(command);
 
-        return Ok(new { status = "success", data = updatedUserDto });
+        return Ok(new { status = "success", data = "User Updated successfully" });
     }
 
     [HttpDelete("{UserID}")]
