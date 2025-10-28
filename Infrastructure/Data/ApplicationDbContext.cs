@@ -105,68 +105,7 @@ namespace Infrastructure.Data
 
 
 
-            modelBuilder.Entity<Order>(entity =>
-            {
-                entity.HasKey(e => e.OrderId);
-                entity.Property(e => e.OrderDate).IsRequired();
-                entity.Property(e => e.DeliveryDate).IsRequired(false);
-                entity.Property(e => e.DeliveryTimeSlot).HasMaxLength(50).IsRequired(false);
-                entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(50);
-
-                // علاقة مع User
-                entity.HasOne(o => o.User)
-                    .WithMany()
-                    .HasForeignKey(o => o.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                // علاقة مع Address
-                entity.HasOne(o => o.Address)
-                    .WithMany()
-                    .HasForeignKey(o => o.AddressId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<OrderDetail>(entity =>
-            {
-                entity.HasKey(e => e.OrderDetailId);
-                entity.Property(e => e.Quantity).IsRequired();
-                entity.Property(e => e.PriceAtOrder).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Subtotal).HasColumnType("decimal(18,2)");
-
-                // علاقة مع Order
-                entity.HasOne(od => od.Order)
-                    .WithMany(o => o.OrderDetails)
-                    .HasForeignKey(od => od.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                // علاقة مع Product
-                entity.HasOne(od => od.Product)
-                    .WithMany()
-                    .HasForeignKey(od => od.ProductId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<Payment>(entity =>
-            {
-                entity.HasKey(e => e.PaymentId);
-                entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.PaymentDate).IsRequired();
-                entity.Property(e => e.PaymentMethod).HasConversion<string>().HasMaxLength(50);
-                entity.Property(e => e.PaymentStatus).HasConversion<string>().HasMaxLength(50);
-                entity.Property(e => e.TransactionId).HasMaxLength(200).IsRequired(false);
-
-                // علاقة مع Order
-                entity.HasOne(p => p.Order)
-                    .WithMany(o => o.Payments)
-                    .HasForeignKey(p => p.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
         }
-
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }

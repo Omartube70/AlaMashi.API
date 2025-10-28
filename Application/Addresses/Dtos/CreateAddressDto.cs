@@ -1,15 +1,21 @@
 ﻿using Domain.Common;
 using System.ComponentModel.DataAnnotations;
 
-namespace Application.Orders.Dtos
+namespace Application.Addresses.Dtos
 {
-    public class OrderItemDto
+    public class CreateAddressDto
     {
         [Required]
-        public int ProductId { get; set; }
+        [StringLength(200)]
+        public string Street { get; set; }
 
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1")]
-        public int Quantity { get; set; }
+        [StringLength(100)]
+        public string City { get; set; }
+
+        public string? AddressDetails { get; set; }
+
+        [Required]
+        public AddressType AddressType { get; set; }
     }
 }

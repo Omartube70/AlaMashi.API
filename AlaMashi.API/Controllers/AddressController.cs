@@ -1,7 +1,6 @@
 ﻿using Application.Addresses.Commands;
 using Application.Addresses.Dtos;
 using Application.Addresses.Queries;
-using Application.Orders.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
