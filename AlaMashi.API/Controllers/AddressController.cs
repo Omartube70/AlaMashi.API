@@ -20,7 +20,7 @@ public class AddressesController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateAddress([FromBody] CreateAddressDto dto)
+    public async Task<IActionResult> CreateAddress([FromBody] OrderItemDto dto)
     {
         var command = new CreateAddressCommand
         {
@@ -89,7 +89,7 @@ public class AddressesController : ControllerBase
 
 
     [HttpPatch("{AddressId}")]
-    public async Task<IActionResult> UpdateAddressPartial(int AddressId, [FromBody] JsonPatchDocument<UpdateAddressDto> patchDoc)
+    public async Task<IActionResult> UpdateAddressPartial(int AddressId, [FromBody] JsonPatchDocument<OrderDto> patchDoc)
     {
         if (patchDoc == null)
             return BadRequest("Invalid patch document.");

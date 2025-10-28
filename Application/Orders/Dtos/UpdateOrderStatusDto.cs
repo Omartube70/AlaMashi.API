@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Common;
+﻿using Domain.Common;
 using System.ComponentModel.DataAnnotations;
 
-
-namespace Application.Addresses.Dtos
+namespace Application.Orders.Dtos
 {
-    public class OrderDto
+    public class CreateAddressDto
     {
         [Required]
         [StringLength(200)]

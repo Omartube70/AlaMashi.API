@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Dtos
 {
-    public class CreateOfferDto
+    public class CreateOrderDto
     {
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }

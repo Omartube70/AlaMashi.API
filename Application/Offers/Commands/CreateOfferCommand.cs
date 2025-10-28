@@ -10,9 +10,9 @@ namespace Application.Offers.Commands
 {
     public class CreateOfferCommand : IRequest<OfferDto>
     {
-        public CreateOfferDto Offer { get; set; }
+        public CreateOrderDto Offer { get; set; }
 
-        public CreateOfferCommand(CreateOfferDto offer)
+        public CreateOfferCommand(CreateOrderDto offer)
         {
             Offer = offer;
         }

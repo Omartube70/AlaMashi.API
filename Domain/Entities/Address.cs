@@ -1,60 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Common; 
+﻿using Domain.Common;
+using System;
 
 namespace Domain.Entities
 {
-    public class Address
+    public class Payment
     {
-        public int AddressId { get; private set; }
-        public string Street { get; private set; }
-        public string City { get; private set; }
-        public string? AddressDetails { get; private set; }
-        public AddressType AddressType { get; private set; }
+        public int PaymentId { get; private set; }
+        public decimal Amount { get; private set; }
+        public DateTime PaymentDate { get; private set; }
+        public PaymentMethod PaymentMethod { get; private set; }
+        public PaymentStatus PaymentStatus { get; private set; }
+        public string? TransactionId { get; private set; }
 
-        // Foreign Key to User
-        public int UserId { get; private set; }
+        // Foreign Key
+        public int OrderId { get; private set; }
 
         // Navigation Property
-        public User User { get; private set; }
+        public Order Order { get; private set; }
 
-        #pragma warning disable CS8618
-        private Address() { } 
-        #pragma warning restore CS8618
+#pragma warning disable CS8618
+        private Payment() { }
+#pragma warning restore CS8618
 
-        private Address(string street, string city, string? details, AddressType type, int userId)
+        private Payment(int orderId, decimal amount, PaymentMethod paymentMethod, PaymentStatus paymentStatus)
         {
-            Street = street;
-            City = city;
-            AddressDetails = details;
-            AddressType = type;
-            UserId = userId;
+            OrderId = orderId;
+            Amount = amount;
+            PaymentDate = DateTime.UtcNow;
+            PaymentMethod = paymentMethod;
+            PaymentStatus = paymentStatus;
         }
 
-        public static Address Create(string street, string city, string? details, AddressType type, int userId)
+        public static Payment Create(int orderId, decimal amount, PaymentMethod paymentMethod)
         {
-            if (string.IsNullOrWhiteSpace(street) || string.IsNullOrWhiteSpace(city))
-            {
-                throw new ArgumentException("Street and City cannot be empty.");
-            }
+            if (orderId <= 0)
+                throw new ArgumentException("Invalid order ID.", nameof(orderId));
 
-            return new Address(street, city, details, type, userId);
+            if (amount <= 0)
+                throw new ArgumentException("Payment amount must be greater than zero.", nameof(amount));
+
+            return new Payment(orderId, amount, paymentMethod, PaymentStatus.Pending);
         }
 
-        public void Update(string street, string city, string? details, AddressType type)
+        public void MarkAsCompleted(string? transactionId = null)
         {
-            if (string.IsNullOrWhiteSpace(street) || string.IsNullOrWhiteSpace(city))
-            {
-                throw new ArgumentException("Street and City cannot be empty.");
-            }
-            Street = street;
-            City = city;
-            AddressDetails = details;
-            AddressType = type;
+            PaymentStatus = PaymentStatus.Completed;
+            TransactionId = transactionId;
+        }
+
+        public void MarkAsFailed()
+        {
+            PaymentStatus = PaymentStatus.Failed;
+        }
+
+        public void MarkAsCanceled()
+        {
+            PaymentStatus = PaymentStatus.Canceled;
         }
     }
 }
-

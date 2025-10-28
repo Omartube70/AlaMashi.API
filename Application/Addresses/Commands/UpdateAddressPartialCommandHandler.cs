@@ -40,7 +40,7 @@ namespace Application.Addresses.Commands
                 throw new ForbiddenAccessException();
 
             // 4️⃣ حوّل الكيان لـ DTO
-            var dtoToPatch = _mapper.Map<UpdateAddressDto>(addressEntity);
+            var dtoToPatch = _mapper.Map<OrderDto>(addressEntity);
 
             // 5️⃣ طبق الـ Patch
             request.PatchDoc.ApplyTo(dtoToPatch);

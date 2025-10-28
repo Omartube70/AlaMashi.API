@@ -23,7 +23,7 @@ namespace Application.Common.Mappings
             CreateMap<User, UpdateUserDto>().ReverseMap();
 
             // 🎁 Offers
-            CreateMap<CreateOfferDto, Offer>();
+            CreateMap<CreateOrderDto, Offer>();
             CreateMap<Offer, OfferDto>().ReverseMap();
             CreateMap<UpdateOfferDto, Offer>().ReverseMap();
 
@@ -49,7 +49,7 @@ namespace Application.Common.Mappings
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
                 .ReverseMap();
 
-            CreateMap<Address, UpdateAddressDto>().ReverseMap();
+            CreateMap<Address, OrderDto>().ReverseMap();
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Application.Offers.Commands
 {
-    public class CreateOfferValidator : AbstractValidator<CreateOfferDto>
+    public class CreateOfferValidator : AbstractValidator<CreateOrderDto>
     {
         public CreateOfferValidator()
         {
