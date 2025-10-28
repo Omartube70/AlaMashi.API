@@ -1,6 +1,7 @@
 ﻿using Application.Addresses.Commands;
 using Application.Addresses.Dtos;
 using Application.Addresses.Queries;
+using Application.Orders.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -20,7 +21,7 @@ public class AddressesController : ControllerBase
     }
 
     [HttpPost("Create")]
-    public async Task<IActionResult> CreateAddress([FromBody] OrderItemDto dto)
+    public async Task<IActionResult> CreateAddress([FromBody] CreateAddressDto dto)
     {
         var command = new CreateAddressCommand
         {
@@ -33,8 +34,9 @@ public class AddressesController : ControllerBase
 
         AddressDto addressDto = await _mediator.Send(command);
 
-        return CreatedAtAction(nameof(GetAddressById),new { AddressId = addressDto.AddressId , addressDto });
+        return CreatedAtAction(nameof(GetAddressById), new { addressId = addressDto.AddressId }, addressDto );
     }
+
 
     [HttpGet("all/ByUser")]
     public async Task<IActionResult> GetAllAddressesByUser()
@@ -89,7 +91,7 @@ public class AddressesController : ControllerBase
 
 
     [HttpPatch("{AddressId}")]
-    public async Task<IActionResult> UpdateAddressPartial(int AddressId, [FromBody] JsonPatchDocument<OrderDto> patchDoc)
+    public async Task<IActionResult> UpdateAddressPartial(int AddressId, [FromBody] JsonPatchDocument<AddressDto> patchDoc)
     {
         if (patchDoc == null)
             return BadRequest("Invalid patch document.");

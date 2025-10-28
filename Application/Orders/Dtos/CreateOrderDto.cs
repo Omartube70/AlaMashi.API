@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Orders.Dtos
 {
-    public class CreateOrderDto
+    public class CreatePaymentCommandHandler
     {
         [Required]
         public int AddressId { get; set; }

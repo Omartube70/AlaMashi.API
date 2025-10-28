@@ -9,6 +9,6 @@ namespace Application.Addresses.Commands
     {
             public int AddressId { get; set; }
             public int CurrentUserId { get; set; }
-            public JsonPatchDocument<OrderDto> PatchDoc { get; set; } = null!;
+            public JsonPatchDocument<AddressDto> PatchDoc { get; set; } = null!;
     }
 }
