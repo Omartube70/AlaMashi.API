@@ -22,18 +22,10 @@ namespace API.Controllers
         [HttpGet("summary")]
         public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
         {
-             var summaryDto = await _mediator.Send(new GetDashboardSummaryQuery(), cancellationToken);
+            var summaryDto = await _mediator.Send(new GetEnhancedDashboardSummaryQuery(), cancellationToken);
 
-             return Ok(new { status = "success", data = summaryDto });
-        }
+            return Ok(new { status = "success", data = summaryDto });
 
-
-        [HttpGet("monthly-sales")]
-        public async Task<IActionResult> GetMonthlySales(CancellationToken cancellationToken ,[FromQuery] int months = 6)
-        {
-            var salesData = await _mediator.Send(new GetMonthlySalesQuery { Months = months }, cancellationToken);
-
-            return Ok(new { status = "success", data = salesData });
         }
     }
 }

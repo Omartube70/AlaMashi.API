@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Dashboard.Dtos;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,8 @@ namespace Application.Interfaces
         Task AddProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(Product product);
+
+        // التقارير
+        public Task<List<TopProductDto>> GetTopSellingProductsAsync(DateTime? StartDate, DateTime? EndDate, int TopCount, CancellationToken cancellationToken);
     }
 }

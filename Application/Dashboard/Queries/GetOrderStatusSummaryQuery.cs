@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Application.Dashboard.Queries
 {
-    public class GetDashboardSummaryQuery : IRequest<DashboardSummaryDto>
+    public class GetOrderStatusSummaryQuery : IRequest<OrderStatusSummaryDto>
     {
     }
 }

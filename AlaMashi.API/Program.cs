@@ -55,6 +55,8 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.AddAutoMapper(typeof(Application.AssemblyReference).Assembly);
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 // تسجيل MediatR
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly);

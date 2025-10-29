@@ -1,6 +1,7 @@
 ﻿using Application.Addresses.Dtos;
 using Application.Categories.Dtos;
 using Application.Offers.Dtos;
+using Application.Orders.Dtos;
 using Application.Products.Dtos;
 using Application.Users.Dtos;
 using Application.Users.DTOs;

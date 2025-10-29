@@ -4,6 +4,6 @@ namespace Application.Interfaces
 {
     public interface IDashboardService
     {
-        Task<DashboardSummaryDto> GetDashboardSummaryAsync(CancellationToken cancellationToken = default);
+        Task<EnhancedDashboardSummaryDto> GetDashboardSummaryAsync(CancellationToken cancellationToken = default);
     }
 }

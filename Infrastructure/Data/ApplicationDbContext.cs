@@ -104,12 +104,73 @@ namespace Infrastructure.Data
             });
 
 
+            // أضف هذا الكود إلى ApplicationDbContext الموجود
+
+            // في OnModelCreating، أضف التالي:
+
+
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasKey(o => o.OrderId);
+                entity.Property(o => o.OrderDate).IsRequired();
+                entity.Property(o => o.DeliveryDate).IsRequired(false);
+                entity.Property(o => o.DeliveryTimeSlot).HasMaxLength(50);
+                entity.Property(o => o.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(o => o.Status).HasConversion<string>().HasMaxLength(50);
+
+                // العلاقات
+                entity.HasOne(o => o.User)
+                      .WithMany()
+                      .HasForeignKey(o => o.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(o => o.Address)
+                      .WithMany()
+                      .HasForeignKey(o => o.AddressId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(o => o.OrderDetails)
+                      .WithOne(od => od.Order)
+                      .HasForeignKey(od => od.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(o => o.Payments)
+                      .WithOne(p => p.Order)
+                      .HasForeignKey(p => p.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<OrderDetail>(entity =>
+            {
+                entity.HasKey(od => od.OrderDetailId);
+                entity.Property(od => od.Quantity).IsRequired();
+                entity.Property(od => od.PriceAtOrder).HasColumnType("decimal(18,2)");
+                entity.Property(od => od.Subtotal).HasColumnType("decimal(18,2)");
+
+                entity.HasOne(od => od.Product)
+                      .WithMany()
+                      .HasForeignKey(od => od.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(p => p.PaymentId);
+                entity.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.PaymentDate).IsRequired();
+                entity.Property(p => p.PaymentMethod).HasConversion<string>().HasMaxLength(50);
+                entity.Property(p => p.PaymentStatus).HasConversion<string>().HasMaxLength(50);
+                entity.Property(p => p.TransactionId).HasMaxLength(200);
+            });
 
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<Offer> Offers { get; set; } 
+        public DbSet<Offer> Offers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Payment> Payments { get; set; }
     }
 }

@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Addresses.Dtos
 {
-    public class OrderDto
+    public class UpdateAddressDto
     {
         [Required]
         [StringLength(200)]
