@@ -31,7 +31,7 @@ namespace Application.Orders.Commands
             if (!Enum.TryParse<PaymentMethod>(request.PaymentMethod, out var paymentMethod))
                 throw new ArgumentException("Invalid payment method.");
 
-            var payment = Payment.Create(order.OrderId,request.Amount, paymentMethod);
+            var payment = Payment.Create(order.TotalAmount, paymentMethod, request.OrderId);
 
             if (!string.IsNullOrEmpty(request.TransactionId))
             {
