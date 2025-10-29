@@ -165,7 +165,66 @@ namespace AlaMashi.API.Controllers
             await _mediator.Send(command);
             return Ok(new { status = "success", message = "Order confirmed successfully" });
         }
-    
+
+        /// <summary>
+        /// جلب جميع دفعات الطلبات (أو دفعات طلب محدد)
+        /// </summary>
+        [HttpGet("payments/all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllPayments([FromQuery] int? orderId = null)
+        {
+            var query = new GetAllPaymentsQuery
+            {
+                OrderId = orderId
+            };
+
+            var result = await _mediator.Send(query);
+
+            return Ok(new { status = "success", data = result });
+        }
+
+        /// <summary>
+        /// جلب دفعات طلب محدد
+        /// </summary>
+        [HttpGet("{orderId}/payments")]
+        public async Task<IActionResult> GetOrderPayments(int orderId)
+        {
+            var query = new GetAllPaymentsQuery
+            {
+                OrderId = orderId
+            };
+
+            var result = await _mediator.Send(query);
+
+            return Ok(new { status = "success", data = result });
+        }
+
+        // ============================================
+        // UPDATE ORDER DELIVERY DETAILS ENDPOINT
+        // ============================================
+
+        /// <summary>
+        /// تحديث تاريخ التوصيل و/أو العنوان للطلب
+        /// </summary>
+        [HttpPatch("{orderId}/delivery-details")]
+        public async Task<IActionResult> UpdateOrderDeliveryDetails(int orderId, [FromBody] UpdateOrderDeliveryDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body cannot be empty.");
+
+            var command = new UpdateOrderDeliveryDetailsCommand
+            {
+                OrderId = orderId,
+                NewDeliveryDate = dto.NewDeliveryDate,
+                NewDeliveryTimeSlot = dto.NewDeliveryTimeSlot,
+                NewAddressId = dto.NewAddressId
+            };
+
+            await _mediator.Send(command);
+
+            return Ok(new { status = "success", message = "Order delivery details updated successfully" });
+        }
+
 
         // --- Helper Methods ---
         private int GetCurrentUserId()

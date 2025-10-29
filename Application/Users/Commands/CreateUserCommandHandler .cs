@@ -51,7 +51,9 @@ namespace Application.Users.Commands
                 UserId = newUser.UserID,
                 UserName = newUser.UserName,
                 Email = newUser.Email,
-                Phone = newUser.Phone
+                Phone = newUser.Phone,
+                UserRole = newUser.UserPermissions.ToString()
+
             };
         }
     }

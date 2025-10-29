@@ -12,5 +12,10 @@ namespace Application.Users.DTOs
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
+
+        /// <summary>
+        ///  Admin - User
+        /// </summary>
+        public string UserRole { get; set; }
     }
 }

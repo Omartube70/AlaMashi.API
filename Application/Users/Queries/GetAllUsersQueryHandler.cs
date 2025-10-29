@@ -30,7 +30,8 @@ namespace Application.Users.Queries
                 UserId = user.UserID,
                 UserName = user.UserName,
                 Email = user.Email,
-                Phone = user.Phone
+                Phone = user.Phone,
+                UserRole = user.UserPermissions.ToString()
             });
 
             return usersDto;

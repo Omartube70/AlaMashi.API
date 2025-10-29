@@ -113,6 +113,21 @@ namespace Infrastructure.Repositories
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<Payment>> GetAllPaymentsAsync(int? orderId = null, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Payments.AsQueryable();
+
+            if (orderId.HasValue)
+            {
+                query = query.Where(p => p.OrderId == orderId.Value);
+            }
+
+            return await query
+                .OrderByDescending(p => p.PaymentDate)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+        }
+
 
         // تقارير
         public async Task<decimal> GetTotalSalesByDateRangeAsync(DateTime startDate, DateTime endDate)

@@ -143,5 +143,12 @@ namespace Domain.Entities
 
             Payments.Add(payment);
         }
+        public void UpdateAddress(int newAddressId)
+        {
+            if (newAddressId <= 0)
+                throw new ArgumentException("Address ID must be valid.", nameof(newAddressId));
+
+            AddressId = newAddressId;
+        }
     }
 }

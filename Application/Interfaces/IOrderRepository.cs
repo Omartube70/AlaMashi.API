@@ -16,6 +16,8 @@ namespace Application.Interfaces
         Task AddOrderAsync(Order order);
         Task UpdateOrderAsync(Order order);
         Task DeleteOrderAsync(Order order);
+        Task<List<Payment>> GetAllPaymentsAsync(int? orderId = null, CancellationToken cancellationToken = default);
+
 
         // تقارير
         Task<decimal> GetTotalSalesByDateRangeAsync(DateTime startDate, DateTime endDate);
