@@ -10,6 +10,6 @@ namespace Application.Orders.Commands
     public class UpdateOrderStatusCommand : IRequest<Unit>
     {
         public int OrderId { get; set; }
-        public string NewStatus { get; set; }
+        public string NewStatus { get; set; } = "In Preparation";
     }
 }

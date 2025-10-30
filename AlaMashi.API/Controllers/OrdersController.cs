@@ -78,22 +78,6 @@ namespace AlaMashi.API.Controllers
             return Ok(new { status = "success", data = result });
         }
 
-        /// <summary>
-        /// إلغاء طلب
-        /// </summary>
-        [HttpPatch("{orderId}/cancel")]
-        public async Task<IActionResult> CancelOrder(int orderId)
-        {
-            var command = new UpdateOrderStatusCommand
-            {
-                OrderId = orderId,
-                NewStatus = "Canceled"
-            };
-
-            await _mediator.Send(command);
-
-            return Ok(new { status = "success", message = "Order canceled successfully" });
-        }
 
         // ===== ADMIN ENDPOINTS =====
 
@@ -146,24 +130,6 @@ namespace AlaMashi.API.Controllers
             await _mediator.Send(command);
 
             return Ok(new { status = "success", message = $"Order status updated to {dto.NewStatus}" });
-        }
-
-        /// <summary>
-        /// تأكيد الطلب (Admin فقط)
-        /// </summary>
-        [HttpPost("{orderId}/confirm")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ConfirmOrder(int orderId)
-        {
-            var command = new UpdateOrderStatusCommand
-            {
-                OrderId = orderId,
-
-                NewStatus = "Confirmed"
-            };
-
-            await _mediator.Send(command);
-            return Ok(new { status = "success", message = "Order confirmed successfully" });
         }
 
         /// <summary>
