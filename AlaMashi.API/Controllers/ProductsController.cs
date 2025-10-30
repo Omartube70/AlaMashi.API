@@ -87,5 +87,16 @@ public class ProductsController : ControllerBase
 
         return Ok(new { status = "success", data = "Product deleted successfully" });
     }
+
+    /// <summary>
+    /// يربط منتج بعرض (اشتراك المنتج في العرض)
+    /// </summary>
+    [HttpPost("subscribe-to-offer")]
+    public async Task<IActionResult> SubscribeToOffer([FromBody] SubscribeProductToOfferCommand command)
+    {
+        await _mediator.Send(command);
+
+        return Ok(new { status = "success", data = "✅ Product subscribed to offer successfully" });
+    }
 }
 
