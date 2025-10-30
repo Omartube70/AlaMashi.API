@@ -68,12 +68,21 @@ namespace Domain.Entities
             // Apply offer discount if exists
             if (product.OfferID.HasValue && product.Offer != null)
             {
-                priceAtOrder = product.Price * (1 - product.Offer.DiscountPercentage / 100);
+                priceAtOrder = product.Price * (1 - product.Offer.DiscountPercentage);
             }
 
             var orderDetail = OrderDetail.Create(quantity, priceAtOrder, product.ProductID);
             OrderDetails.Add(orderDetail);
 
+            RecalculateTotalAmount();
+        }
+
+        public void AddOrderDetail(OrderDetail orderDetail)
+        {
+            if (orderDetail == null)
+                throw new ArgumentNullException(nameof(orderDetail));
+
+            OrderDetails.Add(orderDetail);
             RecalculateTotalAmount();
         }
 

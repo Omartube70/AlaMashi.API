@@ -2,6 +2,7 @@
 using Application.Exceptions;
 using Application.Interfaces;
 using Application.Orders.Dtos;
+using AutoMapper;
 using Domain.Entities;
 using MediatR;
 using System;
@@ -17,15 +18,18 @@ namespace Application.Orders.Commands
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             IProductRepository productRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IMapper mapper)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -55,7 +59,31 @@ namespace Application.Orders.Commands
                 if (product == null)
                     throw new NotFoundException($"Product with ID {item.ProductId} not found.");
 
-                order.AddOrderItem(product, item.Quantity);
+                // Calculate prices (with or without discount)
+                decimal originalPrice = product.Price;
+                decimal finalPrice = product.Price;
+                decimal? originalPriceAtOrder = null;
+
+                // If product has an offer, apply discount
+                if (product.OfferID.HasValue && product.Offer != null)
+                {
+                    var now = DateTime.Now;
+                    if (now >= product.Offer.StartDate && now <= product.Offer.EndDate)
+                    {
+                        originalPriceAtOrder = originalPrice;
+                        finalPrice = originalPrice * (1 - product.Offer.DiscountPercentage);
+                    }
+                }
+
+                // Create order detail with original price if there's a discount
+                var orderDetail = OrderDetail.Create(
+                    quantity: item.Quantity,
+                    priceAtOrder: finalPrice,
+                    productId: product.ProductID,
+                    originalPriceAtOrder: originalPriceAtOrder
+                );
+
+                order.AddOrderDetail(orderDetail);
 
                 // تقليل الكمية من المخزون
                 product.RemoveStock(item.Quantity);
@@ -65,37 +93,8 @@ namespace Application.Orders.Commands
             // حفظ الطلب
             await _orderRepository.AddOrderAsync(order);
 
-            // إرجاع DTO
-            return new OrderDto
-            {
-                OrderId = order.OrderId,
-                OrderDate = order.OrderDate,
-                DeliveryDate = order.DeliveryDate,
-                DeliveryTimeSlot = order.DeliveryTimeSlot,
-                TotalAmount = order.TotalAmount,
-                Status = order.Status.ToString(),
-                UserId = user.UserID,
-                UserName = user.UserName,
-                UserPhone = user.Phone,
-                Address = new AddressDto
-                {
-                    AddressId = address.AddressId,
-                    Street = address.Street,
-                    City = address.City,
-                    AddressDetails = address.AddressDetails,
-                    AddressType = address.AddressType.ToString(),
-                    UserId = address.UserId
-                },
-                OrderDetails = order.OrderDetails.Select(od => new OrderDetailDto
-                {
-                    OrderDetailId = od.OrderDetailId,
-                    ProductId = od.ProductId,
-                    ProductName = od.Product.ProductName,
-                    Quantity = od.Quantity,
-                    PriceAtOrder = od.PriceAtOrder,
-                    Subtotal = od.Subtotal
-                }).ToList()
-            };
+            // إرجاع DTO باستخدام AutoMapper
+            return _mapper.Map<OrderDto>(order);
         }
     }
 }

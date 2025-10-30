@@ -2,6 +2,7 @@
 using Application.Exceptions;
 using Application.Interfaces;
 using Application.Orders.Dtos;
+using AutoMapper;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,10 +15,12 @@ namespace Application.Orders.Queries
     public class GetUserOrdersQueryHandler : IRequestHandler<GetUserOrdersQuery, IReadOnlyList<OrderDto>>
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IMapper _mapper;
 
-        public GetUserOrdersQueryHandler(IOrderRepository orderRepository)
+        public GetUserOrdersQueryHandler(IOrderRepository orderRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
+            _mapper = mapper;
         }
 
         public async Task<IReadOnlyList<OrderDto>> Handle(GetUserOrdersQuery request, CancellationToken cancellationToken)
@@ -30,42 +33,7 @@ namespace Application.Orders.Queries
 
             var orders = await _orderRepository.GetOrdersByUserIdAsync(request.UserId, includeDetails: true);
 
-            return orders.Select(o => new OrderDto
-            {
-                OrderId = o.OrderId,
-                OrderDate = o.OrderDate,
-                DeliveryDate = o.DeliveryDate,
-                DeliveryTimeSlot = o.DeliveryTimeSlot,
-                TotalAmount = o.TotalAmount,
-                Status = o.Status.ToString(),
-                UserId = o.UserId,
-                Address = new AddressDto
-                {
-                    AddressId = o.Address.AddressId,
-                    Street = o.Address.Street,
-                    City = o.Address.City,
-                    AddressDetails = o.Address.AddressDetails
-                },
-                OrderDetails = o.OrderDetails.Select(od => new OrderDetailDto
-                {
-                    OrderDetailId = od.OrderDetailId,
-                    ProductId = od.ProductId,
-                    ProductName = od.Product.ProductName,
-                    Quantity = od.Quantity,
-                    PriceAtOrder = od.PriceAtOrder,
-                    Subtotal = od.Subtotal
-                }).ToList(),
-                Payments = o.Payments.Select(p => new PaymentDto
-                {
-                    PaymentId = p.PaymentId,
-                    Amount = p.Amount,
-                    PaymentDate = p.PaymentDate,
-                    PaymentMethod = p.PaymentMethod.ToString(),
-                    PaymentStatus = p.PaymentStatus.ToString(),
-                    TransactionId = p.TransactionId
-                }).ToList()
-            }).ToList();
-
+            return _mapper.Map<IReadOnlyList<OrderDto>>(orders);
         }
     }
 }

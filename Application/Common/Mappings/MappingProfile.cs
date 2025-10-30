@@ -53,6 +53,26 @@ namespace Application.Common.Mappings
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
                 .ReverseMap();
 
+            // 📦 Orders
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+                .ForMember(dest => dest.UserPhone, opt => opt.MapFrom(src => src.User.Phone))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails))
+                .ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments));
+
+            CreateMap<OrderDetail, OrderDetailDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.ProductName));
+
+            CreateMap<Payment, PaymentDto>()
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod.ToString()))
+                .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus.ToString()));
+
+            // 📍 Addresses
+            CreateMap<Address, AddressDto>()
+                .ForMember(dest => dest.AddressType, opt => opt.MapFrom(src => src.AddressType.ToString()));
+
             CreateMap<Address, OrderDto>().ReverseMap();
         }
     }
