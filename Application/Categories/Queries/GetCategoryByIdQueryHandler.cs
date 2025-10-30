@@ -1,6 +1,7 @@
 ﻿using Application.Categories.Dtos;
 using Application.Exceptions;
 using Application.Interfaces;
+using Application.Products.Dtos;
 using MediatR;
 
 namespace Application.Categories.Queries
@@ -27,6 +28,17 @@ namespace Application.Categories.Queries
             {
                 CategoryId = category.CategoryID,
                 CategoryName = category.CategoryName,
+                IconName = category.IconName,
+                Products = category.Products.Select(p => new ProductDto
+                {
+                    ProductID = p.ProductID,
+                    ProductName = p.ProductName,
+                    ProductDescription = p.ProductDescription,
+                    Price = p.Price,
+                    QuantityInStock = p.QuantityInStock,
+                    MainImageURL = p.MainImageURL,
+                    CategoryName = category.CategoryName
+                }).ToList()
             };
         }
     }

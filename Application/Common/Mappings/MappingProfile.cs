@@ -25,7 +25,15 @@ namespace Application.Common.Mappings
 
             // 🎁 Offers
             CreateMap< CreateOfferDto, Offer>();
-            CreateMap<Offer, OfferDto>().ReverseMap();
+            CreateMap<Offer, OfferDto>()
+                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.Select(p => new OfferProductDto
+                {
+                    ProductId = p.ProductID,
+                    ProductName = p.ProductName,
+                    CategoryName = p.Category != null ? p.Category.CategoryName : string.Empty,
+                    OriginalPrice = p.Price,
+                    DiscountedPrice = p.Price * (1 - src.DiscountPercentage)
+                })));
             CreateMap<UpdateOfferDto, Offer>().ReverseMap();
 
             // 🗂️ Categories

@@ -14,5 +14,7 @@ namespace Application.Offers.Dtos
         public decimal DiscountPercentage { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public List<OfferProductDto>? Products { get; set; }
     }
+
 }

@@ -16,12 +16,16 @@ namespace Infrastructure.Repositories
 
         public async Task<Category?> GetCategoryByIdAsync(int categoryId)
         {
-            return await _context.Categories.FindAsync(categoryId);
+            return await _context.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.CategoryID == categoryId);
         }
 
         public async Task<IReadOnlyList<Category>> GetAllCategoriesAsync()
         {
-            return await _context.Categories.ToListAsync();
+            return await _context.Categories
+                .Include(c => c.Products)
+                .ToListAsync();
         }
 
         public async Task AddCategoryAsync(Category category)

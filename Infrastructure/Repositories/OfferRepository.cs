@@ -39,7 +39,10 @@ namespace Infrastructure.Repositories
 
         public async Task<Offer?> GetOfferByIdAsync(int OfferID)
         {
-            return await _context.Offers.FirstOrDefaultAsync(p => p.OfferID == OfferID);
+            return await _context.Offers
+                .Include(o => o.Products)
+                    .ThenInclude(p => p.Category)
+                .FirstOrDefaultAsync(p => p.OfferID == OfferID);
         }
 
         public async Task AddOfferAsync(Offer Offer)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.Products.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,6 @@ namespace Application.Categories.Dtos
         public int CategoryId { get; init; }
         public string CategoryName { get; init; }
         public string IconName { get; init; }
+        public List<ProductDto> Products { get; init; } = new List<ProductDto>();
     }
 }

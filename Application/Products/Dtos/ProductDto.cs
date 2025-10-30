@@ -14,8 +14,6 @@ namespace Application.Products.Dtos
         public decimal Price { get; init; }
         public int QuantityInStock { get; init; }
         public string MainImageURL { get; init; }
-
-        // تم تبسيط البيانات المرتبطة
         public string CategoryName { get; set; } = string.Empty;
     }
 }
