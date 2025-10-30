@@ -48,7 +48,7 @@ namespace Application.Authentication.Commands
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken.token,
-                User = new UserDto { UserId = user.UserID, UserName = user.UserName, Email = user.Email, Phone = user.Phone }
+                User = new UserDto { UserId = user.UserID, UserName = user.UserName, Email = user.Email, Phone = user.Phone, UserRole = user.UserPermissions.ToString() }
             };
         }
     }
