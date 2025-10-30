@@ -43,6 +43,25 @@ namespace AlaMashi.API.Controllers
         }
 
         /// <summary>
+        /// إنشاء طلب دفع جديد
+        /// </summary>
+        [HttpPost("payments/create/{orderId}")]
+        public async Task<IActionResult> CreatePayemnt(int orderId, [FromBody] CreatePaymentDto dto)
+        {
+            var command = new CreatePaymentCommand
+            {
+                OrderId = orderId,
+                Amount = dto.Amount,
+                PaymentMethod = dto.PaymentMethod,
+                TransactionId = dto.TransactionId,
+            };
+
+             await _mediator.Send(command);
+
+            return Ok(new { status = "success", message = "Payemnt Created successfully" });
+        }
+
+        /// <summary>
         /// جلب طلب محدد
         /// </summary>
         [HttpGet("{orderId}")]
