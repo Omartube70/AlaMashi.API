@@ -1,24 +1,21 @@
 ﻿using MediatR;
 using Application.Addresses.Dtos;
 using Application.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Application.Addresses.Queries
 {
     public class GetAllAddressesQueryHandler : IRequestHandler<GetAllAddressesQuery, IReadOnlyList<AddressDto>>
     {
-        private readonly IUserRepository _userRepository; // أو IAddressRepository
+        private readonly IAddressRepository _addressRepository; // ✅ تغيير
 
-        public GetAllAddressesQueryHandler(IUserRepository userRepository)
+        public GetAllAddressesQueryHandler(IAddressRepository addressRepository)
         {
-            _userRepository = userRepository;
+            _addressRepository = addressRepository;
         }
 
         public async Task<IReadOnlyList<AddressDto>> Handle(GetAllAddressesQuery request, CancellationToken cancellationToken)
         {
-            var addresses = await _userRepository.GetAllAddressesAsync();
+            var addresses = await _addressRepository.GetAllAddressesAsync();
 
             return addresses.Select(address => new AddressDto
             {

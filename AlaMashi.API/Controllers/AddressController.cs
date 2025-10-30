@@ -67,7 +67,8 @@ public class AddressesController : ControllerBase
         var query = new GetAddressByIdQuery
         {
             AddressId = AddressId,
-            CurrentUserId = GetCurrentUserId()
+            CurrentUserId = GetCurrentUserId(),
+            IsAdmin = User.IsInRole("Admin")
         };
 
         var addressDto = await _mediator.Send(query);
@@ -83,6 +84,7 @@ public class AddressesController : ControllerBase
         {
             AddressId = AddressId,
             CurrentUserId = GetCurrentUserId(),
+            IsAdmin = User.IsInRole("Admin")
         };
         await _mediator.Send(command);
         return Ok(new { status = "success", data = "Address deleted successfully" });
@@ -99,7 +101,8 @@ public class AddressesController : ControllerBase
         {
             AddressId = AddressId,
             CurrentUserId = GetCurrentUserId(),
-            PatchDoc = patchDoc
+            PatchDoc = patchDoc,
+            IsAdmin = User.IsInRole("Admin")
         };
 
         await _mediator.Send(command);

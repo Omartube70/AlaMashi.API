@@ -19,7 +19,6 @@ namespace Application.Interfaces
         Task SaveRefreshTokenAsync(int userId, string? refreshToken, DateTime? expiryDate);
 
         Task<User?> GetUserWithAddressesAsync(int userId);
-        Task<IReadOnlyList<Address>> GetAllAddressesAsync();
 
     }
 }

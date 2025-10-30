@@ -1,37 +1,40 @@
 ﻿using MediatR;
 using Application.Interfaces;
 using Application.Exceptions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Addresses.Commands
 {
     public class DeleteAddressCommandHandler : IRequestHandler<DeleteAddressCommand, Unit>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAddressRepository _addressRepository;
 
-        public DeleteAddressCommandHandler(IUserRepository userRepository)
+        public DeleteAddressCommandHandler(
+            IUserRepository userRepository,
+            IAddressRepository addressRepository)
         {
             _userRepository = userRepository;
+            _addressRepository = addressRepository;
         }
 
         public async Task<Unit> Handle(DeleteAddressCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserWithAddressesAsync(request.CurrentUserId);
-            if (user is null)
+            // 🔍 جلب العنوان مباشرة
+            var addressToDelete = await _addressRepository.GetAddressByIdAsync(request.AddressId);
+
+            if (addressToDelete == null)
             {
-                throw new UserNotFoundException(request.CurrentUserId);
+                throw new NotFoundException($"Address with ID {request.AddressId} not found.");
             }
 
-            var addressToDelete = user.Addresses.FirstOrDefault(a => a.AddressId == request.AddressId);
-            if (addressToDelete is null)
+            // 🛡️ تحقق من الصلاحيات (إذا مش أدمن، لازم يكون مالك العنوان)
+            if (!request.IsAdmin && addressToDelete.UserId != request.CurrentUserId)
             {
-                throw new NotFoundException($"Address with ID {request.AddressId} not found for this user.");
+                throw new ForbiddenAccessException();
             }
 
-            user.RemoveAddress(addressToDelete);
-
-            await _userRepository.UpdateUserAsync(user);
+            // ❌ حذف العنوان
+            await _addressRepository.DeleteAddressAsync(addressToDelete);
 
             return Unit.Value;
         }

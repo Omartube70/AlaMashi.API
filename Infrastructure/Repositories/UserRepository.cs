@@ -85,13 +85,8 @@ namespace Infrastructure.Repositories
         public async Task<User?> GetUserWithAddressesAsync(int userId)
         {
             return await _context.Users
-                .Include(u => u.Addresses) 
+                .Include(u => u.Addresses)
                 .FirstOrDefaultAsync(u => u.UserID == userId);
-        }
-
-        public async Task<IReadOnlyList<Address>> GetAllAddressesAsync()
-        {
-            return await _context.Addresses.AsNoTracking().ToListAsync();
         }
     }
 }

@@ -2,41 +2,37 @@
 using Application.Exceptions;
 using Application.Interfaces;
 using AutoMapper;
-using Domain.Entities;
 using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Application.Addresses.Commands
 {
     public class UpdateAddressPartialCommandHandler : IRequestHandler<UpdateAddressPartialCommand, Unit>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAddressRepository _addressRepository;
         private readonly IMapper _mapper;
         private readonly IValidator<UpdateAddressPartialCommand> _validator;
 
-        public UpdateAddressPartialCommandHandler(IUserRepository userRepository,IMapper mapper,IValidator<UpdateAddressPartialCommand> validator)
+        public UpdateAddressPartialCommandHandler(
+            IAddressRepository addressRepository,
+            IMapper mapper,
+            IValidator<UpdateAddressPartialCommand> validator)
         {
-            _userRepository = userRepository;
+            _addressRepository = addressRepository;
             _mapper = mapper;
             _validator = validator;
         }
 
         public async Task<Unit> Handle(UpdateAddressPartialCommand request, CancellationToken cancellationToken)
         {
-            // 🧩 1. جيب المستخدم بالعناوين
-            var user = await _userRepository.GetUserWithAddressesAsync(request.CurrentUserId);
-            if (user == null)
-                throw new UserNotFoundException(request.CurrentUserId);
+            // 🔍 جلب العنوان مباشرة
+            var addressEntity = await _addressRepository.GetAddressByIdAsync(request.AddressId);
 
-            // 🏠 2. جيب العنوان المستهدف
-            var addressEntity = user.Addresses.FirstOrDefault(a => a.AddressId == request.AddressId);
             if (addressEntity == null)
-                throw new NotFoundException($"Address with ID {request.AddressId} not found for this user.");
+                throw new NotFoundException($"Address with ID {request.AddressId} not found.");
 
-            // 🛡️ 3. تحقق إن المستخدم يملك العنوان
-            if (addressEntity.UserId != request.CurrentUserId)
+            // 🛡️ تحقق من الصلاحيات (إذا مش أدمن، لازم يكون مالك العنوان)
+            if (!request.IsAdmin && addressEntity.UserId != request.CurrentUserId)
                 throw new ForbiddenAccessException();
 
             // 4️⃣ حوّل الكيان لـ DTO
@@ -53,8 +49,8 @@ namespace Application.Addresses.Commands
             // 7️⃣ حدث الكيان نفسه
             _mapper.Map(dtoToPatch, addressEntity);
 
-            // 8️⃣ احفظ التغييرات عن طريق المستخدم
-            await _userRepository.UpdateUserAsync(user);
+            // 8️⃣ احفظ التغييرات
+            await _addressRepository.UpdateAddressAsync(addressEntity);
 
             return Unit.Value;
         }

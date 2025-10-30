@@ -2,33 +2,32 @@
 using Application.Interfaces;
 using Application.Exceptions;
 using Application.Addresses.Dtos;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Addresses.Queries
 {
     public class GetAddressByIdQueryHandler : IRequestHandler<GetAddressByIdQuery, AddressDto>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAddressRepository _addressRepository;
 
-        public GetAddressByIdQueryHandler(IUserRepository userRepository)
+        public GetAddressByIdQueryHandler(IAddressRepository addressRepository)
         {
-            _userRepository = userRepository;
+            _addressRepository = addressRepository;
         }
 
         public async Task<AddressDto> Handle(GetAddressByIdQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserWithAddressesAsync(request.CurrentUserId);
-            if (user == null) 
+            // 🔍 جلب العنوان مباشرة
+            var address = await _addressRepository.GetAddressByIdAsync(request.AddressId);
+
+            if (address == null)
             {
-                throw new UserNotFoundException(request.CurrentUserId);
+                throw new NotFoundException($"Address with ID {request.AddressId} not found.");
             }
 
-            var address = user.Addresses.FirstOrDefault(a => a.AddressId == request.AddressId);
-            if (address == null) 
-            { 
-                throw new NotFoundException($"Address with ID {request.AddressId} not found for this user."); 
+            // 🛡️ تحقق من الصلاحيات (إذا مش أدمن، لازم يكون مالك العنوان)
+            if (!request.IsAdmin && address.UserId != request.CurrentUserId)
+            {
+                throw new ForbiddenAccessException();
             }
 
             return new AddressDto
@@ -37,7 +36,8 @@ namespace Application.Addresses.Queries
                 Street = address.Street,
                 City = address.City,
                 AddressDetails = address.AddressDetails,
-                AddressType = address.AddressType.ToString()
+                AddressType = address.AddressType.ToString(),
+                UserId = address.UserId
             };
         }
     }
