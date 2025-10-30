@@ -27,7 +27,6 @@ namespace Application.Categories.Queries
             {
                 CategoryId = category.CategoryID,
                 CategoryName = category.CategoryName,
-                ParentId = category.ParentID
             };
         }
     }

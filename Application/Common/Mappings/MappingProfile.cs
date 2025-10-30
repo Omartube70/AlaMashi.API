@@ -31,15 +31,10 @@ namespace Application.Common.Mappings
             // 🗂️ Categories
             CreateMap<Category, CategoryDto>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryID))
-                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentID))
                 .ForMember(dest => dest.IconName, opt => opt.MapFrom(src => src.IconName))
                 .ReverseMap();
 
-            CreateMap<Category, CategoryTreeDto>()
-                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryID))
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.CategoryName))
-                .ForMember(dest => dest.IconName, opt => opt.MapFrom(src => src.IconName))
-                .ReverseMap();
+
 
             // 🛒 Products
             CreateMap<Product, ProductDto>()

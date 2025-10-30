@@ -23,7 +23,6 @@ namespace Application.Categories.Queries
                 CategoryId = category.CategoryID,
                 CategoryName = category.CategoryName,
                 IconName = category.IconName,
-                ParentId = category.ParentID
             }).ToList();
         }
     }

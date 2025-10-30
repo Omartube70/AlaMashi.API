@@ -55,18 +55,6 @@ namespace Infrastructure.Data
                 entity.HasKey(e => e.CategoryID);
                 entity.Property(e => e.CategoryName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.IconName).IsRequired().HasMaxLength(50); // MAX Length
-                entity.Property(e => e.ParentID).IsRequired(false);
-
-
-                // العلاقة التالية هي علاقة ذاتية (Self-Referencing Relationship):
-                // كل قسم (Category) ممكن يكون له قسم أب (Parent) واحد فقط، 
-                // وفي نفس الوقت ممكن يحتوي على عدة أقسام فرعية (SubCategories).
-                // استخدمنا DeleteBehavior.Restrict عشان نمنع حذف القسم الأب 
-                // لو لسه عنده أقسام فرعية مرتبطة بيه.
-                entity.HasOne(c => c.Parent)
-                    .WithMany(c => c.SubCategories)
-                    .HasForeignKey(c => c.ParentID)
-                    .OnDelete(DeleteBehavior.Restrict); // لمنع حذف قسم رئيسي إذا كان لديه أقسام فرعية
             });
 
                modelBuilder.Entity<Product>(entity =>
@@ -102,11 +90,6 @@ namespace Infrastructure.Data
                       .HasForeignKey(p => p.OfferID)
                       .OnDelete(DeleteBehavior.SetNull); // عند حذف العرض، اجعل المنتجات المرتبطة به بدون عرض
             });
-
-
-            // أضف هذا الكود إلى ApplicationDbContext الموجود
-
-            // في OnModelCreating، أضف التالي:
 
 
             modelBuilder.Entity<Order>(entity =>

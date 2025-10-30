@@ -38,12 +38,9 @@ namespace Application.Home.Queries
 
             // ✅ تجهيز الفئات الرئيسية (Flat)
             var flatCategories = categories
-                .Where(c => c.ParentID == null)
                 .Select(c => _mapper.Map<CategoryDto>(c))
                 .ToList();
 
-            // ✅ تجهيز الفئات الشجرية (Tree)
-            var categoryTree = BuildCategoryTree(categories);
 
             // ✅ المنتجات
             var newProducts = products
@@ -62,7 +59,6 @@ namespace Application.Home.Queries
             {
                 FeaturedOffers = offers.Select(o => _mapper.Map<OfferDto>(o)).ToList(),
                 Categories = flatCategories,
-                CategoryTree = categoryTree,
                 NewProducts = newProducts,
                 DiscountedProducts = discountedProducts
             };
@@ -70,35 +66,6 @@ namespace Application.Home.Queries
             return dto;
         }
 
-        // 🧩 دالة بناء شجرة الفئات
-        private List<CategoryTreeDto> BuildCategoryTree(IReadOnlyList<Domain.Entities.Category> allCategories)
-        {
-            var map = allCategories.ToDictionary(
-                c => c.CategoryID,
-                c => new CategoryTreeDto
-                {
-                    CategoryId = c.CategoryID,
-                    CategoryName = c.CategoryName,
-                    IconName = c.IconName,
-                    SubCategories = new List<CategoryTreeDto>()
-                }
-            );
 
-            var roots = new List<CategoryTreeDto>();
-
-            foreach (var category in allCategories)
-            {
-                if (category.ParentID.HasValue && map.ContainsKey(category.ParentID.Value))
-                {
-                    map[category.ParentID.Value].SubCategories.Add(map[category.CategoryID]);
-                }
-                else
-                {
-                    roots.Add(map[category.CategoryID]);
-                }
-            }
-
-            return roots;
-        }
     }
 }

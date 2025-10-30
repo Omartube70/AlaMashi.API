@@ -13,6 +13,5 @@ namespace Application.Categories.Commands
     {
         public string CategoryName { get; set; }
         public string IconName { get; set; }
-        public int? ParentId { get; set; }
     }
 }

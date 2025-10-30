@@ -39,14 +39,6 @@ public class CategoriesController : ControllerBase
         return Ok(new { status = "success", data = catgoryDto });
     }
 
-    [HttpGet("tree")]
-    public async Task<IActionResult> GetAllCategoriesTree()
-    {
-        var query = new GetAllCategoriesTreeQuery();
-        var result = await _mediator.Send(query);
-        return Ok(new { status = "success", data = result });
-    }
-
     [HttpGet("flat")]
     public async Task<IActionResult> GetAllCategoriesFlat()
     {

@@ -12,17 +12,13 @@
             public int CategoryID { get; private set; }
             public string CategoryName { get; private set; }
             public string IconName { get; private set; }
-            public int? ParentID { get; private set; }
-            public virtual Category? Parent { get; private set; }
-            public virtual ICollection<Category> SubCategories { get; private set; } = new List<Category>();
             public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 
 
-        private Category(string categoryName,string iconName, int? parentId)
+        private Category(string categoryName,string iconName)
             {
                 CategoryName = categoryName;
                 IconName = iconName;
-                ParentID = parentId;
             }
 
     #pragma warning disable CS8618
@@ -31,7 +27,7 @@
             }
     #pragma warning restore CS8618
 
-            public static Category Create(string categoryName,string iconName, int? parentId)
+            public static Category Create(string categoryName,string iconName)
             {
                 // --- Validation ---
                 if (string.IsNullOrWhiteSpace(categoryName))
@@ -42,7 +38,7 @@
 
 
                 // --- Object Creation ---
-                return new Category(categoryName, iconName, parentId);
+                return new Category(categoryName, iconName);
             }
 
             public void UpdateCategoryName(string categoryName)

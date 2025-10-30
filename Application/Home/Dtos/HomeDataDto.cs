@@ -13,8 +13,8 @@ namespace Application.Home.Dtos
     {
         public List<OfferDto> FeaturedOffers { get; set; } = new();
         public List<CategoryDto> Categories { get; set; } = new();
-        public List<CategoryTreeDto> CategoryTree { get; set; } = new();
         public List<ProductDto> NewProducts { get; set; } = new();
         public List<ProductDto> DiscountedProducts { get; set; } = new();
+
     }
 }

@@ -15,7 +15,7 @@ namespace Application.Categories.Commands
 
         public async Task<CategoryDto> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            Category NewCategory = Category.Create(request.CategoryName , request.IconName , request.ParentId);
+            Category NewCategory = Category.Create(request.CategoryName , request.IconName);
 
             await _categoryRepository.AddCategoryAsync(NewCategory);
 
@@ -24,7 +24,6 @@ namespace Application.Categories.Commands
                CategoryId   = NewCategory.CategoryID,
                CategoryName = NewCategory.CategoryName,
                IconName = NewCategory.IconName,
-               ParentId     = NewCategory.ParentID,
             };
         }
     }
