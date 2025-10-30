@@ -20,7 +20,7 @@ namespace Application.Orders.Commands
 
         public async Task<Unit> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(request.OrderId);
+            var order = await _orderRepository.GetOrderByIdAsync(request.OrderId,true);
 
             if (order == null)
                 throw new NotFoundException($"Order with ID {request.OrderId} not found.");

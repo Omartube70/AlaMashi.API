@@ -20,18 +20,21 @@ namespace Infrastructure.Repositories
         public async Task<Product?> GetProductByIdAsync(int productId)
         {
             return await _context.Products.Include(p => p.Category)
+                          .Include(p => p.Offer)
                          .FirstOrDefaultAsync(p => p.ProductID == productId);
         }
 
         public async Task<Product?> GetProductByBarcodeAsync(string Barcode)
         {
             return await _context.Products.Include(p => p.Category)
+                                          .Include(p => p.Offer)
                          .FirstOrDefaultAsync(p => p.Barcode == Barcode);
         }
 
         public async Task<IReadOnlyList<Product>> GetAllProductsAsync()
         {
             return await _context.Products.Include(p => p.Category)
+                                          .Include(p => p.Offer)
                               .AsNoTracking()
                                .ToListAsync();
         }
@@ -60,7 +63,8 @@ namespace Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Product>> GetProductsByCategoryIdAsync(int categoryId)
         {
-            return await _context.Products.Where(p => p.CategoryID == categoryId) 
+            return await _context.Products.Where(p => p.CategoryID == categoryId)
+                                          .Include(p => p.Offer)
                                  .Include(p => p.Category)
                                  .AsNoTracking()
                                  .ToListAsync();
