@@ -44,7 +44,7 @@ namespace Infrastructure.Repositories
                     .Include(o => o.User)
                     .Include(o => o.Address)
                     .Include(o => o.OrderDetails)
-                        .ThenInclude(od => od.Product)
+                    .ThenInclude(od => od.Product)
                     .Include(o => o.Payments);
             }
 

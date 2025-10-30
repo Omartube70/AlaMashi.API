@@ -51,7 +51,6 @@ namespace AlaMashi.API.Controllers
             var command = new CreatePaymentCommand
             {
                 OrderId = orderId,
-                Amount = dto.Amount,
                 PaymentMethod = dto.PaymentMethod,
                 TransactionId = dto.TransactionId,
             };
@@ -82,12 +81,12 @@ namespace AlaMashi.API.Controllers
         /// <summary>
         /// جلب طلبات المستخدم الحالي
         /// </summary>
-        [HttpGet("my-orders")]
-        public async Task<IActionResult> GetMyOrders()
+        [HttpGet("users/{UserID}/my-orders")]
+        public async Task<IActionResult> GetMyOrders(int UserID)
         {
             var query = new GetUserOrdersQuery
             {
-                UserId = GetCurrentUserId(),
+                UserId = UserID,
                 CurrentUserId = GetCurrentUserId(),
                 CurrentUserRole = GetCurrentUserRole()
             };

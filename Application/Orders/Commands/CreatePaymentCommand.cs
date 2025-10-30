@@ -11,7 +11,6 @@ namespace Application.Orders.Commands
     public class CreatePaymentCommand : IRequest<PaymentDto>
     {
         public int OrderId { get; set; }
-        public decimal Amount { get; set; }
         public string PaymentMethod { get; set; }
         public string? TransactionId { get; set; }
     }

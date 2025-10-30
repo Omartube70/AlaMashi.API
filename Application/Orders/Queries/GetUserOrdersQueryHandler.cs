@@ -54,8 +54,18 @@ namespace Application.Orders.Queries
                     Quantity = od.Quantity,
                     PriceAtOrder = od.PriceAtOrder,
                     Subtotal = od.Subtotal
+                }).ToList(),
+                Payments = o.Payments.Select(p => new PaymentDto
+                {
+                    PaymentId = p.PaymentId,
+                    Amount = p.Amount,
+                    PaymentDate = p.PaymentDate,
+                    PaymentMethod = p.PaymentMethod.ToString(),
+                    PaymentStatus = p.PaymentStatus.ToString(),
+                    TransactionId = p.TransactionId
                 }).ToList()
             }).ToList();
+
         }
     }
 }
