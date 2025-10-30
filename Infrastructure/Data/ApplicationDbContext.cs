@@ -128,7 +128,7 @@ namespace Infrastructure.Data
                 entity.HasKey(od => od.OrderDetailId);
                 entity.Property(od => od.Quantity).IsRequired();
                 entity.Property(od => od.PriceAtOrder).HasColumnType("decimal(18,2)");
-                entity.Property("OriginalPriceAtOrder").HasColumnType("decimal(18,2)");
+                entity.Property<decimal?>("OriginalPriceAtOrder").HasColumnType("decimal(18,2)");
                 entity.Property(od => od.Subtotal).HasColumnType("decimal(18,2)");
 
                 entity.HasOne(od => od.Product)
