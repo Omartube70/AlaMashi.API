@@ -24,7 +24,7 @@ namespace Application.Common.Mappings
             CreateMap<User, UpdateUserDto>().ReverseMap();
 
             // 🎁 Offers
-            CreateMap<CreateOrderDto, Offer>();
+            CreateMap< CreateOfferDto, Offer>();
             CreateMap<Offer, OfferDto>().ReverseMap();
             CreateMap<UpdateOfferDto, Offer>().ReverseMap();
 
