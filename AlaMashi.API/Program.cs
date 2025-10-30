@@ -56,6 +56,7 @@ builder.Services.AddAutoMapper(typeof(Application.AssemblyReference).Assembly);
 builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 // تسجيل MediatR
 builder.Services.AddMediatR(cfg => {

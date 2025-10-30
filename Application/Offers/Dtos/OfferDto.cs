@@ -16,5 +16,4 @@ namespace Application.Offers.Dtos
         public DateTime EndDate { get; set; }
         public List<OfferProductDto>? Products { get; set; }
     }
-
 }

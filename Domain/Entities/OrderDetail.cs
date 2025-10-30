@@ -9,7 +9,8 @@ namespace Domain.Entities
     {
         public int OrderDetailId { get; private set; }
         public int Quantity { get; private set; }
-        public decimal PriceAtOrder { get; private set; }
+        public decimal PriceAtOrder { get; private set; } // السعر بعد الخصم
+        public decimal? OriginalPriceAtOrder { get; private set; } // السعر الأصلي قبل الخصم
         public decimal Subtotal { get; private set; }
 
         // Foreign Keys
@@ -24,16 +25,17 @@ namespace Domain.Entities
         private OrderDetail() { }
 #pragma warning restore CS8618
 
-        private OrderDetail(int quantity, decimal priceAtOrder, int productId)
+        private OrderDetail(int quantity, decimal priceAtOrder, int productId, decimal? originalPriceAtOrder = null)
         {
             Quantity = quantity;
             PriceAtOrder = priceAtOrder;
+            OriginalPriceAtOrder = originalPriceAtOrder;
             ProductId = productId;
             Subtotal = quantity * priceAtOrder;
         }
 
         // Factory Method
-        public static OrderDetail Create(int quantity, decimal priceAtOrder, int productId)
+        public static OrderDetail Create(int quantity, decimal priceAtOrder, int productId, decimal? originalPriceAtOrder = null)
         {
             if (quantity <= 0)
                 throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
@@ -44,7 +46,7 @@ namespace Domain.Entities
             if (productId <= 0)
                 throw new ArgumentException("Product ID must be valid.", nameof(productId));
 
-            return new OrderDetail(quantity, priceAtOrder, productId);
+            return new OrderDetail(quantity, priceAtOrder, productId, originalPriceAtOrder);
         }
 
         // Business Logic Methods
