@@ -1,6 +1,7 @@
 ﻿using Application.Addresses.Commands;
 using Application.Addresses.Dtos;
 using Application.Addresses.Queries;
+using Domain.Common;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -22,13 +23,18 @@ public class AddressesController : ControllerBase
     [HttpPost("Create")]
     public async Task<IActionResult> CreateAddress([FromBody] CreateAddressDto dto)
     {
+        if (!Enum.TryParse<AddressType>(dto.AddressType, true, out var addressType))
+        {
+            return BadRequest("Invalid AddressType. Valid values: Home, Work, Another");
+        }
+
         var command = new CreateAddressCommand
         {
             CurrentUserId = GetCurrentUserId(),
             Street = dto.Street,
             City = dto.City,
             AddressDetails = dto.AddressDetails,
-            AddressType = dto.AddressType
+            AddressType = addressType
         };
 
         AddressDto addressDto = await _mediator.Send(command);

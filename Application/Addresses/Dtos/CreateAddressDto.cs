@@ -16,6 +16,6 @@ namespace Application.Addresses.Dtos
         public string? AddressDetails { get; set; }
 
         [Required]
-        public AddressType AddressType { get; set; }
+        public string AddressType { get; set; }
     }
 }
