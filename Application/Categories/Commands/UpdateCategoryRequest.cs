@@ -9,6 +9,7 @@ namespace Application.Categories.Commands
 {
     public class UpdateCategoryRequest
     {
-        public string NewCategoryName { get; set; }
+        public string CategoryName { get; set; }
+        public string IconName { get; set; }
     }
 }

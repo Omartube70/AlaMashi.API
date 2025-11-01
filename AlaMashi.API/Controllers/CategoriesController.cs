@@ -47,14 +47,15 @@ public class CategoriesController : ControllerBase
         return Ok(new { status = "success", data = result });
     }
 
-    [HttpPut("{categoryId}")]
+    [HttpPatch("{categoryId}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] UpdateCategoryRequest request)
     {
         var command = new UpdateCategoryCommand()
         {
             CategoryId = categoryId,
-            NewCategoryName = request.NewCategoryName,
+            CategoryName = request.CategoryName,
+            IconName = request.IconName
         };
 
         await _mediator.Send(command);

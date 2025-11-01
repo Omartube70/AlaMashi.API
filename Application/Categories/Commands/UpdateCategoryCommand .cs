@@ -10,6 +10,7 @@ namespace Application.Categories.Commands
     public class UpdateCategoryCommand : IRequest<Unit>
     {
         public int CategoryId { get; set; }
-        public string NewCategoryName { get; set; }
+        public string CategoryName { get; set; }
+        public string IconName { get; set; }
     }
 }

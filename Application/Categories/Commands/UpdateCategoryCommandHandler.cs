@@ -24,10 +24,19 @@ namespace Application.Categories.Commands
                 throw new NotFoundException($"Category with ID {request.CategoryId} not found.");
             }
 
-            categoryToUpdate.UpdateCategoryName(request.NewCategoryName);
+            // Update category name if provided
+            if (!string.IsNullOrWhiteSpace(request.CategoryName))
+            {
+                categoryToUpdate.UpdateCategoryName(request.CategoryName);
+            }
 
+            // Update icon name if provided
+            if (!string.IsNullOrWhiteSpace(request.IconName))
+            {
+                categoryToUpdate.UpdateIconName(request.IconName);
+            }
 
-           await _categoryRepository.UpdateCategory(categoryToUpdate); 
+            await _categoryRepository.UpdateCategory(categoryToUpdate);
 
             return Unit.Value;
         }
