@@ -25,13 +25,13 @@ namespace Application.Categories.Commands
             }
 
             // Update category name if provided
-            if (!string.IsNullOrWhiteSpace(request.CategoryName))
+            if (request.CategoryName != null)
             {
                 categoryToUpdate.UpdateCategoryName(request.CategoryName);
             }
 
             // Update icon name if provided
-            if (!string.IsNullOrWhiteSpace(request.IconName))
+            if (request.IconName != null)
             {
                 categoryToUpdate.UpdateIconName(request.IconName);
             }
