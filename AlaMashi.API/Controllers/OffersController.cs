@@ -26,7 +26,7 @@ public class OffersController : ControllerBase
 
         var offers = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = offers });
+        return Ok(new { status = "success", data = offers });
     }
 
     // GET: api/offers/All
@@ -35,7 +35,7 @@ public class OffersController : ControllerBase
     public async Task<IActionResult> GetAllOffers()
     {
         var result = await _mediator.Send(new GetAllOffersQuery());
-        return Ok(new { status = true, data = result });
+        return Ok(new { status = "success", data = result });
     }
 
     // GET: api/offers/{offerId}
@@ -46,7 +46,7 @@ public class OffersController : ControllerBase
 
         var offerDto = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = offerDto });
+        return Ok(new { status = "success", data = offerDto });
     }
 
     // --- Endpoints للإدارة (Admin) ---
@@ -72,7 +72,7 @@ public class OffersController : ControllerBase
 
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "Offer updated successfully" });
+        return Ok(new { status = "success", data = "Offer updated successfully" });
     }
 
     // DELETE: api/offers/{offerId}
@@ -84,6 +84,6 @@ public class OffersController : ControllerBase
 
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "Offer deleted successfully" });
+        return Ok(new { status = "success", data = "Offer deleted successfully" });
     }
 }

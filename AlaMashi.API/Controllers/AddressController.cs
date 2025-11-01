@@ -53,7 +53,7 @@ public class AddressesController : ControllerBase
             CurrentUserRole = GetCurrentUserRole()   
         };
         var result = await _mediator.Send(query);
-        return Ok(new { status = true, data = result });
+        return Ok(new { status = "success", data = result });
     }
 
     [HttpGet("all")]
@@ -64,7 +64,7 @@ public class AddressesController : ControllerBase
 
         var addressDtos = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = addressDtos });
+        return Ok(new { status = "success", data = addressDtos });
     }
 
     [HttpGet("{AddressId}")]
@@ -79,7 +79,7 @@ public class AddressesController : ControllerBase
 
         var addressDto = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = addressDto });
+        return Ok(new { status = "success", data = addressDto });
     }
 
 
@@ -93,7 +93,7 @@ public class AddressesController : ControllerBase
             IsAdmin = User.IsInRole("Admin")
         };
         await _mediator.Send(command);
-        return Ok(new { status = true, data = "Address deleted successfully" });
+        return Ok(new { status = "success", data = "Address deleted successfully" });
     }
 
 
@@ -113,7 +113,7 @@ public class AddressesController : ControllerBase
 
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "Address Updated successfully" });
+        return Ok(new { status = "success", data = "Address Updated successfully" });
     }
 
 

@@ -39,7 +39,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(command);
 
-            return CreatedAtAction(nameof(GetOrderById), new { orderId = result.OrderId }, new { status = true, data = result });
+            return CreatedAtAction(nameof(GetOrderById), new { orderId = result.OrderId }, new { status = "success", data = result });
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace AlaMashi.API.Controllers
 
              await _mediator.Send(command);
 
-            return Ok(new { status = true, message = "Payemnt Created successfully" });
+            return Ok(new { status = "success", message = "Payemnt Created successfully" });
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new { status = true, data = result });
+            return Ok(new { status = "success", data = result });
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new { status = true, data = result });
+            return Ok(new { status = "success", data = result });
         }
 
 
@@ -110,7 +110,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new { status = true, data = result });
+            return Ok(new { status = "success", data = result });
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new { status = true, data = result });
+            return Ok(new { status = "success", data = result });
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace AlaMashi.API.Controllers
 
             await _mediator.Send(command);
 
-            return Ok(new { status = true, message = $"Order status updated to {dto.NewStatus}" });
+            return Ok(new { status = "success", message = $"Order status updated to {dto.NewStatus}" });
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new { status = true, data = result });
+            return Ok(new { status = "success", data = result });
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace AlaMashi.API.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new { status = true, data = result });
+            return Ok(new { status = "success", data = result });
         }
 
         // ============================================
@@ -206,7 +206,7 @@ namespace AlaMashi.API.Controllers
 
             await _mediator.Send(command);
 
-            return Ok(new { status = true, message = "Order delivery details updated successfully" });
+            return Ok(new { status = "success", message = "Order delivery details updated successfully" });
         }
 
 

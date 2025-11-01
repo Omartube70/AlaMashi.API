@@ -22,6 +22,6 @@ public class HomeController : ControllerBase
     public async Task<ActionResult<HomeDataDto>> GetHomeData()
     {
         var result = await _mediator.Send(new GetHomeDataQuery());
-        return Ok(new { status = true, data = result });
+        return Ok(new { status = "success", data = result });
     }
 }

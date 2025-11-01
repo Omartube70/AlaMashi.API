@@ -44,7 +44,7 @@ public class UsersController : ControllerBase
         };
         var userDto = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = userDto });
+        return Ok(new { status = "success", data = userDto });
     }
 
     [HttpGet("all")]
@@ -55,7 +55,7 @@ public class UsersController : ControllerBase
 
         var users = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = users });
+        return Ok(new { status = "success", data = users });
     }
 
     [HttpPost("{UserID}/promote-to-admin")]
@@ -65,7 +65,7 @@ public class UsersController : ControllerBase
         var command = new PromoteUserToAdminCommand { UserId = UserID };
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = $"User {UserID} has been promoted to Admin." });
+        return Ok(new { status = "success", data = $"User {UserID} has been promoted to Admin." });
     }
 
     [HttpPatch("{userId}")]
@@ -85,7 +85,7 @@ public class UsersController : ControllerBase
 
          await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "User Updated successfully" });
+        return Ok(new { status = "success", data = "User Updated successfully" });
     }
 
     [HttpDelete("{UserID}")]
@@ -100,7 +100,7 @@ public class UsersController : ControllerBase
         };
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "User deleted successfully" });
+        return Ok(new { status = "success", data = "User deleted successfully" });
     }
 
     // --- Authentication & Password Management ---
@@ -109,14 +109,14 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
         var LoginResponseDto = await _mediator.Send(command);
-        return Ok(new { status = true, data = LoginResponseDto});
+        return Ok(new { status = "success", data = LoginResponseDto});
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
     {
         var response = await _mediator.Send(command);
-        return Ok(new { status = true, data =  response });
+        return Ok(new { status = "success", data =  response });
     }
 
     [Authorize]
@@ -134,7 +134,7 @@ public class UsersController : ControllerBase
         };
 
         await _mediator.Send(command);
-        return Ok(new {status = true, data = "Token revoked successfully." });
+        return Ok(new {status = "success", data = "Token revoked successfully." });
     }
 
     [Authorize]
@@ -148,21 +148,21 @@ public class UsersController : ControllerBase
             NewPassword = dto.NewPassword
         };
         await _mediator.Send(command);
-        return Ok(new {status = true, data = "Password changed successfully." });
+        return Ok(new {status = "success", data = "Password changed successfully." });
     }
 
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
     {
         await _mediator.Send(command);
-        return Ok(new { status = true , data = "If your email is registered, you will receive a password reset link." });
+        return Ok(new { status = "success" , data = "If your email is registered, you will receive a password reset link." });
     }
 
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
     {
         await _mediator.Send(command);
-        return Ok(new { status = true, data = "Password has been reset successfully." });
+        return Ok(new { status = "success", data = "Password has been reset successfully." });
     }
 
 

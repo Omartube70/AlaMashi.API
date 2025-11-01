@@ -37,7 +37,7 @@ public class ProductsController : ControllerBase
         };
         var productDto = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = productDto });
+        return Ok(new { status = "success", data = productDto });
     }
 
     // GET: api/products
@@ -45,7 +45,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
     {
         var productDtos = await _mediator.Send(query);
-        return Ok(new { status = true, data = productDtos });
+        return Ok(new { status = "success", data = productDtos });
     }
 
     // GET: api/products/category/{categoryId}
@@ -54,7 +54,7 @@ public class ProductsController : ControllerBase
     {
         var query = new GetAllProductsByCategoryQuery() { CategoryId = categoryId };
         var productDtos = await _mediator.Send(query);
-        return Ok(new { status = true, data = productDtos });
+        return Ok(new { status = "success", data = productDtos });
     }
 
     // PUT: api/products/{id}
@@ -70,7 +70,7 @@ public class ProductsController : ControllerBase
 
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "Product updated successfully" });
+        return Ok(new { status = "success", data = "Product updated successfully" });
     }
 
     // DELETE: api/products/{id}
@@ -85,7 +85,7 @@ public class ProductsController : ControllerBase
 
          await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "Product deleted successfully" });
+        return Ok(new { status = "success", data = "Product deleted successfully" });
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class ProductsController : ControllerBase
     {
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "✅ Product subscribed to offer successfully" });
+        return Ok(new { status = "success", data = "✅ Product subscribed to offer successfully" });
     }
 }
 

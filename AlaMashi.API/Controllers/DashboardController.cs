@@ -24,7 +24,7 @@ namespace API.Controllers
         {
             var summaryDto = await _mediator.Send(new GetEnhancedDashboardSummaryQuery(), cancellationToken);
 
-            return Ok(new { status = true
+            return Ok(new { status = "success"
                 , data = summaryDto });
 
         }

@@ -36,7 +36,7 @@ public class CategoriesController : ControllerBase
 
         var catgoryDto = await _mediator.Send(query);
 
-        return Ok(new { status = true, data = catgoryDto });
+        return Ok(new { status = "success", data = catgoryDto });
     }
 
     [HttpGet("flat")]
@@ -44,7 +44,7 @@ public class CategoriesController : ControllerBase
     {
         var query = new GetAllCategoriesQuery();
         var result = await _mediator.Send(query);
-        return Ok(new { status = true, data = result });
+        return Ok(new { status = "success", data = result });
     }
 
     [HttpPatch("{categoryId}")]
@@ -60,7 +60,7 @@ public class CategoriesController : ControllerBase
 
         await _mediator.Send(command);
 
-        return Ok(new { status = true, data = "Category Updated successfully" });
+        return Ok(new { status = "success", data = "Category Updated successfully" });
     }
 
     [HttpDelete("{categoryId}")]
@@ -74,7 +74,7 @@ public class CategoriesController : ControllerBase
 
         await _mediator.Send(command);
 
-        return Ok(new { status = true
+        return Ok(new { status = "success"
             , data = "Category Deleted successfully" });
     }
 }
