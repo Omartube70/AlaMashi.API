@@ -3,7 +3,6 @@ using Application.Products.Dtos;
 using Application.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -31,7 +30,7 @@ public class ProductsController : ControllerBase
     [HttpGet("{productId}")]
     public async Task<IActionResult> GetProductById(int productId)
     {
-        var query = new GetProductByIdQuery() 
+        var query = new GetProductByIdQuery()
         {
             ProductId = productId
         };
@@ -40,7 +39,7 @@ public class ProductsController : ControllerBase
         return Ok(new { status = "success", data = productDto });
     }
 
-    // GET: api/products
+    // GET: api/products/all
     [HttpGet("all")]
     public async Task<IActionResult> GetAllProducts([FromQuery] GetAllProductsQuery query)
     {
@@ -57,46 +56,39 @@ public class ProductsController : ControllerBase
         return Ok(new { status = "success", data = productDtos });
     }
 
-    // PUT: api/products/{id}
+    // PATCH: api/products/{productId}
     [HttpPatch("{productId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateProductPartial(int productId,[FromBody] JsonPatchDocument<UpdateProductDto> patchDoc)
+    public async Task<IActionResult> UpdateProduct(int productId, [FromForm] UpdateProductPartialCommand command)
     {
-        var command = new UpdateProductPartialCommand
-        {
-            ProductId = productId,
-            PatchDoc = patchDoc
-        };
-
+        command.ProductId = productId;
         await _mediator.Send(command);
 
-        return Ok(new { status = "success", data = "Product updated successfully" });
+        return Ok(new { status = "success", message = "Product updated successfully" });
     }
 
-    // DELETE: api/products/{id}
+    // DELETE: api/products/{productId}
     [HttpDelete("{productId}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteProduct(int productId)
     {
-        var command = new DeleteProductCommand() 
+        var command = new DeleteProductCommand()
         {
-            ProductID = productId 
+            ProductID = productId
         };
 
-         await _mediator.Send(command);
+        await _mediator.Send(command);
 
-        return Ok(new { status = "success", data = "Product deleted successfully" });
+        return Ok(new { status = "success", message = "Product deleted successfully" });
     }
 
-    /// <summary>
-    /// يربط منتج بعرض (اشتراك المنتج في العرض)
-    /// </summary>
+    // POST: api/products/subscribe-to-offer
     [HttpPost("subscribe-to-offer")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SubscribeToOffer([FromBody] SubscribeProductToOfferCommand command)
     {
         await _mediator.Send(command);
 
-        return Ok(new { status = "success", data = "✅ Product subscribed to offer successfully" });
+        return Ok(new { status = "success", message = "✅ Product subscribed to offer successfully" });
     }
 }
-

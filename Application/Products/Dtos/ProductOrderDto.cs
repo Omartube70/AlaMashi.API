@@ -1,6 +1,8 @@
-﻿namespace Application.Products.Dtos
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Application.Products.Dtos
 {
-    public class ProductOrderDto
+        public class ProductOrderDto
     {
         public int OrderId { get; init; }
         public int Quantity { get; init; }
