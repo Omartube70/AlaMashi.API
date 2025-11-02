@@ -17,7 +17,7 @@ namespace Application.Interfaces
         Task AddProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(Product product);
-
+        Task<Product?> GetProductWithDetailsAsync(int productId);
         // التقارير
         public Task<List<TopProductDto>> GetTopSellingProductsAsync(DateTime? StartDate, DateTime? EndDate, int TopCount, CancellationToken cancellationToken);
     }

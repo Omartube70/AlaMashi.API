@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Application.Products.Queries
 {
-    public class GetProductByIdQuery : IRequest<ProductDto?>
+    public class GetProductByIdQuery : IRequest<ProductDetailsDto?>
     {
         public int ProductId { get; set; }
     }

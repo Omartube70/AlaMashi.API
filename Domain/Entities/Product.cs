@@ -1,5 +1,4 @@
-﻿using Domain.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Domain.Entities
@@ -22,7 +21,8 @@ namespace Domain.Entities
         public Category Category { get; private set; }
         public virtual Offer? Offer { get; private set; }
 
-
+        // ✅ Navigation Property للطلبات
+        public virtual ICollection<OrderDetail> OrderDetails { get; private set; } = new List<OrderDetail>();
 
 #pragma warning disable CS8618
         private Product() { }
@@ -57,7 +57,6 @@ namespace Domain.Entities
         }
 
         // --- Business Logic Methods ---
-
         public void UpdateDetails(string newName, string? newDescription)
         {
             if (string.IsNullOrWhiteSpace(newName))
@@ -101,6 +100,7 @@ namespace Domain.Entities
 
             QuantityInStock -= amountToRemove;
         }
+
         public void AssignToOffer(int offerId)
         {
             if (offerId <= 0)

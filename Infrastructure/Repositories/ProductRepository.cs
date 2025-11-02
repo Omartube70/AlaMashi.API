@@ -24,6 +24,17 @@ namespace Infrastructure.Repositories
                          .FirstOrDefaultAsync(p => p.ProductID == productId);
         }
 
+        public async Task<Product?> GetProductWithDetailsAsync(int productId)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Offer)
+                .Include(p => p.OrderDetails)
+                    .ThenInclude(od => od.Order)
+                        .ThenInclude(o => o.User)
+                .FirstOrDefaultAsync(p => p.ProductID == productId);
+        }
+
         public async Task<Product?> GetProductByBarcodeAsync(string Barcode)
         {
             return await _context.Products.Include(p => p.Category)
