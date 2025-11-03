@@ -1,6 +1,8 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
+using Application.Offers.Dtos;
 using Application.Users.DTOs;
+using AutoMapper;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -13,10 +15,12 @@ namespace Application.Users.Queries
     public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public GetUserByIdQueryHandler(IUserRepository userRepository)
+        public GetUserByIdQueryHandler(IUserRepository userRepository , IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
@@ -40,16 +44,7 @@ namespace Application.Users.Queries
                 throw new UserNotFoundException(request.UserId);
             }
 
-            // تحويل النتيجة إلى DTO لإرسالها
-            return new UserDto
-            {
-                UserId = user.UserID,
-                UserName = user.UserName,
-                Email = user.Email,
-                Phone = user.Phone,
-                UserRole = user.UserPermissions.ToString()
-
-            };
+           return _mapper.Map<UserDto>(user);
         }
     }
 }

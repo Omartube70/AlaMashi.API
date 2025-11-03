@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -116,63 +115,17 @@ builder.Services.AddCors(options =>
     });
 });
 
-// إعداد Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "AlaMashi API",
-        Version = "v1",
-        Description = "Secure API for AlaMashi Delivery Application"
-    });
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid JWT token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
-});
-
 // =================================================================================
 // 3. بناء التطبيق وتهيئة Pipeline
 // =================================================================================
 
 var app = builder.Build();
 
-// ✅ تفعيل Forwarded Headers في بداية Pipeline (مهم جداً)
+// ✅ تفعيل Forwarded Headers في بداية 
 app.UseForwardedHeaders();
 
 // معالجة الأخطاء
 app.UseMiddleware<ErrorHandlingMiddleware>();
-
-// ✅ تفعيل Swagger في Production أيضاً
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlaMashi API v1");
-    c.RoutePrefix = "swagger";
-    c.DisplayRequestDuration();
-});
 
 // ✅ إعادة توجيه HTTP إلى HTTPS
 app.UseHttpsRedirection();
