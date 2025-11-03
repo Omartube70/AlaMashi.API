@@ -3,17 +3,19 @@ using Domain.Entities;
 using Application.Interfaces;
 using Application.Addresses.Dtos;
 using Application.Exceptions;
-
+using AutoMapper;
 
 namespace Application.Addresses.Commands
 {
     public class CreateAddressCommandHandler : IRequestHandler<CreateAddressCommand, AddressDto>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public CreateAddressCommandHandler(IUserRepository userRepository)
+        public CreateAddressCommandHandler(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<AddressDto> Handle(CreateAddressCommand request, CancellationToken cancellationToken)
@@ -21,9 +23,7 @@ namespace Application.Addresses.Commands
             var user = await _userRepository.GetUserByIdAsync(request.CurrentUserId);
 
             if (user == null)
-            {
                 throw new UserNotFoundException(request.CurrentUserId);
-            }
 
             var newAddress = Address.Create(
                 request.Street,
@@ -33,21 +33,10 @@ namespace Application.Addresses.Commands
                 request.CurrentUserId
             );
 
-            user.AddAddress(newAddress); 
-
+            user.AddAddress(newAddress);
             await _userRepository.UpdateUserAsync(user);
 
-            return new AddressDto
-            {
-                AddressId = newAddress.AddressId,
-                Street = newAddress.Street,
-                City = newAddress.City,
-                AddressDetails = newAddress.AddressDetails,
-                AddressType = newAddress.AddressType.ToString(),
-                UserId = newAddress.UserId
-            };
+            return _mapper.Map<AddressDto>(newAddress);
         }
     }
 }
-
-

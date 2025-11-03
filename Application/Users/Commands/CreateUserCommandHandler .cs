@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Application.Users.DTOs;
 using Application.Users.Events;
+using AutoMapper;
 using Domain.Entities;
 using MediatR;
 using System.Threading;
@@ -16,12 +17,14 @@ namespace Application.Users.Commands
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMediator _mediator; 
+        private readonly IMapper _mapper;
 
-        public CreateUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IMediator mediator)
+        public CreateUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IMediator mediator , IMapper mapper)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -46,15 +49,7 @@ namespace Application.Users.Commands
 
             await _mediator.Publish(notification, cancellationToken);
 
-            return new UserDto
-            {
-                UserId = newUser.UserID,
-                UserName = newUser.UserName,
-                Email = newUser.Email,
-                Phone = newUser.Phone,
-                UserRole = newUser.UserPermissions.ToString()
-
-            };
+            return _mapper.Map<UserDto>(newUser);
         }
     }
 }

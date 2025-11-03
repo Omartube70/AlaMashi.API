@@ -1,37 +1,26 @@
 ﻿using MediatR;
 using Application.Products.Dtos;
 using Application.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using AutoMapper;
 
 namespace Application.Products.Queries
 {
     public class GetAllProductsByCategoryQueryHandler : IRequestHandler<GetAllProductsByCategoryQuery, IReadOnlyList<ProductDto>>
     {
         private readonly IProductRepository _productRepository;
+        private readonly IMapper _mapper;
 
-        public GetAllProductsByCategoryQueryHandler(IProductRepository productRepository)
+        public GetAllProductsByCategoryQueryHandler(IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _mapper = mapper;
         }
 
         public async Task<IReadOnlyList<ProductDto>> Handle(GetAllProductsByCategoryQuery request, CancellationToken cancellationToken)
         {
             var products = await _productRepository.GetProductsByCategoryIdAsync(request.CategoryId);
 
-            var productDtos = products
-                .Select(product => new ProductDto
-                {
-                    ProductID = product.ProductID,
-                    ProductName = product.ProductName,
-                    ProductDescription = product.ProductDescription,
-                    Price = product.Price,
-                    QuantityInStock = product.QuantityInStock,
-                    MainImageURL = product.MainImageURL,
-                    CategoryName = product.Category.CategoryName,
-                }).ToList();
+            var productDtos = _mapper.Map<IReadOnlyList<ProductDto>>(products);
 
             return productDtos;
         }

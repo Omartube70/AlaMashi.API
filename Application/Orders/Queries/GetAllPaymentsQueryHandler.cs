@@ -1,40 +1,27 @@
 ﻿using Application.Interfaces;
 using Application.Orders.Dtos;
+using AutoMapper;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Orders.Queries
 {
     public class GetAllPaymentsQueryHandler : IRequestHandler<GetAllPaymentsQuery, IReadOnlyList<PaymentDto>>
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IMapper _mapper;
 
-        public GetAllPaymentsQueryHandler(IOrderRepository orderRepository)
+        public GetAllPaymentsQueryHandler(IOrderRepository orderRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
+            _mapper = mapper;
         }
 
         public async Task<IReadOnlyList<PaymentDto>> Handle(GetAllPaymentsQuery request, CancellationToken cancellationToken)
         {
-            // جلب جميع الدفعات من Database (مع filtration اختياري حسب OrderId)
+            // جلب كل الدفعات (ممكن مع فلترة بـ OrderId)
             var payments = await _orderRepository.GetAllPaymentsAsync(request.OrderId, cancellationToken);
 
-            // تحويل من Payment Entity إلى PaymentDto
-            var paymentDtos = payments
-                .Select(p => new PaymentDto
-                {
-                    PaymentId = p.PaymentId,
-                    Amount = p.Amount,
-                    PaymentDate = p.PaymentDate,
-                    PaymentMethod = p.PaymentMethod.ToString(),
-                    PaymentStatus = p.PaymentStatus.ToString(),
-                    TransactionId = p.TransactionId
-                })
-                .ToList();
+            var paymentDtos = _mapper.Map<IReadOnlyList<PaymentDto>>(payments);
 
             return paymentDtos;
         }

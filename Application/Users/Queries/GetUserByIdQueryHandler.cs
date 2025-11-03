@@ -32,10 +32,8 @@ namespace Application.Users.Queries
             if (!isAdmin && !isDeletingSelf)
             {
                 // 🚫 إلقاء استثناء يدل على عدم وجود صلاحية
-                throw new ForbiddenAccessException("You are not authorized to delete this user.");
+                throw new ForbiddenAccessException("You are not authorized to view this user.");
             }
-
-
 
             var user = await _userRepository.GetUserByIdAsync(request.UserId);
 

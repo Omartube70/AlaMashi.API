@@ -1,6 +1,7 @@
 ﻿using Application.Exceptions;
 using Application.Interfaces;
 using Application.Products.Dtos;
+using AutoMapper;
 using Domain.Entities;
 using MediatR;
 
@@ -11,15 +12,19 @@ namespace Application.Products.Commands
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IFileStorageService _fileStorageService;
+        private readonly IMapper _mapper;
+
 
         public CreateProductCommandHandler(
             IProductRepository productRepository,
             ICategoryRepository categoryRepository,
-            IFileStorageService fileStorageService)
+            IFileStorageService fileStorageService,       
+            IMapper mapper)
         {
             _productRepository = productRepository;
             _fileStorageService = fileStorageService;
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -69,16 +74,7 @@ namespace Application.Products.Commands
             await _productRepository.AddProductAsync(newProduct);
 
             // Return DTO
-            return new ProductDto
-            {
-                ProductID = newProduct.ProductID,
-                ProductName = newProduct.ProductName,
-                ProductDescription = newProduct.ProductDescription,
-                Price = newProduct.Price,
-                QuantityInStock = newProduct.QuantityInStock,
-                MainImageURL = newProduct.MainImageURL,
-                CategoryName = category.CategoryName
-            };
+            return _mapper.Map<ProductDto>(newProduct);
         }
     }
 }
