@@ -19,18 +19,32 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // =================================================================================
-// 1. تسجيل الخدمات في الـ DI Container (Services Registration)
+// 1. تكوين HTTPS و Forwarded Headers للعمل خلف Reverse Proxy
 // =================================================================================
 
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
+// ✅ تفعيل HTTPS Redirection
+builder.Services.AddHttpsRedirection(options =>
 {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
+    options.HttpsPort = 443;
 });
 
-// إضافة Controllers ودعم NewtonsoftJson للتحديثات الجزئية (PATCH)
+// ✅ تكوين Forwarded Headers لدعم Reverse Proxy (مهم جداً لـ MonsterASP)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                              ForwardedHeaders.XForwardedProto |
+                              ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// =================================================================================
+// 2. تسجيل الخدمات في الـ DI Container
+// =================================================================================
+
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-// تسجيل الـ DbContext مع قراءة الـ Connection String
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         configuration.GetConnectionString("DefaultConnection"),
@@ -41,8 +55,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
-
-// تسجيل خدمات طبقة Infrastructure مع الواجهات الخاصة بها
+// تسجيل خدمات طبقة Infrastructure
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -63,11 +76,9 @@ builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Application.AssemblyReference).Assembly);
 });
 
-// تسجيل كل الـ Validators من مشروع الـ Application تلقائيًا
 builder.Services.AddValidatorsFromAssembly(typeof(Application.AssemblyReference).Assembly);
 
-// تسجيل الـ Pipeline Behaviors مباشرة في الخدمات
-// الترتيب هنا مهم: السلوك المسجل أولاً يتنفذ أولاً (يكون في الطبقة الخارجية)
+// تسجيل الـ Pipeline Behaviors
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -93,30 +104,39 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// ✅ تحديث CORS للسماح بـ HTTPS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .WithExposedHeaders("*");
     });
 });
 
-// إعداد Swagger مع دعم JWT
+// إعداد Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "AlaMashi API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "AlaMashi API",
+        Version = "v1",
+        Description = "Secure API for AlaMashi Delivery Application"
+    });
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
+        Description = "Please enter a valid JWT token",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
+
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -134,46 +154,62 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // =================================================================================
-// 2. بناء التطبيق (Build the App)
+// 3. بناء التطبيق وتهيئة Pipeline
 // =================================================================================
+
 var app = builder.Build();
 
-// =================================================================================
-// 3. تهيئة مسار الطلبات (HTTP Request Pipeline)
-// =================================================================================
+// ✅ تفعيل Forwarded Headers في بداية Pipeline (مهم جداً)
+app.UseForwardedHeaders();
 
-// استخدام الـ Middleware لمعالجة الأخطاء في بداية الـ Pipeline
+// معالجة الأخطاء
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
-// تفعيل Swagger فقط في بيئة التطوير للأمان
-//if (app.Environment.IsDevelopment())
+// ✅ تفعيل Swagger في Production أيضاً
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
- app.UseSwagger();
-    app.UseSwaggerUI(c => 
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlaMashi API v1");
-        c.RoutePrefix = "swagger";
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AlaMashi API v1");
+    c.RoutePrefix = "swagger";
+    c.DisplayRequestDuration();
+});
 
-
+// ✅ إعادة توجيه HTTP إلى HTTPS
 app.UseHttpsRedirection();
+
 app.UseRouting();
 
-// ✅ تفعيل سياسة CORS
+// ✅ تفعيل CORS
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
+    app.Use(async (context, next) =>
+    {
+        // إذا كان الطلب للصور، اسمح بالوصول بدون Authentication
+        if (context.Request.Path.StartsWithSegments("/api/File") ||
+            context.Request.Path.StartsWithSegments("/uploads") ||
+            context.Request.Path.StartsWithSegments("/images"))
+        {
+            // Skip authentication for file requests
+            await next();
+            return;
+        }
+
+        await next();
+    });
 app.UseAuthorization();
 
-
-// ✅ السماح بعرض الملفات من wwwroot/uploads
+// ✅ Static Files مع Cache
 app.UseStaticFiles(new StaticFileOptions
 {
-    ServeUnknownFileTypes = true, // علشان لو نوع الملف مش معروف
+    ServeUnknownFileTypes = true,
     OnPrepareResponse = ctx =>
     {
         ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000");
+        // ✅ إضافة Security Headers
+        ctx.Context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        ctx.Context.Response.Headers.Append("X-Frame-Options", "DENY");
+        ctx.Context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
     }
 });
 

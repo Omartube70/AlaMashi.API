@@ -6,7 +6,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Services
@@ -24,7 +23,24 @@ namespace Infrastructure.Services
             if (!Directory.Exists(_uploadsPath))
                 Directory.CreateDirectory(_uploadsPath);
 
-            _baseUrl = config["AppSettings:BaseUrl"]?.TrimEnd('/') ?? "https://alamashi.runasp.net";
+            // ✅ التأكد من استخدام HTTPS
+            var configuredUrl = config["AppSettings:BaseUrl"]?.TrimEnd('/');
+
+            // إذا لم يتم تحديد البروتوكول، استخدم HTTPS افتراضياً
+            if (!string.IsNullOrEmpty(configuredUrl) && !configuredUrl.StartsWith("http"))
+            {
+                _baseUrl = $"https://{configuredUrl}";
+            }
+            else
+            {
+                _baseUrl = configuredUrl ?? "https://admin.monsterasp.net";
+            }
+
+            // ✅ التأكد من أن الـ URL يستخدم HTTPS
+            if (_baseUrl.StartsWith("http://"))
+            {
+                _baseUrl = _baseUrl.Replace("http://", "https://");
+            }
         }
 
         public async Task<(byte[] FileBytes, string ContentType)> GetFileAsync(string fileName)
@@ -40,7 +56,7 @@ namespace Infrastructure.Services
 
             var bytes = await File.ReadAllBytesAsync(filePath);
 
-            return (bytes, contentType);
+            return (bytes, contentType ?? "application/octet-stream");
         }
 
         public async Task<string> UploadFileAsync(IFormFile file, int? targetWidth = null, int? targetHeight = null)
@@ -72,13 +88,14 @@ namespace Infrastructure.Services
                 await file.CopyToAsync(stream);
             }
 
+            // ✅ إرجاع URL بـ HTTPS
             var url = $"{_baseUrl}/api/File/{fileName}";
             return url;
         }
 
         public async Task DeleteFileAsync(string fileUrl)
         {
-            if (string.IsNullOrEmpty(fileUrl)) 
+            if (string.IsNullOrEmpty(fileUrl))
                 return;
 
             var fileName = Path.GetFileName(fileUrl);
