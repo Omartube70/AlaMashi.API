@@ -50,6 +50,7 @@ namespace Domain.Entities
             {
                 throw new ArgumentException("Street and City cannot be empty.");
             }
+
             Street = street;
             City = city;
             AddressDetails = details;
